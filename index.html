@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>柴犬占い師の館</title>
+<title>柴犬うらないハウス</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{width:100%;height:100%;overflow:hidden;background:#111;font-family:'Hiragino Maru Gothic ProN','Hiragino Sans','Meiryo',sans-serif;touch-action:none;}
@@ -11,25 +11,65 @@ html,body{width:100%;height:100%;overflow:hidden;background:#111;font-family:'Hi
 .screen{display:none;width:100%;height:100%;position:absolute;top:0;left:0;flex-direction:column;opacity:0;transition:opacity 0.35s ease-in-out;}
 .screen.active{display:flex;opacity:1;}
 .screen.fade-out{opacity:0;}
+.tap-ripple{position:absolute;width:40px;height:40px;border-radius:50%;background:radial-gradient(circle,rgba(255,183,77,.6) 0%,transparent 70%);pointer-events:none;transform:scale(0);animation:rippleAnim .5s ease-out forwards;z-index:999;}
+@keyframes rippleAnim{0%{transform:scale(0);opacity:1}100%{transform:scale(2.5);opacity:0}}
+
+/* タイトル */
 #title-screen{background:linear-gradient(180deg,#1a1230 0%,#2d2255 35%,#3d2a6a 65%,#1a1230 100%);justify-content:center;align-items:center;gap:32px;overflow:hidden;}
 .title-stars{position:absolute;width:100%;height:100%;pointer-events:none;overflow:hidden;}
 .star{position:absolute;background:#fff;border-radius:50%;animation:twinkle 2s infinite alternate;}
-@keyframes twinkle{from{opacity:.2}to{opacity:1}}
+@keyframes twinkle{from{opacity:.2;transform:scale(1)}to{opacity:1;transform:scale(1.3)}}
 .title-logo{text-align:center;z-index:1;}
+.title-dog-emoji{font-size:90px;display:block;animation:bounce 1.5s ease-in-out infinite;filter:drop-shadow(0 0 24px rgba(255,183,77,.6));}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
 .title-text{color:#FFB74D;font-size:28px;font-weight:bold;margin-top:10px;text-shadow:0 0 20px rgba(255,183,77,.5);letter-spacing:3px;}
 .title-sub{color:#FFCC80;font-size:14px;margin-top:6px;}
 .title-desc{background:rgba(0,0,0,.45);border:1px solid rgba(255,183,77,.3);border-radius:14px;padding:14px 20px;max-width:320px;text-align:center;z-index:1;}
 .title-desc p{color:#fff;font-size:13px;line-height:1.7;}
 .btn-p{background:linear-gradient(135deg,#FFB74D,#FF8F00);color:#fff;border:none;border-radius:50px;padding:16px 52px;font-size:18px;font-weight:bold;cursor:pointer;z-index:1;box-shadow:0 4px 24px rgba(255,143,0,.5);transition:transform .1s;font-family:inherit;}
 .btn-p:active{transform:scale(.95);}
+
+/* プロフィール */
+#profile-screen{background:linear-gradient(180deg,#FEFBF3 0%,#FFF8E8 40%,#F5EFE0 100%);overflow-y:auto;}
+.p-header{background:linear-gradient(135deg,#FFB74D,#FF8F00);padding:18px 16px 14px;text-align:center;position:sticky;top:0;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.1);}
+.p-header h2{font-size:20px;color:#fff;}
+.p-header p{font-size:12px;color:rgba(255,255,255,.9);margin-top:3px;}
+.p-form{padding:20px 16px;display:flex;flex-direction:column;gap:18px;max-width:400px;margin:0 auto;width:100%;}
+.p-group{display:flex;flex-direction:column;gap:6px;}
+.p-group label{font-size:14px;font-weight:bold;color:#5D4037;}
+.p-group input{padding:12px 14px;border:2px solid #e0d5c0;border-radius:12px;font-size:16px;font-family:inherit;background:#fff;color:#333;outline:none;transition:border-color .2s;}
+.p-group input:focus{border-color:#FFB74D;}
+.blood-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.blood-btn{flex:1;min-width:60px;padding:12px 8px;border:2px solid #e0d5c0;border-radius:12px;background:#fff;font-size:15px;font-weight:bold;color:#555;cursor:pointer;font-family:inherit;text-align:center;transition:all .2s;}
+.blood-btn.sel{border-color:#FFB74D;background:linear-gradient(135deg,#FFF8E1,#FFECB3);color:#E65100;box-shadow:0 2px 8px rgba(255,152,0,.2);}
+.blood-btn:active{transform:scale(.95);}
+.p-acts{padding:16px;display:flex;flex-direction:column;gap:8px;max-width:400px;margin:0 auto;width:100%;}
+
+/* ゲーム画面 */
 #game-screen{background:#111;}
 #gcanvas{display:block;width:100%;flex:1;touch-action:none;cursor:pointer;}
 #hud{position:absolute;top:env(safe-area-inset-top,8px);left:8px;z-index:10;display:flex;flex-direction:column;gap:5px;}
-.hud-pill{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:12px;padding:4px 10px;font-size:10px;color:#fff;display:flex;align-items:center;gap:5px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 2px 8px rgba(0,0,0,.15);}
+.hud-pill{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:12px;padding:4px 10px;font-size:10px;color:#fff;display:flex;align-items:center;gap:5px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 2px 8px rgba(0,0,0,.15);transition:all .2s;}
 .hud-pill b{color:#FFB74D;}
+
+/* 下部UI */
 #bottom-ui{background:linear-gradient(180deg,rgba(26,26,48,.95),rgba(18,18,42,.98));padding:10px 12px env(safe-area-inset-bottom,10px);display:flex;flex-direction:column;gap:7px;border-top:1px solid rgba(255,183,77,.2);flex-shrink:0;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
 .area-row{display:flex;justify-content:space-between;align-items:center;}
 .area-nm{color:#FFB74D;font-size:12px;font-weight:bold;}
+.area-prof{color:#FFCC80;font-size:10px;}
+.s-bars{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;}
+.s-item .s-lr{display:flex;justify-content:space-between;margin-bottom:2px;}
+.s-item .s-l{color:#fff;font-size:10px;font-weight:bold;}
+.s-item .s-v{color:#888;font-size:9px;}
+.s-bg{height:7px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.3);}
+.s-fill{height:100%;border-radius:3px;transition:width .4s;}
+.f-power{background:linear-gradient(90deg,#CE93D8,#AB47BC);}
+.f-luck{background:linear-gradient(90deg,#FFD700,#FFF176);}
+#ctrl{display:flex;gap:6px;padding:4px 0 2px;}
+.cb{flex:1;background:rgba(255,255,255,.1);color:#e0e0e0;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 4px;font-size:11px;font-weight:bold;cursor:pointer;font-family:inherit;text-align:center;transition:all .15s ease;backdrop-filter:blur(4px);}
+.cb:active{background:rgba(255,183,77,.3);transform:scale(.96);}
+
+/* モーダル */
 #modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:200;align-items:center;justify-content:center;}
 #modal.show{display:flex;}
 #mbox{background:#fff;border-radius:24px;padding:28px 22px;max-width:340px;width:92%;text-align:center;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:modalPop .3s ease-out;}
@@ -37,734 +77,1103 @@ html,body{width:100%;height:100%;overflow:hidden;background:#111;font-family:'Hi
 #mbox h3{font-size:18px;color:#333;margin-bottom:6px;}
 #mbox p{font-size:12px;color:#666;line-height:1.6;margin-bottom:14px;}
 .mbtn{background:#FFB74D;color:#fff;border:none;border-radius:50px;padding:12px 30px;font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit;margin:4px;}
+.mbtn:active{transform:scale(.95);}
+
+/* 占い結果 */
 #fortune-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:200;align-items:center;justify-content:center;padding:16px;}
 #fortune-overlay.show{display:flex;}
-#fortune-box{background:linear-gradient(135deg,#FFFDF5,#FFF8E1);border-radius:24px;padding:24px;max-width:360px;width:100%;max-height:75vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:modalPop .3s ease-out;}
-#fortune-box h2{color:#E65100;font-size:18px;margin-bottom:4px;text-align:center;}
-#fortune-box .fortune-type{color:#999;font-size:11px;text-align:center;margin-bottom:12px;}
-#fortune-box .fortune-result{background:#fff;border:2px solid #FFB74D;border-radius:14px;padding:16px;margin:12px 0;text-align:center;}
-#fortune-box .fortune-level{color:#FF8F00;font-size:20px;font-weight:bold;margin-bottom:8px;}
-#fortune-box .fortune-text{color:#333;font-size:13px;line-height:1.8;white-space:pre-wrap;}
+#fortune-box{background:linear-gradient(135deg,#FFFDF5,#FFF8E1);border-radius:24px;padding:24px;max-width:360px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:modalPop .3s ease-out;border:2px solid #FFB74D;}
+#fortune-box h2{color:#E65100;font-size:20px;margin-bottom:4px;text-align:center;}
+#fortune-box .ft-type{color:#999;font-size:11px;text-align:center;margin-bottom:12px;}
+#fortune-box .ft-result{background:#fff;border:2px solid #FFB74D;border-radius:14px;padding:16px;margin:12px 0;text-align:center;}
+#fortune-box .ft-level{color:#FF8F00;font-size:22px;font-weight:bold;margin-bottom:8px;}
+#fortune-box .ft-text{color:#333;font-size:13px;line-height:1.8;white-space:pre-wrap;}
+#fortune-box .ft-detail{background:#FFF8E1;border-left:3px solid #FFB74D;padding:10px;border-radius:0 8px 8px 0;margin-top:10px;font-size:12px;color:#5D4037;line-height:1.6;}
 .fortune-close{background:#FFB74D;color:#fff;border:none;border-radius:50px;padding:12px 40px;font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit;margin-top:16px;width:100%;}
+.fortune-close:active{transform:scale(.95);}
+
+/* 図鑑 */
+#album-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:200;overflow-y:auto;padding:20px;}
+#album-overlay.show{display:flex;flex-direction:column;align-items:center;}
+.album-title{color:#FFB74D;font-size:20px;font-weight:bold;margin:16px 0 12px;text-align:center;}
+.album-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-width:360px;width:100%;}
+.album-card{background:rgba(255,255,255,.95);border-radius:16px;padding:14px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.1);}
+.album-card .ac-name{font-size:12px;font-weight:bold;color:#333;}
+.album-card .ac-count{font-size:10px;color:#888;margin-top:2px;}
+.album-close{background:#FFB74D;color:#fff;border:none;border-radius:50px;padding:12px 40px;font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit;margin:16px 0 20px;}
+
+/* 履歴 */
+#history-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:200;overflow-y:auto;padding:20px;}
+#history-overlay.show{display:flex;flex-direction:column;align-items:center;}
+.hist-list{max-width:360px;width:100%;display:flex;flex-direction:column;gap:8px;}
+.hist-item{background:rgba(255,255,255,.95);border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;}
+.hist-icon{font-size:24px;}
+.hist-info{flex:1;font-size:12px;color:#555;}
+.hist-info b{color:#E65100;}
+
+/* チュートリアル */
+#tutorial-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;flex-direction:column;gap:20px;padding:20px;}
+#tutorial-overlay.show{display:flex;}
+.tut-card{background:#fff;border-radius:20px;padding:24px;max-width:320px;width:100%;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.3);animation:modalPop .4s ease-out;}
+.tut-card h3{font-size:18px;color:#333;margin-bottom:10px;}
+.tut-card p{font-size:13px;color:#666;line-height:1.7;margin-bottom:16px;}
+.tut-step{display:flex;gap:6px;justify-content:center;margin-bottom:12px;}
+.tut-dot{width:8px;height:8px;border-radius:50%;background:#ddd;transition:all .3s;}
+.tut-dot.active{background:#FFB74D;width:20px;border-radius:4px;}
+
+/* デイリー占いバナー */
+.daily-banner{position:absolute;top:50px;left:50%;transform:translateX(-50%);background:rgba(255,183,77,.95);color:#fff;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:bold;z-index:15;box-shadow:0 4px 12px rgba(255,143,0,.3);animation:slideDown .5s ease-out;pointer-events:none;}
+@keyframes slideDown{0%{transform:translateX(-50%) translateY(-30px);opacity:0}100%{transform:translateX(-50%) translateY(0);opacity:1}}
 </style>
 </head>
 <body>
 <div id="app">
+
+<!-- タイトル -->
 <div id="title-screen" class="screen active">
-<div class="title-stars"></div>
+<div class="title-stars" id="stars-ct"></div>
 <div class="title-logo">
-<canvas id="title-canvas" width="200" height="120" style="display:block;margin:0 auto;"></canvas>
-<div class="title-text">柴犬占い師の館</div>
-<div class="title-sub">運命を占いましょう</div>
+<span class="title-dog-emoji">🔮</span>
+<div class="title-text">柴犬うらないハウス</div>
+<div class="title-sub">占い村を冒険しよう</div>
 </div>
-<div class="title-desc">
-<p>6つの占いの館を巡って、柴犬占い師たちから運命を占ってもらおう！</p>
-</div>
-<button class="btn-p" id="start-btn">占いをはじめる</button>
+<div class="title-desc"><p>6つの占いエリアを巡って<br>柴犬占い師たちから<br>運命を占ってもらおう！</p></div>
+<button class="btn-p" onclick="goTo('profile')">はじめる</button>
 </div>
 
+<!-- プロフィール -->
+<div id="profile-screen" class="screen">
+<div class="p-header"><h2>プロフィール設定</h2><p>あなたの情報を教えてね</p></div>
+<div class="p-form">
+<div class="p-group">
+<label>お名前</label>
+<input type="text" id="inp-name" placeholder="例：さつき" maxlength="10">
+</div>
+<div class="p-group">
+<label>生年月日</label>
+<input type="date" id="inp-birthday">
+</div>
+<div class="p-group">
+<label>血液型</label>
+<div class="blood-btns">
+<button class="blood-btn" onclick="selBlood('A')">A型</button>
+<button class="blood-btn" onclick="selBlood('B')">B型</button>
+<button class="blood-btn" onclick="selBlood('O')">O型</button>
+<button class="blood-btn" onclick="selBlood('AB')">AB型</button>
+</div>
+</div>
+</div>
+<div class="p-acts">
+<button class="btn-p" style="width:100%;padding:15px;" onclick="saveProfile()">占いの旅へ出発！</button>
+<button class="cb" style="border:none;color:#999;font-size:12px;" onclick="goTo('title')">戻る</button>
+</div>
+</div>
+
+<!-- ゲーム画面 -->
 <div id="game-screen" class="screen">
-<canvas id="gcanvas" width="400" height="600"></canvas>
+<canvas id="gcanvas"></canvas>
 <div id="hud">
-<div class="hud-pill"><b>現在地:</b> <span id="area-name">村</span></div>
-<div class="hud-pill"><b>占い数:</b> <span id="fortune-count">0</span></div>
+<div class="hud-pill">📍 <b id="h-area">占い村</b></div>
+<div class="hud-pill">🔮 <b id="h-count">0</b>回占い</div>
 </div>
 <div id="bottom-ui">
 <div class="area-row">
-<div class="area-nm" id="area-title">占い村</div>
+<span class="area-nm" id="area-nm2">占い村</span>
+<span class="area-prof" id="area-prof"></span>
+</div>
+<div class="s-bars">
+<div class="s-item"><div class="s-lr"><span class="s-l">🔮占い力</span><span class="s-v" id="sv-power">0</span></div><div class="s-bg"><div class="s-fill f-power" id="sb-power" style="width:0%"></div></div></div>
+<div class="s-item"><div class="s-lr"><span class="s-l">✨運気</span><span class="s-v" id="sv-luck">50</span></div><div class="s-bg"><div class="s-fill f-luck" id="sb-luck" style="width:50%"></div></div></div>
+</div>
+<div id="ctrl">
+<button class="cb" onclick="openAlbum()">📖図鑑</button>
+<button class="cb" onclick="openHistory()">🔮履歴</button>
+<button class="cb" onclick="showProfileEdit()">👤変更</button>
+<button class="cb" onclick="goTo('title')">🏠</button>
+</div>
 </div>
 </div>
 </div>
 
-<div id="modal">
-<div id="mbox">
-<h3 id="modal-title">占い師</h3>
-<p id="modal-message">こんにちは</p>
-<button class="mbtn" id="modal-btn">占ってもらう</button>
-<button class="mbtn" style="background:#999;" id="modal-close">閉じる</button>
-</div>
-</div>
+<!-- モーダル -->
+<div id="modal"><div id="mbox"><h3 id="mt2"></h3><p id="mm2"></p><div id="m-btns"><button class="mbtn" id="m-fortune-btn">占ってもらう</button><button class="mbtn" style="background:#999;" onclick="closeM()">閉じる</button></div></div></div>
 
+<!-- 占い結果 -->
 <div id="fortune-overlay">
 <div id="fortune-box">
-<h2 id="fortune-name">占い</h2>
-<div class="fortune-type" id="fortune-type-label"></div>
-<div class="fortune-result">
-<div class="fortune-level" id="fortune-level">大吉</div>
-<div class="fortune-text" id="fortune-text">運が良い日です</div>
+<h2 id="f-name">占い</h2>
+<div class="ft-type" id="f-type-label"></div>
+<div class="ft-result">
+<div class="ft-level" id="f-level">大吉</div>
+<div class="ft-text" id="f-text">運が良い日です</div>
 </div>
-<button class="fortune-close" id="fortune-btn-close">閉じる</button>
+<div class="ft-detail" id="f-detail" style="display:none;"></div>
+<button class="fortune-close" id="f-close">閉じる</button>
 </div>
 </div>
-</body>
+
+<!-- 図鑑 -->
+<div id="album-overlay">
+<div class="album-title">📖 占い図鑑</div>
+<div class="album-grid" id="album-grid"></div>
+<button class="album-close" onclick="closeAlbum()">とじる</button>
+</div>
+
+<!-- 履歴 -->
+<div id="history-overlay">
+<div class="album-title">🔮 占い履歴</div>
+<div class="hist-list" id="hist-list"></div>
+<button class="album-close" onclick="closeHistory()">とじる</button>
+</div>
+
+<!-- チュートリアル -->
+<div id="tutorial-overlay">
+<div class="tut-card" id="tut-card">
+<div class="tut-step" id="tut-dots"></div>
+<h3 id="tut-title"></h3>
+<p id="tut-text"></p>
+<button class="mbtn" onclick="nextTutorial()">つぎへ</button>
+</div>
+</div>
 
 <script>
-const canvas = document.getElementById('gcanvas');
-const ctx = canvas.getContext('2d');
-const titleCanvas = document.getElementById('title-canvas');
-const titleCtx = titleCanvas.getContext('2d');
-
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
-let cW = canvas.width;
-let cH = canvas.height;
-
-const G = {
-  areaIdx: 0,
-  px: cW / 2,
-  py: cH * 0.7,
-  tx: null,
-  ty: null,
-  dx: cW / 2,
-  dy: cH * 0.7,
-  frame: 0,
-  gtime: 0,
-  loopRunning: false,
-  lastTime: 0,
-  npcs: [],
-  bubbles: [],
-  fortuneCount: 0,
-  myDogColor: '#C9A772',
-  myDogBelly: '#E8D5C4'
+// ===================== エラーハンドラ =====================
+window.onerror=function(msg,src,line){
+  var d=document.createElement('div');
+  d.style.cssText='position:fixed;top:0;left:0;right:0;background:red;color:white;padding:8px;font-size:11px;z-index:99999;';
+  d.textContent='ERR:'+msg+' L:'+line;document.body.appendChild(d);d.onclick=function(){d.remove();};
 };
 
-const areas = [
-  { id: 'village', name: '占い村', sky: ['#87CEEB', '#B0E0E6', '#E0F6FF'], ground: ['#90EE90', '#98FB98', '#7CCD7C'] },
-  { id: 'tarot', name: 'タロットホール', sky: ['#4a148c', '#6a1b9a', '#7b1fa2'], ground: ['#4a148c', '#6a1b9a', '#3d095c'] },
-  { id: 'shrine', name: '占い神社', sky: ['#FFE4B5', '#FFDAB9', '#FFD0B0'], ground: ['#D2B48C', '#DEB887', '#C9A772'] },
-  { id: 'zodiac', name: '星読みの丘', sky: ['#001a4d', '#003d99', '#0052cc'], ground: ['#2d5a2d', '#3d7a3d', '#1d4d1d'] },
-  { id: 'spring', name: '神秘の泉', sky: ['#1a237e', '#283593', '#3949ab'], ground: ['#1a5f3b', '#2d7a4d', '#0f4d2d'] },
-  { id: 'alley', name: 'ふわふわ小路', sky: ['#FFB3BA', '#FFCCCB', '#FFDAB9'], ground: ['#FFE4B5', '#FFDAB9', '#FFCCCC'] }
+// ===================== 定数 =====================
+function W(){return window.innerWidth;} function H(){return window.innerHeight;}
+let canvas,ctx,cW,cH;
+
+// エリア定義
+const areas=[
+  {id:'village',name:'占い村',sky:['#87CEEB','#B3E5FC','#E0F7FA'],ground:['#81C784','#66BB6A','#388E3C']},
+  {id:'tarot',name:'タロットの館',sky:['#2d1b69','#4a148c','#6a1b9a'],ground:['#311b92','#4527a0','#283593']},
+  {id:'shrine',name:'おみくじ神社',sky:['#FFE4B5','#FFDAB9','#FFD0B0'],ground:['#D2B48C','#DEB887','#C9A772']},
+  {id:'zodiac',name:'星読みの丘',sky:['#0d1b2a','#1b2838','#274060'],ground:['#2d5a2d','#3d7a3d','#1d4d1d']},
+  {id:'spring',name:'神秘の泉',sky:['#1a237e','#283593','#3949ab'],ground:['#1a5f3b','#2d7a4d','#0f4d2d']},
+  {id:'alley',name:'ふわふわ小路',sky:['#FFB3BA','#FFCCCB','#FFDAB9'],ground:['#FFE4B5','#FFDAB9','#FFCCCC']}
 ];
 
-const npcData = [
-  { id: 'koro', name: 'コロ占い師', area: 0, colorMain: '#8B6F47', colorBelly: '#D4B896', type: 'tarot', greeting: '水晶球であなたの運命を見ましょう' },
-  { id: 'tarot-master', name: 'タロットマスター犬', area: 1, colorMain: '#6A0DAD', colorBelly: '#C8A2D0', type: 'tarot', greeting: 'タロットの声が聞こえる...' },
-  { id: 'star-reader', name: '星読みシバ', area: 3, colorMain: '#1E88E5', colorBelly: '#90CAF9', type: 'zodiac', greeting: '星があなたの運命を語る...' },
-  { id: 'omikuji', name: 'おみくじ番犬', area: 2, colorMain: '#D32F2F', colorBelly: '#EF9A9A', type: 'omikuji', greeting: 'おみくじを引いてみませんか' },
-  { id: 'numerology', name: '数秘術博士犬', area: 0, colorMain: '#388E3C', colorBelly: '#A5D6A7', type: 'numerology', greeting: 'あなたの数秘を計算します' },
-  { id: 'blood', name: '血液型占い犬', area: 4, colorMain: '#EC407A', colorBelly: '#F8BBD0', type: 'blood', greeting: '血液型で性格がわかる...' },
-  { id: 'moon', name: '月読みシバ', area: 4, colorMain: '#BDBDBD', colorBelly: '#EEEEEE', type: 'moon', greeting: '今夜の月は...' },
-  { id: 'funny', name: '面白占い大先生', area: 5, colorMain: '#FF6F00', colorBelly: '#FFB74D', type: 'funny', greeting: 'わっはっは！楽しい占いだ！' },
-  { id: 'crystal-ball', name: 'クリスタル占い犬', area: 1, colorMain: '#7C4DFF', colorBelly: '#B39DDB', type: 'tarot', greeting: 'クリスタルボールを見つめます...' },
-  { id: 'numerology-2', name: '数の魔術師', area: 0, colorMain: '#00695C', colorBelly: '#80CBC4', type: 'numerology', greeting: '数には秘密が隠されている' },
-  { id: 'shrine-dog', name: '巫女シバ', area: 2, colorMain: '#C62828', colorBelly: '#EF5350', type: 'omikuji', greeting: 'おみくじでご託宣を受けましょう' },
-  { id: 'spring-reader', name: 'スプリング占い', area: 4, colorMain: '#00897B', colorBelly: '#4DB6AC', type: 'moon', greeting: '泉の水が答えを映す...' },
-  { id: 'fortune-teller', name: 'フォーチュン犬', area: 5, colorMain: '#F57C00', colorBelly: '#FFB74D', type: 'funny', greeting: 'えい、えい、ほい！' }
+// NPC定義
+const npcData=[
+  // エリア0：占い村
+  {name:'コロ占い師',area:0,colorMain:'#C9A772',colorBelly:'#FFF8E1',type:'omikuji',greeting:'おみくじで運勢を見てあげるワン！',kind:'dog'},
+  {name:'数秘術博士犬',area:0,colorMain:'#388E3C',colorBelly:'#A5D6A7',type:'numerology',greeting:'あなたの運命の数字を教えよう',kind:'dog'},
+  {name:'占い入門犬',area:0,colorMain:'#8D6E63',colorBelly:'#D7CCC8',type:'omikuji',greeting:'初めての占い？任せてワン！',kind:'dog'},
+  {name:'植物プランクトン',area:0,colorMain:'#66BB6A',colorBelly:'#C8E6C9',type:'crystal',greeting:'ぷよぷよ…水晶が光る…',kind:'plankton',lines:['光合成中…まぶしい！','小さくても占えます','栄養塩ください〜']},
+  // エリア1：タロットの館
+  {name:'タロットマスター犬',area:1,colorMain:'#6A0DAD',colorBelly:'#C8A2D0',type:'tarot',greeting:'タロットの声が聞こえる…',kind:'dog'},
+  {name:'クリスタル占い犬',area:1,colorMain:'#7C4DFF',colorBelly:'#B39DDB',type:'crystal',greeting:'クリスタルボールを覗いてみましょう…',kind:'dog'},
+  {name:'魔法の書の犬',area:1,colorMain:'#311B92',colorBelly:'#D1C4E9',type:'tarot',greeting:'古い書物があなたを呼んでいる',kind:'dog'},
+  {name:'おみくじネコ',area:1,colorMain:'#FF9800',colorBelly:'#FFF3E0',type:'omikuji',greeting:'にゃあ〜おみくじ引きませんか？',kind:'cat'},
+  // エリア2：おみくじ神社
+  {name:'おみくじ番犬',area:2,colorMain:'#D32F2F',colorBelly:'#EF9A9A',type:'omikuji',greeting:'おみくじを引いてみませんか',kind:'dog'},
+  {name:'巫女シバ',area:2,colorMain:'#C62828',colorBelly:'#EF5350',type:'omikuji',greeting:'神様のお告げをお伝えします',kind:'dog'},
+  {name:'和装占い犬',area:2,colorMain:'#5D4037',colorBelly:'#D7CCC8',type:'zodiac',greeting:'星の配置を読み取ります',kind:'dog'},
+  {name:'カモシカ',area:2,colorMain:'#795548',colorBelly:'#BCAAA4',type:'zodiac',greeting:'メェ〜！山の知恵で占おう',kind:'serow',lines:['天然記念物なんだよ','崖を登るの得意！','この辺にいい草ある？']},
+  // エリア3：星読みの丘
+  {name:'星読みシバ',area:3,colorMain:'#1E88E5',colorBelly:'#90CAF9',type:'zodiac',greeting:'星があなたの運命を語る…',kind:'dog'},
+  {name:'月読みシバ',area:3,colorMain:'#BDBDBD',colorBelly:'#EEEEEE',type:'moon',greeting:'今夜の月は…あなたに何を語る？',kind:'dog'},
+  {name:'宇宙犬',area:3,colorMain:'#0D47A1',colorBelly:'#C5CAE9',type:'numerology',greeting:'宇宙規模で見ると…すごいよ',kind:'dog'},
+  {name:'動物プランクトン',area:3,colorMain:'#4FC3F7',colorBelly:'#B3E5FC',type:'crystal',greeting:'きょろきょろ…何か見えました…',kind:'plankton',lines:['プカプカ〜浮いてます','海流に乗って占い中〜','ミジンコって呼ばないで！']},
+  // エリア4：神秘の泉
+  {name:'泉のシャーマン犬',area:4,colorMain:'#00695C',colorBelly:'#80CBC4',type:'crystal',greeting:'古い泉の力であなたを見つめます',kind:'dog'},
+  {name:'血液型占い犬',area:4,colorMain:'#EC407A',colorBelly:'#F8BBD0',type:'blood',greeting:'血液型で性格がわかる…',kind:'dog'},
+  {name:'夢占い犬',area:4,colorMain:'#004D73',colorBelly:'#80DEEA',type:'dream',greeting:'夢の中に真実が隠れている…',kind:'dog'},
+  {name:'風水マスター犬',area:4,colorMain:'#00897B',colorBelly:'#4DB6AC',type:'crystal',greeting:'風と水が答えを教えてくれる',kind:'dog'},
+  // エリア5：ふわふわ小路
+  {name:'面白占い大先生',area:5,colorMain:'#FF6F00',colorBelly:'#FFB74D',type:'funny',greeting:'わっはっは！楽しい占いだ！',kind:'dog'},
+  {name:'フォーチュン犬',area:5,colorMain:'#F57C00',colorBelly:'#FFB74D',type:'funny',greeting:'えい、えい、ほい！',kind:'dog'},
+  {name:'お祭り占い犬',area:5,colorMain:'#E65100',colorBelly:'#FFCC80',type:'omikuji',greeting:'にぎやかに占いましょう！',kind:'dog'},
+  {name:'手相犬',area:5,colorMain:'#BF360C',colorBelly:'#FFAB91',type:'palm',greeting:'手のひらに運命が刻まれている…',kind:'dog'},
+  {name:'カラフルプランクトン',area:5,colorMain:'#E91E63',colorBelly:'#F8BBD0',type:'funny',greeting:'ぷよぷよ！楽しい占いぷよ！',kind:'plankton',lines:['ぷぷぷ！面白いの好き！','虹色に光ってるよ〜','ぷよぷよ〜♪']},
 ];
 
-const fortuneData = {
-  tarot: {
-    '魔術師': { upright: ['才能と力の時。新しい開始が訪れます。', 'あなたの潜在能力が開花する瞬間です。', '創造性が高まり、夢実現へ向かう。'], reverse: ['準備不足。計画の見直しが必要です。', '力を失った状態。焦らず進みましょう。', '本当の力を見つめ直す時です。'] },
-    '女教皇': { upright: ['直感を信じましょう。内なる声が響く。', '秘密が明かされます。真実が現れる。', '内なる叡智があなたを導く時。'], reverse: ['直感が曇っている状態です。', '秘密が隠されたままになります。', '知識の欠如に注意が必要です。'] },
-    '女帝': { upright: ['豊かさと幸せが訪れます。', '創造的な力が満ちています。', '美と調和の素晴らしい時期です。'], reverse: ['豊かさが失われる可能性があります。', '創造力が枯渇している状態です。', '調和が乱れている状態です。'] },
-    '皇帝': { upright: ['権力と支配。指導力が必要です。', 'あなたのリーダーシップが輝く時。', '確実な勝利が訪れます。'], reverse: ['権力の喪失。弱さが目立ちます。', '支配下にある状態です。', '勝利が遠い状況が続く。'] },
-    '教皇': { upright: ['伝統と知識。教えを求めましょう。', 'スピリチュアルな導きがあります。', '信仰心が報われる時期です。'], reverse: ['教義の反発。独立心が必要です。', '信仰の危機に直面しています。', 'スピリチュアルな迷いがあります。'] },
-    '恋人': { upright: ['愛と調和。重要な選択の時です。', '恋愛運が高まります。', '心のつながりが深まる時期。'], reverse: ['愛の喪失。別れの予兆があります。', '選択肢に迷っている状態です。', '関係が冷え込んでいます。'] },
-    '戦車': { upright: ['勝利と前進。強い意志があります。', 'あなたが目標に向かって進みます。', '困難を乗り越える力があります。'], reverse: ['失敗と後退。意志が弱まります。', '前に進めない状態が続く。', '対立と衝突が起こります。'] },
-    '力': { upright: ['内なる力。自信と勇気があります。', 'あなたは強い。困難に立ち向かえる。', '動物とのつながりが深い。'], reverse: ['弱さと無力感に襲われる。', '力を失っている状態です。', '本当の強さを忘れています。'] },
-    '隠者': { upright: ['沈黙と瞑想。内面の探求が始まる。', '静寂の中に答えが隠れている。', '一人の時間が必要です。'], reverse: ['孤立と隔離。誰かと関わるべき。', '内向的すぎる状態です。', '光を求める必要があります。'] },
-    '運命の輪': { upright: ['運命の転換。サイクルが変わります。', '良い変化が訪れます。', 'すべてが循環しています。'], reverse: ['悪い運命。逆転が起こります。', 'サイクルの繰り返しが続く。', '変化が拒まれている状態です。'] },
-    '正義': { upright: ['バランスと公正。真実が勝ちます。', 'あなたの行動が報われます。', '因果応報の時期が来ました。'], reverse: ['不公正。バランスが欠けています。', 'あなたが不利な立場にいます。', '真実が隠されている状態です。'] },
-    '吊られた男': { upright: ['停止と犠牲。新しい視点が得られる。', '待つべき時期が来ました。', '別の角度から見ることが大切。'], reverse: ['停止から解放されます。', 'ついに動く時が来ました。', '新しい方向へ進みます。'] },
-    '死神': { upright: ['変化と終わり。新しい始まりへ。', '何かが終わろうとしています。', 'リセットの時期です。'], reverse: ['停滞。変化を拒んでいます。', '終わりが延長している状態。', '成長が止まっています。'] },
-    '節制': { upright: ['バランスと調和。適度さが大切。', 'あなたは正しい道を歩んでいる。', '自制心が必要とされています。'], reverse: ['不節制。バランスが崩れています。', '過度な状態が続いています。', '自制心を失っている状態です。'] },
-    '悪魔': { upright: ['束縛と誘惑。物質的欲望があります。', 'あなたは何かに支配されている。', '自由を求める必要があります。'], reverse: ['解放と自由。枷を外せます。', '支配から逃げられます。', '新しい自由が訪れます。'] },
-    '塔': { upright: ['破壊と混乱。突然の変化が来る。', '基盤が揺らぐ出来事があります。', '苦しい時期が訪れます。'], reverse: ['まだ立っている状態です。', '被害が最小限で済みます。', '最悪の時期は過ぎました。'] },
-    '星': { upright: ['希望と導き。光が見えます。', 'あなたは正しい方向に進んでいる。', '夢が叶う時期が来ました。'], reverse: ['失望と絶望に包まれている。', 'あなたは迷っています。', '希望を失っている状態です。'] },
-    '月': { upright: ['直感と夢。幻想と不安があります。', 'あなたの潜在意識が活動しています。', '真実は見えにくい状態です。'], reverse: ['幻想の終わり。澄んだ視界が得られる。', '真実が明かされます。', '不安が消えていく時期。'] },
-    '太陽': { upright: ['成功と喜び。光と温かさがある。', 'あなたの人生は輝いています。', '素晴らしい時期が訪れます。'], reverse: ['失敗と暗さ。光が奪われた。', 'あなたは悩んでいます。', 'まだ暗い時期が続きます。'] },
-    '審判': { upright: ['回顧と評価。再生の時期が来た。', 'あなたの過去が評価されます。', '新しい段階へ進みます。'], reverse: ['自己評価の欠如。再生できない。', 'あなたは評価されていない。', 'やり直すチャンスを失っています。'] },
-    '世界': { upright: ['完成と達成。統一と満足があります。', 'あなたは目標に到達します。', 'すべてが完全になります。'], reverse: ['未完成。停滞が続いています。', 'あなたはまだ遠い状態です。', '完成が見えない状態です。'] }
+// 占いデータ
+const FD={
+  tarot:{
+    '魔術師':{up:['才能と力の時。新しい開始が訪れます。','あなたの潜在能力が開花する瞬間です。','創造性が高まり、夢実現へ向かう。'],rv:['準備不足。計画の見直しが必要です。','力を見つめ直す時です。','焦らず進みましょう。']},
+    '女教皇':{up:['直感を信じましょう。内なる声が響く。','秘密が明かされます。真実が現れる。','内なる叡智があなたを導く時。'],rv:['直感が曇っている状態です。','知識の欠如に注意が必要です。','焦りは禁物。静かに待ちましょう。']},
+    '女帝':{up:['豊かさと幸せが訪れます。','創造的な力が満ちています。','美と調和の素晴らしい時期です。'],rv:['豊かさが失われる可能性があります。','調和が乱れている状態です。','自分を大切にしてください。']},
+    '皇帝':{up:['権力と支配。リーダーシップが輝く時。','確実な勝利が訪れます。','あなたの判断力が冴えています。'],rv:['権力の喪失。弱さが目立ちます。','支配的になりすぎないよう注意。','柔軟さが必要です。']},
+    '教皇':{up:['伝統と知識。教えを求めましょう。','スピリチュアルな導きがあります。','信仰心が報われる時期です。'],rv:['独立心が必要です。','常識にとらわれないで。','新しい考え方を受け入れましょう。']},
+    '恋人':{up:['愛と調和。重要な選択の時です。','恋愛運が高まります。','心のつながりが深まる時期。'],rv:['選択肢に迷っている状態です。','関係が冷え込んでいます。','自分の気持ちに正直に。']},
+    '戦車':{up:['勝利と前進。強い意志があります。','困難を乗り越える力があります。','目標達成が近づいています。'],rv:['前に進めない状態が続く。','対立と衝突が起こります。','一歩引いて考えましょう。']},
+    '力':{up:['内なる力。自信と勇気があります。','困難に立ち向かう強さがある。','忍耐が報われます。'],rv:['弱さと無力感に襲われる。','本当の強さを忘れています。','自分を信じて。']},
+    '隠者':{up:['沈黙と瞑想。内面の探求が始まる。','静寂の中に答えが隠れている。','一人の時間が必要です。'],rv:['孤立しすぎています。','誰かと関わるべき時です。','光を求めて外に出ましょう。']},
+    '運命の輪':{up:['運命の転換。良い変化が訪れます。','サイクルが変わります。','チャンスを掴みましょう。'],rv:['悪い流れが続いています。','変化を受け入れましょう。','焦らず時を待って。']},
+    '正義':{up:['バランスと公正。真実が勝ちます。','あなたの行動が報われます。','因果応報の時期です。'],rv:['不公正に注意。','バランスが欠けています。','正直に向き合いましょう。']},
+    '吊られた男':{up:['新しい視点が得られる。','待つべき時期です。','別の角度から見ましょう。'],rv:['ついに動く時が来ました。','停滞から抜け出せます。','行動に移しましょう。']},
+    '死神':{up:['変化と終わり。新しい始まりへ。','リセットの時期です。','古いものを手放しましょう。'],rv:['停滞。変化を拒んでいます。','成長が止まっています。','前に進む勇気を持って。']},
+    '節制':{up:['バランスと調和。適度さが大切。','正しい道を歩んでいます。','自制心が報われます。'],rv:['バランスが崩れています。','過度な状態に注意。','穏やかさを取り戻して。']},
+    '悪魔':{up:['束縛に気づく時。自由を求めて。','誘惑に負けないで。','本当に大切なものを見極めて。'],rv:['解放と自由が訪れます。','支配から逃れられます。','新しい自由を楽しんで。']},
+    '塔':{up:['突然の変化。でも再建できます。','古い基盤が崩れ、新しい始まりへ。','試練を乗り越えた先に光がある。'],rv:['最悪の時期は過ぎました。','被害は最小限で済みます。','回復の兆しがあります。']},
+    '星':{up:['希望と導き。光が見えます。','夢が叶う時期が来ました。','正しい方向に進んでいます。'],rv:['希望を失っている状態です。','光を見失わないで。','信じる気持ちを取り戻して。']},
+    '月':{up:['直感と夢。潜在意識が活動中。','真実は見えにくい状態です。','内なる声に耳を傾けて。'],rv:['幻想の終わり。真実が見えます。','不安が消えていく時期。','明確な答えが得られます。']},
+    '太陽':{up:['成功と喜び。人生が輝いています。','素晴らしい時期が訪れます。','あなたは光そのものです。'],rv:['一時的な曇り。でも晴れます。','自分を信じて進みましょう。','光は必ず戻ってきます。']},
+    '審判':{up:['再生の時期が来ました。','過去が評価されます。','新しい段階へ進みます。'],rv:['自己評価を見直しましょう。','やり直すチャンスはあります。','過去に囚われないで。']},
+    '世界':{up:['完成と達成。すべてが完全になります。','目標に到達します。','統一と満足の時期です。'],rv:['まだ完成していません。','もう少しです。頑張って。','道半ば、諦めないで。']},
+    '愚者':{up:['無垢と新しい冒険の始まり。','自由な心で前に進みましょう。','直感を信じて飛び出して。'],rv:['無謀な行動に注意。','もう少し考えてから動いて。','リスクを計算しましょう。']}
   },
-  omikuji: {
-    '大吉': ['何をしても成功する素晴らしい日です。', '最高の運が降りてきています。', '願いが叶う最高のチャンスです。', '今日は運命の日。思いっきり挑戦しましょう。', 'この運を逃してはいけません。'],
-    '中吉': ['良い運に恵まれています。今日は素晴らしい日。', 'いい出来事が待っています。期待しましょう。', '成功の可能性が高い時期です。', 'まあまあ上手くいくでしょう。', '幸運が味方についています。'],
-    '小吉': ['まあまあの運気です。進みましょう。', 'ゆっくり進むことが大切な時期。', '小さな幸せがあります。感謝しましょう。', 'コツコツ進むのが吉です。', 'まずまず調子がいいです。'],
-    '末吉': ['運がやや弱い状態です。慎重に。', '焦らず進みましょう。急がば回れ。', '慎重さが必要とされている時期。', '今日はひかえめに動くのが吉。', 'チャレンジより準備の時期。'],
-    '凶': ['運が下がっています。今日は注意深く。', '今は行動を控えましょう。様子見が正解。', '内面の準備が大切です。', '今日は大人しくしているのが吉。', 'トラブル回避が今日のテーマ。'],
-    '大凶': ['最悪の運です。気をつけてください。', '今は何もしないことが吉です。', '時間を待つことが最善です。', 'すべては次の日のために。今日は辛抱です。', 'これ以上ない悪い日。逃げ切ることが成功。']
+  omikuji:{
+    '大吉':['全てが上手くいく最高の日！願いが叶います。','何をしても成功する素晴らしい運気です。','最高の幸運が降りてきています。思い切って挑戦を！','今日は運命の日。大きなチャンスが訪れます。','奇跡が起こる予感。夢を追いかけましょう。'],
+    '中吉':['良いことが起こりそう。前向きに進みましょう。','運気が上昇中。チャンスを逃さないで。','努力が報われる時期です。自信を持って。','いい出来事が待っています。期待しましょう。','人間関係が良好。周囲の助けがあります。'],
+    '小吉':['まあまあの運気。コツコツ頑張りましょう。','小さな幸せがあります。感謝の気持ちを。','ゆっくり進むことが大切な時期。','着実に進めば吉。焦らないでね。','穏やかな日々が続きます。'],
+    '吉':['良い流れが来ています。前向きに。','希望に満ちた日。明るい展望です。','運が味方しています。信じて進みましょう。','新しい発見がありそう。目を開いて。','バランスが取れた良い日です。'],
+    '末吉':['今は耐える時。後に吉が来ます。','焦らず準備をしましょう。急がば回れ。','チャンスはすぐそこ。もう少し待って。','慎重さが求められる時期です。','内面の成長が大切な時期。'],
+    '凶':['注意が必要な日。慎重に行動を。','いつもより用心深くいましょう。','今日は大人しくしているのが吉。','トラブル回避が今日のテーマ。','困難があっても、乗り越えられます。'],
+    '大凶':['大きな試練。でも乗り越えた先に光がある。','今は何もしないことが吉。時を待って。','災いは幸運の前触れ。前向きに。','すべては次のステージのため。','リセットの好機。新しく始めましょう。']
   },
-  zodiac: {
-    'おひつじ座': { 全体運: '情熱が高まる月。新しい挑戦に向かう勇気が出ます。前に進む力があります。', 恋愛運: '積極的になれる時期。告白のチャンスが訪れます。', 仕事運: 'リーダーシップが発揮できます。周囲がついてきます。' },
-    'おうし座': { 全体運: '安定と充実の時期です。基盤が固まります。', 恋愛運: '穏やかな愛情が育まれます。信頼が深まる。', 仕事運: '着実な成果が出ます。地道な努力が報われる。' },
-    'ふたご座': { 全体運: 'コミュニケーションが活発になります。', 恋愛運: '新しい出会いの予感があります。', 仕事運: 'アイデアが次々と湧きます。提案が受け入れられる。' },
-    'かに座': { 全体運: '家族との絆が深まります。', 恋愛運: '深い愛情を求める時期です。本気の感情。', 仕事運: '根気強さが報われます。パーティー役が活躍。' },
-    'しし座': { 全体運: '自信と輝きが戻ります。', 恋愛運: 'モテ期が来ています。魅力が最高潮。', 仕事運: '注目を集める活躍ができます。スポットライトを浴びる。' },
-    'おとめ座': { 全体運: '整理と改善の時期。スッキリしていく。', 恋愛運: '相手の良さが見えます。理解が深まる。', 仕事運: '細かな工夫が功を奏します。完璧さが評価される。' },
-    'てんびん座': { 全体運: 'バランスの取れた時期。調和が生まれる。', 恋愛運: '調和と美しさが輝きます。', 仕事運: '交渉が上手くいきます。両者の合意が得られる。' },
-    'さそり座': { 全体運: '深い洞察力が働きます。本質が見える。', 恋愛運: '激しい愛情が芽生えます。情熱的な時期。', 仕事運: '隠れた才能が開花します。秘めた力が出現。' },
-    'いて座': { 全体運: '自由と冒険を求める時期。', 恋愛運: '新しい世界が広がります。視野が広がる。', 仕事運: '大きなチャレンジに成功します。大型案件に成功。' },
-    'やぎ座': { 全体運: '着実な成長の時期です。確実に進む。', 恋愛運: '責任感ある関係が形成されます。', 仕事運: 'キャリアアップの好機です。昇進の時期。' },
-    'みずがめ座': { 全体運: '革新的なアイデアが生まれます。新しい視点。', 恋愛運: '友情から愛への発展があります。', 仕事運: '独創的な成果が期待できます。革新が評価される。' },
-    'うお座': { 全体運: '直感と創造性が高まります。', 恋愛運: 'ロマンティックな出来事が起こります。', 仕事運: '感性を活かした成功が得られます。芸術的成功。' }
+  zodiac:{
+    '牡羊座':{全体:'情熱が高まる時。新しい挑戦に向かう勇気が出ます。',恋愛:'積極的になれる時期。告白のチャンスが訪れます。',仕事:'リーダーシップが発揮できます。',金運:'思い切った投資が吉。',健康:'エネルギッシュ。運動で更にアップ。'},
+    '牡牛座':{全体:'安定と充実の時期。基盤が固まります。',恋愛:'穏やかな愛情が育まれます。信頼が深まる。',仕事:'着実な成果が出ます。地道な努力が報われる。',金運:'貯蓄が増える好機。',健康:'規則正しい生活が吉。'},
+    '双子座':{全体:'コミュニケーションが活発になります。',恋愛:'新しい出会いの予感があります。',仕事:'アイデアが次々と湧きます。',金運:'情報収集が利益に。',健康:'ストレス解消を心がけて。'},
+    '蟹座':{全体:'家族との絆が深まります。',恋愛:'深い愛情を求める時期。本気の感情。',仕事:'チームワークが大切。',金運:'家族関連の支出に注意。',健康:'心の栄養が大事。'},
+    '獅子座':{全体:'自信と輝きが戻ります。',恋愛:'モテ期が来ています。魅力が最高潮。',仕事:'注目を集める活躍ができます。',金運:'大きく動く時。',健康:'自信が活力の源。'},
+    '乙女座':{全体:'整理と改善の時期。スッキリしていく。',恋愛:'相手の良さが見えます。理解が深まる。',仕事:'細かな工夫が功を奏します。',金運:'計画的にいきましょう。',健康:'健康管理が上手くいく。'},
+    '天秤座':{全体:'バランスの取れた時期。調和が生まれる。',恋愛:'調和と美しさが輝きます。',仕事:'交渉が上手くいきます。',金運:'バランスよく使うのが吉。',健康:'リラックスを大切に。'},
+    '蠍座':{全体:'深い洞察力が働きます。本質が見える。',恋愛:'激しい愛情が芽生えます。情熱的。',仕事:'隠れた才能が開花します。',金運:'秘密の利益あり。',健康:'内面から強くなる。'},
+    '射手座':{全体:'自由と冒険を求める時期。',恋愛:'新しい世界が広がります。',仕事:'大きなチャレンジに成功。',金運:'思いがけない収入。',健康:'アクティブに過ごして。'},
+    '山羊座':{全体:'着実な成長の時期。確実に進む。',恋愛:'責任感ある関係が形成されます。',仕事:'キャリアアップの好機。',金運:'着実に増える。',健康:'忍耐力が大事。'},
+    '水瓶座':{全体:'革新的なアイデアが生まれます。',恋愛:'友情から愛への発展あり。',仕事:'独創性で成功。',金運:'予測不能な利益。',健康:'自分らしく過ごして。'},
+    '魚座':{全体:'直感と創造性が高まります。',恋愛:'ロマンティックな出来事が。',仕事:'感性を活かした成功。',金運:'流れに任せて吉。',健康:'心の安らぎが大切。'}
   },
-  numerology: {
-    1: 'リーダーシップと独立の運。あなたは先駆者です。自分の道を切り拓く時期。',
-    2: 'バランスと協調の運。パートナーシップが大切。二人で一つの力を発揮する。',
-    3: '創造性と表現の運。あなたのアイデアが輝く。創作活動に最適な時期。',
-    4: '安定と基盤の運。堅実な進みが正解。基礎を固める大切な時期。',
-    5: '変化と自由の運。新しい経験が訪れます。冒険心を発揮しましょう。',
-    6: '調和と愛の運。家族と人間関係が大切。周囲への思いやりが重要。',
-    7: '精神性と知識の運。内面の成長が重要。瞑想と学習に適した時期。',
-    8: '成功と豊かさの運。物質的な達成が来ます。金銭運が高い時期。',
-    9: '完成と宇宙の運。新しいサイクルが始まります。すべてがリセットされる。'
+  numerology:{
+    1:'リーダーシップと独立の数。自分の道を切り拓く時期。新しい始まりのエネルギーに満ちています。',
+    2:'バランスと協調の数。パートナーシップが鍵。二人で一つの力を発揮する時。',
+    3:'創造性と表現の数。アイデアが輝く時。アーティスティックな活動に最適。',
+    4:'安定と基盤の数。堅実に進みましょう。基礎を固める大切な時期。',
+    5:'変化と自由の数。新しい経験が訪れます。冒険心を発揮して。',
+    6:'調和と愛の数。家族と人間関係を大切に。周囲への思いやりが幸運を呼ぶ。',
+    7:'精神性と知識の数。内面の成長が重要。瞑想と学習に適した時期。',
+    8:'成功と豊かさの数。努力が報われます。金銭運が高い時期。',
+    9:'完成と宇宙の数。一つのサイクルが終わり新しい始まりへ。'
   },
-  blood: {
-    'O型': ['社交性が高く人気者。親しみやすい雰囲気です。', 'リーダー気質で大らか。物事が上手くいく傾向。', '目標達成力が強い。仲間を大事にします。'],
-    'A型': ['用心深く慎重。計画的に行動します。', '人間関係を大事にする。信頼厚い人柄。', '完璧主義で細かい配慮ができる。'],
-    'B型': ['自由気ままで個性的。ユニークな魅力。', 'マイペースで気楽。ストレスが少ない傾向。', '好奇心旺盛で行動力がある。'],
-    'AB型': ['二面性を持つ。思慮深い人物です。', 'クールに見えて優しい心を持つ。', '理性的でバランスが取れている。']
+  blood:{
+    A:{性格:'慎重で几帳面。計画的に行動するタイプ。',恋愛:'真摯な恋愛をします。一途で信頼を大切にする。',仕事:'完璧主義で細かい配慮ができる。協調性が高い。',相性:'O型との相性が最高！AB型とも好相性。',今日:'堅実に進む一日。計画通りにいきましょう。'},
+    B:{性格:'自由奔放でマイペース。ユニークで好奇心旺盛。',恋愛:'情熱的でサプライズ好き。自分らしい恋愛を。',仕事:'独創的で大胆。新しい企画が得意。',相性:'AB型との相性が最高！O型とも好相性。',今日:'ひらめきの一日。直感を信じて。'},
+    O:{性格:'社交的でおおらか。リーダー気質でフレンドリー。',恋愛:'大らかな愛情で包み込む。積極的なアプローチ。',仕事:'統率力があり、チームワーク重視。行動派。',相性:'A型との相性が最高！B型とも好相性。',今日:'社交運が高い一日。人との繋がりが吉。'},
+    AB:{性格:'神秘的で知的。個性的でミステリアスな魅力。',恋愛:'深い絆を求める。相手を選ぶが一度決めたら本気。',仕事:'才能が多面的。独特の視点で成功する。',相性:'B型との相性が最高！A型とも好相性。',今日:'才能が引き出される特別な一日。'}
   },
-  moon: {
-    '新月': '新しいスタートの時。願いを立てましょう。始まりの力があります。',
-    '上弦': '成長と上昇の時期。前に進む力があります。努力が報われる。',
-    '満月': '完成と達成の時。結果が出ます。スポットライトを浴びる。',
-    '下弦': '反省と浄化の時期。内面を見つめる時です。',
-    '月食': '大きな変化が起こります。転機です。人生が変わる。',
-    '日食': '神聖な力が働きます。運命が変わる時。新しい段階へ。'
+  moon:{
+    '新月':'新しいスタートの時。願いを立てましょう。種を蒔く絶好のタイミング。',
+    '三日月':'成長のエネルギーが高まる。小さな一歩を踏み出して。',
+    '上弦の月':'行動力がアップ。積極的に動くと吉。努力が実を結ぶ。',
+    '満月':'完成と達成の時。結果が出ます。感情も高まる。',
+    '下弦の月':'反省と浄化の時期。内面を見つめましょう。',
+    '月食':'大きな変化の前触れ。人生のターニングポイント。',
+    '日食':'神聖な力が働く。運命が大きく動く時。',
+    '十三夜':'秘密の力が働く。直感が冴える夜。'
   },
-  funny: [
-    'あなたは来世で柴犬です。絶対幸せになります。',
-    '占い師が言うには、あなたは本当に運がいい。か、か、かなり。',
-    'これからあなたに起こることは...秘密です。',
-    'えっ、運がいい？悪い？そんなの個人差。',
-    'タロットカードが言ってます。「頑張ってね」って。',
-    'あなたの運勢は...カラスの行動次第です。',
-    'この占いの的中率は...52%です。正確には51.9%。',
-    'あなたの幸せ度は100%。だって今生きてるからね。',
-    '占い的には「多分大丈夫」な運気です。多分ね。',
-    'カード的には「ま、何とかなるんじゃない」',
-    'あなたは実は占い師より運がいい。秘密です。',
-    '運勢カレンダーによると「毎日チャンス」だそうです。',
-    '私の占いは当たらない。気にしないで。本当に。',
-    'あなたの運は「その時次第」です。責任はとりません。',
-    '占いより直感を信じた方がいい。正直に。',
-    'えっ、本気で信じてるんですか？ラッキー。',
-    'あなたのラッキーカラーは「全色」です。セーフ。',
-    '今日のあなたは「今日のあなた」です。当たった。',
-    'これからのあなたは「頑張り次第」。期待してない。',
-    '占いなんて気にするな。人生は自分で作るんだ。説得力。'
-  ]
+  crystal:['紫水晶が輝く。直感力が高まっています。信じる道を進みましょう。','バラ石英が光る。愛情エネルギーに満ちています。素敵な出会いが。','翡翠が深く輝く。調和と平和が訪れます。穏やかな日々を。','シトリンが金色に光る。豊かさが近づいています。金運上昇中。','アメジストが紫に煌く。霊感が冴える時期。直感に従って。','クリスタルが七色に輝く。あらゆる運が最高潮。奇跡の日。','タイガーアイが光る。ビジネスチャンス到来。行動あるのみ。','ムーンストーンが月光のように光る。神秘的な出来事が起こります。','ラピスラズリが紺色に光る。知識と智慧が開花する時。','ローズクォーツが淡く光る。愛される幸せが訪れます。'],
+  palm:['生命線が長くくっきり。長寿で活力に満ちた人生。健康運も最高です。','知能線がまっすぐ伸びている。明晰な判断力が武器。知的な活動で成功。','感情線が美しいカーブ。愛情豊かで人から慕われる。恋愛運が高い。','運命線がくっきり。目標に向かって一直線。キャリアアップ間近。','太陽線が現れている。成功と名声が近づいている。才能が認められる。','結婚線がしっかり。素敵なパートナーとの出会いが近い。','財運線が発達。お金に恵まれる相。投資にも好期。'],
+  dream:['犬の夢を見たあなたは「忠誠心」と「友情」の象徴。真の友人が現れる。','空を飛ぶ夢は「自由」と「解放」。束縛から解き放たれる時。','海の夢は「潜在意識」の深さ。自分自身と向き合うチャンス。','花の夢は「成長」と「美しさ」。新しい才能が芽吹く。','光の夢は「希望」と「導き」。正しい方向に進んでいます。','山の夢は「障害」と「達成」。困難を乗り越え頂上へ。','川の夢は「人生の流れ」。流れに身を任せると吉。','星の夢は「願い」が叶うサイン。願いを強く持ちましょう。','虹の夢は「幸運」の前兆。素晴らしいことが起こります。','月の夢は「女性性」と「直感」。感性を大切に。'],
+  funny:['あなたは来世で柴犬になります。間違いなく幸せです。','占い師が言うには…「頑張ってね」以上。','この占いの的中率は52%です。コインの裏表より若干上。','あなたの幸せ度は100%。だって今生きてるからね。','運勢を計算中…答え：「明日も頑張れ」','タロットカードが逃げました。それだけ運が強いのかも。','あなたのラッキーアイテムは「柴犬」です。当然ですよね。','今日のあなたは「今日のあなた」です。当たりました。','占いより直感を信じた方がいい。…あれ、占いの意味…','えっ、本気で信じてるんですか？ラッキーです。','お告げ：「おやつを食べなさい」','水晶に映ったもの：「あなたの顔」以上。','占い結果：運がいい日もあれば悪い日もある。名言。','ラッキーカラーは「透明」。何にでも合います。','あなたの前世は…柴犬だった可能性70%。','占い的には「ま、何とかなるんじゃない？」','今日の運勢は…とりあえず笑って過ごしましょう。','カードが示す未来：「ごはんがおいしい」素晴らしい。','運命の人は…あなたの近くにいます。多分。知らんけど。','あなたの隠れた才能：占い師。…え、それ私の仕事。']
 };
 
-function drawDog(x, y, colorMain, colorBelly, frame, isNPC) {
-  ctx.fillStyle = 'rgba(0,0,0,.1)';
-  ctx.beginPath();
-  ctx.ellipse(x, y + 16, 16, 5, 0, 0, Math.PI * 2);
-  ctx.fill();
+// ===================== 状態 =====================
+const G={
+  screen:'title',profile:null,
+  areaIdx:0,px:0,py:0,dx:0,dy:0,tx:null,ty:null,
+  frame:0,gtime:0,loopRunning:false,lastTime:0,
+  npcs:[],bubbles:[],particles:[],
+  fortuneCount:0,fortunePower:0,luck:50,
+  fortuneHistory:[],collection:{},
+  selectedBlood:null,tutStep:0,tutDone:false,
+};
 
-  ctx.fillStyle = colorMain;
-  ctx.beginPath();
-  ctx.ellipse(x, y, 24, 18, 0, 0, Math.PI * 2);
-  ctx.fill();
+// ===================== 初期化 =====================
+window.addEventListener('load',()=>{
+  createStars();
+  canvas=document.getElementById('gcanvas');
+  ctx=canvas.getContext('2d');
+  resizeCanvas();
+  window.addEventListener('resize',resizeCanvas);
+  canvas.addEventListener('touchstart',(e)=>{
+    e.preventDefault();
+    const t=e.touches[0];
+    spawnTapRipple(t.clientX,t.clientY);
+    playSE('tap');
+    const r=canvas.getBoundingClientRect();
+    const x=(t.clientX-r.left)*(canvas.width/r.width);
+    const y=(t.clientY-r.top)*(canvas.height/r.height);
+    handleTap(x,y);
+  },{passive:false});
+  canvas.addEventListener('click',(e)=>{
+    const r=canvas.getBoundingClientRect();
+    const x=(e.clientX-r.left)*(canvas.width/r.width);
+    const y=(e.clientY-r.top)*(canvas.height/r.height);
+    handleTap(x,y);
+  });
+  loadData();
+  initBGM();
+});
 
-  ctx.fillStyle = colorBelly;
-  ctx.beginPath();
-  ctx.ellipse(x, y + 6, 14, 12, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = colorMain;
-  ctx.beginPath();
-  ctx.arc(x + 22, y - 12, 13, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(x + 16, y - 26);
-  ctx.lineTo(x + 12, y - 36);
-  ctx.lineTo(x + 24, y - 28);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(x + 28, y - 26);
-  ctx.lineTo(x + 32, y - 36);
-  ctx.lineTo(x + 36, y - 28);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.fillStyle = '#fff';
-  ctx.beginPath();
-  ctx.ellipse(x + 18, y - 15, 4, 5, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(x + 28, y - 15, 4, 5, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = '#333';
-  ctx.beginPath();
-  ctx.arc(x + 18, y - 14, 2, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(x + 28, y - 14, 2, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = '#333';
-  ctx.beginPath();
-  ctx.arc(x + 23, y - 8, 2, 0, Math.PI * 2);
-  ctx.fill();
-
-  const tailWag = Math.sin((frame + Math.random() * 30) * 0.08) * 12;
-  ctx.strokeStyle = colorMain;
-  ctx.lineWidth = 4;
-  ctx.lineCap = 'round';
-  ctx.beginPath();
-  ctx.moveTo(x - 24, y + 6);
-  ctx.quadraticCurveTo(x - 38, y - 4 + tailWag, x - 42, y - 14 + tailWag);
-  ctx.stroke();
+function createStars(){
+  const c=document.getElementById('stars-ct');
+  for(let i=0;i<60;i++){
+    const s=document.createElement('div');s.className='star';
+    const sz=Math.random()*3+1;
+    s.style.cssText='width:'+sz+'px;height:'+sz+'px;top:'+(Math.random()*100)+'%;left:'+(Math.random()*100)+'%;animation-delay:'+(Math.random()*3)+'s;animation-duration:'+(1.5+Math.random()*2)+'s;';
+    c.appendChild(s);
+  }
 }
 
-function drawAreaFeature(id, w, h) {
-  if (id === 'village') {
-    ctx.fillStyle = '#CD853F';
-    ctx.fillRect(w * 0.15, h * 0.35, 60, 50);
-    ctx.fillStyle = '#FF4500';
-    ctx.beginPath();
-    ctx.moveTo(w * 0.15, h * 0.35);
-    ctx.lineTo(w * 0.15 + 30, h * 0.25);
-    ctx.lineTo(w * 0.15 + 60, h * 0.35);
-    ctx.closePath();
-    ctx.fill();
-    
-    ctx.fillStyle = 'rgba(66,165,245,.5)';
-    ctx.beginPath();
-    ctx.arc(w * 0.8, h * 0.45, 20, 0, Math.PI * 2);
-    ctx.fill();
-  } else if (id === 'tarot') {
-    ctx.fillStyle = '#6A0DAD';
-    ctx.fillRect(w * 0.15, h * 0.3, 80, 70);
-    ctx.fillStyle = '#9C27B0';
-    ctx.beginPath();
-    ctx.moveTo(w * 0.15, h * 0.3);
-    ctx.lineTo(w * 0.15 + 40, h * 0.15);
-    ctx.lineTo(w * 0.15 + 80, h * 0.3);
-    ctx.closePath();
-    ctx.fill();
-    
-    ctx.fillStyle = '#FFB74D';
-    ctx.beginPath();
-    ctx.arc(w * 0.55, h * 0.4, 15, 0, Math.PI * 2);
-    ctx.fill();
-  } else if (id === 'shrine') {
-    ctx.strokeStyle = '#D32F2F';
-    ctx.lineWidth = 6;
-    ctx.beginPath();
-    ctx.moveTo(w * 0.3, h * 0.5);
-    ctx.lineTo(w * 0.7, h * 0.5);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(w * 0.4, h * 0.5);
-    ctx.lineTo(w * 0.4, h * 0.35);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(w * 0.6, h * 0.5);
-    ctx.lineTo(w * 0.6, h * 0.35);
-    ctx.stroke();
-    
-    ctx.fillStyle = '#8B4513';
-    ctx.fillRect(w * 0.35, h * 0.55, 50, 40);
-  } else if (id === 'zodiac') {
-    ctx.strokeStyle = '#666';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.arc(w * 0.5, h * 0.35, 8, 0, Math.PI * 2);
-    ctx.stroke();
-    
-    ctx.fillStyle = '#FFD700';
-    for (let i = 0; i < 6; i++) {
-      const angle = (i / 6) * Math.PI * 2;
-      const px = w * 0.7 + Math.cos(angle) * 40;
-      const py = h * 0.3 + Math.sin(angle) * 40;
-      ctx.beginPath();
-      ctx.arc(px, py, 3, 0, Math.PI * 2);
-      ctx.fill();
+function resizeCanvas(){
+  cW=W();
+  const bEl=document.getElementById('bottom-ui');
+  const bH=(bEl?bEl.offsetHeight:140)||140;
+  cH=H()-bH;
+  canvas.width=cW;canvas.height=Math.max(cH,300);
+  canvas.style.height=canvas.height+'px';
+}
+
+function spawnTapRipple(x,y){
+  const r=document.createElement('div');r.className='tap-ripple';
+  r.style.left=(x-20)+'px';r.style.top=(y-20)+'px';
+  document.getElementById('app').appendChild(r);
+  setTimeout(()=>r.remove(),500);
+}
+
+// ===================== 画面遷移 =====================
+function goTo(n){
+  const cur=document.querySelector('.screen.active');
+  const next=document.getElementById(n+'-screen');
+  if(!next)return;
+  if(cur&&cur!==next){
+    cur.classList.add('fade-out');
+    setTimeout(()=>{
+      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active','fade-out'));
+      next.classList.add('active');
+      G.screen=n;
+      if(n==='game'){
+        resizeCanvas();
+        G.px=cW/2;G.py=canvas.height*0.55;
+        G.dx=G.px-30;G.dy=G.py+15;
+        G.tx=null;G.ty=null;
+        spawnNPCs();startLoop();
+        if(G.bgmOn!==false)playBGM();
+        if(!G.tutDone)showTutorial();
+        updateUI();
+        if(G.profile)document.getElementById('area-prof').textContent=G.profile.name+'さん';
+      }else{stopLoop();stopBGM();}
+    },350);
+  }else{
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    next.classList.add('active');
+    G.screen=n;
+    if(n==='game'){
+      resizeCanvas();
+      G.px=cW/2;G.py=canvas.height*0.55;
+      G.dx=G.px-30;G.dy=G.py+15;
+      spawnNPCs();startLoop();
+      if(!G.tutDone)showTutorial();
+      updateUI();
+      if(G.profile)document.getElementById('area-prof').textContent=G.profile.name+'さん';
+    }else{stopLoop();stopBGM();}
+  }
+}
+
+// ===================== プロフィール =====================
+function selBlood(t){
+  G.selectedBlood=t;
+  document.querySelectorAll('.blood-btn').forEach(b=>b.classList.remove('sel'));
+  event.target.classList.add('sel');
+}
+
+function saveProfile(){
+  const name=document.getElementById('inp-name').value.trim();
+  const bday=document.getElementById('inp-birthday').value;
+  if(!name){alert('お名前を入力してください');return;}
+  if(!bday){alert('生年月日を選択してください');return;}
+  if(!G.selectedBlood){alert('血液型を選択してください');return;}
+  G.profile={name:name,birthday:bday,blood:G.selectedBlood,zodiac:getZodiac(bday)};
+  localStorage.setItem('shibaFortuneProfile',JSON.stringify(G.profile));
+  goTo('game');
+}
+
+function getZodiac(ds){
+  const d=new Date(ds),m=d.getMonth()+1,day=d.getDate();
+  const z=[['山羊座',12,22,1,19],['水瓶座',1,20,2,18],['魚座',2,19,3,20],['牡羊座',3,21,4,19],['牡牛座',4,20,5,20],['双子座',5,21,6,20],['蟹座',6,21,7,22],['獅子座',7,23,8,22],['乙女座',8,23,9,22],['天秤座',9,23,10,22],['蠍座',10,23,11,21],['射手座',11,22,12,21]];
+  for(const s of z){if((m===s[1]&&day>=s[2])||(m===s[3]&&day<=s[4]))return s[0];}
+  return '山羊座';
+}
+
+function showProfileEdit(){
+  if(G.profile){
+    document.getElementById('inp-name').value=G.profile.name;
+    document.getElementById('inp-birthday').value=G.profile.birthday;
+    G.selectedBlood=G.profile.blood;
+    document.querySelectorAll('.blood-btn').forEach(b=>{
+      b.classList.toggle('sel',b.textContent.replace('型','')===G.profile.blood);
+    });
+  }
+  goTo('profile');
+}
+
+function loadData(){
+  try{
+    const p=localStorage.getItem('shibaFortuneProfile');
+    if(p)G.profile=JSON.parse(p);
+    const c=localStorage.getItem('shibaFortuneCount');
+    if(c)G.fortuneCount=parseInt(c);
+    const h=localStorage.getItem('shibaFortuneHistory');
+    if(h)G.fortuneHistory=JSON.parse(h);
+    const col=localStorage.getItem('shibaFortuneCollection');
+    if(col)G.collection=JSON.parse(col);
+    const t=localStorage.getItem('shibaFortuneTutDone');
+    if(t)G.tutDone=true;
+  }catch(e){}
+  // プロフィールがあればゲーム画面へ
+  if(G.profile){
+    setTimeout(()=>goTo('game'),500);
+  }
+}
+
+function saveData(){
+  localStorage.setItem('shibaFortuneCount',G.fortuneCount);
+  localStorage.setItem('shibaFortuneHistory',JSON.stringify(G.fortuneHistory.slice(-50)));
+  localStorage.setItem('shibaFortuneCollection',JSON.stringify(G.collection));
+}
+
+// ===================== BGM =====================
+let audioCtx,bgmGain,bgmPlaying=false,bgmInterval;
+function initBGM(){
+  try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}
+}
+function playBGM(){
+  if(!audioCtx||bgmPlaying)return;bgmPlaying=true;
+  if(audioCtx.state==='suspended')audioCtx.resume();
+  const notes=[392,440,494,523,587,523,494,440,392,349,330,349,392,440,494,392];
+  let ni=0;
+  function playNote(){
+    if(!bgmPlaying)return;
+    const o=audioCtx.createOscillator();
+    o.type='sine';o.frequency.value=notes[ni%notes.length];
+    const g=audioCtx.createGain();g.gain.value=0.04;
+    g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.4);
+    o.connect(g);g.connect(audioCtx.destination);
+    o.start();o.stop(audioCtx.currentTime+0.42);
+    ni++;
+  }
+  playNote();bgmInterval=setInterval(playNote,450);
+}
+function stopBGM(){bgmPlaying=false;if(bgmInterval)clearInterval(bgmInterval);}
+function playSE(type){
+  if(!audioCtx)return;
+  if(audioCtx.state==='suspended')audioCtx.resume();
+  try{
+    const now=audioCtx.currentTime;
+    if(type==='tap'){
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.type='sine';o.frequency.setValueAtTime(1200,now);o.frequency.exponentialRampToValueAtTime(800,now+0.04);
+      g.gain.setValueAtTime(0.03,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.06);
+      o.connect(g);g.connect(audioCtx.destination);o.start(now);o.stop(now+0.06);
+    }else if(type==='fortune'){
+      [523,659,784,1047].forEach((f,i)=>{
+        const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+        o.type='sine';o.frequency.value=f;
+        g.gain.setValueAtTime(0.04,now+i*0.1);g.gain.exponentialRampToValueAtTime(0.001,now+i*0.1+0.3);
+        o.connect(g);g.connect(audioCtx.destination);o.start(now+i*0.1);o.stop(now+i*0.1+0.3);
+      });
+    }else if(type==='area'){
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.type='triangle';o.frequency.value=660;
+      g.gain.setValueAtTime(0.05,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.15);
+      o.connect(g);g.connect(audioCtx.destination);o.start(now);o.stop(now+0.15);
     }
-  } else if (id === 'spring') {
-    ctx.fillStyle = 'rgba(30,136,229,.6)';
-    ctx.beginPath();
-    ctx.ellipse(w * 0.5, h * 0.45, 40, 25, 0, 0, Math.PI * 2);
-    ctx.fill();
-    
-    ctx.fillStyle = 'rgba(66,165,245,.8)';
-    ctx.beginPath();
-    ctx.ellipse(w * 0.5, h * 0.45, 25, 15, 0, 0, Math.PI * 2);
-    ctx.fill();
-    
-    ctx.fillStyle = '#00BCD4';
-    ctx.beginPath();
-    ctx.moveTo(w * 0.3, h * 0.5);
-    ctx.lineTo(w * 0.25, h * 0.65);
-    ctx.lineTo(w * 0.35, h * 0.65);
-    ctx.closePath();
-    ctx.fill();
-  } else if (id === 'alley') {
-    ctx.fillStyle = '#FF6F00';
-    ctx.fillRect(w * 0.15, h * 0.4, 40, 40);
-    ctx.fillStyle = '#2196F3';
-    ctx.fillRect(w * 0.25, h * 0.35, 40, 45);
-    ctx.fillStyle = '#4CAF50';
-    ctx.fillRect(w * 0.35, h * 0.42, 40, 38);
+  }catch(e){}
+}
+
+// ===================== タップ処理 =====================
+function handleTap(x,y){
+  // NPC判定
+  for(const n of G.npcs){
+    if(Math.hypot(n.x-x,n.y-y)<40){talkNPC(n);return;}
   }
+  // エリア移動
+  if(x<50){changeArea(-1);return;}
+  if(x>cW-50){changeArea(1);return;}
+  if(y<50){changeArea(-3);return;}
+  if(y>canvas.height-50){changeArea(3);return;}
+  // 移動
+  G.tx=x;G.ty=y;
 }
 
-function drawMinimap(w, h) {
-  const mmX = w - 60, mmY = 10, mmW = 50, mmH = 50;
-  ctx.fillStyle = 'rgba(0,0,0,.6)';
-  ctx.fillRect(mmX, mmY, mmW, mmH);
-  ctx.strokeStyle = '#FFB74D';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(mmX, mmY, mmW, mmH);
-
-  for (let i = 0; i < 6; i++) {
-    const row = Math.floor(i / 3);
-    const col = i % 3;
-    const px = mmX + 5 + col * 15;
-    const py = mmY + 5 + row * 20;
-    
-    ctx.fillStyle = i === G.areaIdx ? '#FFB74D' : '#666';
-    ctx.beginPath();
-    ctx.arc(px, py, 4, 0, Math.PI * 2);
-    ctx.fill();
-  }
+function changeArea(dir){
+  const newIdx=G.areaIdx+dir;
+  if(newIdx<0||newIdx>=areas.length)return;
+  G.areaIdx=newIdx;
+  const a=areas[G.areaIdx];
+  document.getElementById('h-area').textContent=a.name;
+  document.getElementById('area-nm2').textContent=a.name;
+  G.px=cW/2;G.py=canvas.height*0.55;
+  G.dx=G.px-30;G.dy=G.py+15;
+  G.tx=null;G.ty=null;
+  addBubble(cW/2,canvas.height*0.4,a.name+'に到着！',60);
+  playSE('area');
+  spawnNPCs();
 }
 
-function drawParticles(w, h) {
-  ctx.fillStyle = 'rgba(255,183,77,.6)';
-  for (let i = 0; i < 3; i++) {
-    const x = (G.frame * 2 + i * 100) % w;
-    const y = h * 0.2 + Math.sin(G.frame * 0.05 + i) * 30;
-    ctx.beginPath();
-    ctx.arc(x, y, 2, 0, Math.PI * 2);
-    ctx.fill();
-  }
-}
-
-function drawBubbles() {
-  G.bubbles.forEach(b => {
-    ctx.globalAlpha = Math.min(1, b.life / 20);
-    ctx.fillStyle = 'rgba(0,0,0,.7)';
-    ctx.beginPath();
-    ctx.roundRect(b.x - 40, b.y - 15, 80, 24, 8);
-    ctx.fill();
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 11px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(b.text, b.x, b.y + 4);
-  });
-  G.bubbles = G.bubbles.filter(b => {
-    b.life--;
-    b.y -= 1;
-    return b.life > 0;
-  });
-}
-
-function showFortune(type, npcName) {
-  const overlay = document.getElementById('fortune-overlay');
-  const nameEl = document.getElementById('fortune-name');
-  const typeEl = document.getElementById('fortune-type-label');
-  const levelEl = document.getElementById('fortune-level');
-  const textEl = document.getElementById('fortune-text');
-
-  nameEl.textContent = npcName;
-  
-  let result = '';
-  if (type === 'tarot') {
-    const cards = Object.keys(fortuneData.tarot);
-    const card = cards[Math.floor(Math.random() * cards.length)];
-    const isUpright = Math.random() > 0.5;
-    typeEl.textContent = card + (isUpright ? ' 正位置' : ' 逆位置');
-    const readings = isUpright ? fortuneData.tarot[card].upright : fortuneData.tarot[card].reverse;
-    result = readings[Math.floor(Math.random() * readings.length)];
-    levelEl.textContent = isUpright ? '良い兆候' : '注意が必要';
-  } else if (type === 'omikuji') {
-    const levels = ['大吉', '中吉', '小吉', '末吉', '凶', '大凶'];
-    const level = levels[Math.floor(Math.random() * levels.length)];
-    typeEl.textContent = 'おみくじ';
-    const readings = fortuneData.omikuji[level];
-    result = readings[Math.floor(Math.random() * readings.length)];
-    levelEl.textContent = level;
-  } else if (type === 'zodiac') {
-    const signs = Object.keys(fortuneData.zodiac);
-    const sign = signs[Math.floor(Math.random() * signs.length)];
-    typeEl.textContent = '星座: ' + sign;
-    const categories = ['全体運', '恋愛運', '仕事運'];
-    const cat = categories[Math.floor(Math.random() * categories.length)];
-    result = fortuneData.zodiac[sign][cat];
-    levelEl.textContent = cat;
-  } else if (type === 'numerology') {
-    const num = Math.ceil(Math.random() * 9);
-    typeEl.textContent = '数秘 ' + num;
-    result = fortuneData.numerology[num];
-    levelEl.textContent = '数秘術 ' + num;
-  } else if (type === 'blood') {
-    const types = ['O型', 'A型', 'B型', 'AB型'];
-    const btype = types[Math.floor(Math.random() * types.length)];
-    typeEl.textContent = '血液型: ' + btype;
-    const readings = fortuneData.blood[btype];
-    result = readings[Math.floor(Math.random() * readings.length)];
-    levelEl.textContent = btype;
-  } else if (type === 'moon') {
-    const phases = ['新月', '上弦', '満月', '下弦', '月食', '日食'];
-    const phase = phases[Math.floor(Math.random() * phases.length)];
-    typeEl.textContent = '月相: ' + phase;
-    result = fortuneData.moon[phase];
-    levelEl.textContent = phase;
-  } else if (type === 'funny') {
-    typeEl.textContent = '面白占い';
-    result = fortuneData.funny[Math.floor(Math.random() * fortuneData.funny.length)];
-    levelEl.textContent = 'わっはっは！';
-  }
-
-  textEl.textContent = result;
-  overlay.classList.add('show');
-  
-  document.getElementById('fortune-btn-close').onclick = () => {
-    overlay.classList.remove('show');
-  };
-}
-
-function spawnNPCs() {
-  G.npcs = [];
-  for (const npc of npcData) {
-    if (npc.area === G.areaIdx) {
+// ===================== NPC =====================
+function spawnNPCs(){
+  G.npcs=[];
+  for(const npc of npcData){
+    if(npc.area===G.areaIdx){
       G.npcs.push({
         ...npc,
-        x: Math.random() * (cW - 80) + 40,
-        y: Math.random() * (cH * 0.6 - 150) + cH * 0.25,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.3,
-        frame: 0
+        x:60+Math.random()*(cW-120),
+        y:canvas.height*0.3+Math.random()*canvas.height*0.35,
+        vx:(Math.random()-.5)*0.6,vy:(Math.random()-.5)*0.3,
+        fr:Math.floor(Math.random()*100),
       });
     }
   }
 }
 
-function moveNPCs() {
-  for (const n of G.npcs) {
-    n.x += n.vx;
-    n.y += n.vy;
-    
-    if (n.x < 30 || n.x > cW - 30) n.vx *= -1;
-    if (n.y < cH * 0.25 || n.y > cH * 0.85) n.vy *= -1;
-    
-    if (Math.random() > 0.98) {
-      n.vx = (Math.random() - 0.5) * 0.6;
-      n.vy = (Math.random() - 0.5) * 0.4;
-    }
-    n.frame++;
+function talkNPC(n){
+  const modal=document.getElementById('modal');
+  document.getElementById('mt2').textContent=n.name;
+  document.getElementById('mm2').textContent=n.greeting;
+  const btn=document.getElementById('m-fortune-btn');
+  btn.textContent='占ってもらう';
+  btn.onclick=()=>{
+    closeM();
+    doFortune(n);
+  };
+  modal.classList.add('show');
+}
+function closeM(){document.getElementById('modal').classList.remove('show');}
+
+// ===================== 占い実行 =====================
+function doFortune(npc){
+  const type=npc.type;
+  let title='',level='',text='',detail='';
+
+  if(type==='tarot'){
+    const cards=Object.keys(FD.tarot);
+    const card=cards[Math.floor(Math.random()*cards.length)];
+    const up=Math.random()>0.4;
+    const readings=up?FD.tarot[card].up:FD.tarot[card].rv;
+    title='タロット占い';
+    level=card+(up?' 正位置':' 逆位置');
+    text=readings[Math.floor(Math.random()*readings.length)];
+    detail=up?'良い兆候が見えます':'注意して進みましょう';
+  }else if(type==='omikuji'){
+    const levels=['大吉','中吉','小吉','吉','末吉','凶','大凶'];
+    const weights=[10,20,25,20,15,8,2];
+    let total=weights.reduce((a,b)=>a+b,0),r=Math.random()*total;
+    let lv='吉';
+    for(let i=0;i<weights.length;i++){r-=weights[i];if(r<=0){lv=levels[i];break;}}
+    title='おみくじ';
+    level=lv;
+    const readings=FD.omikuji[lv];
+    text=readings[Math.floor(Math.random()*readings.length)];
+    const cats=['恋愛','仕事','健康','金運'];
+    detail=cats[Math.floor(Math.random()*cats.length)]+'運も良好です';
+  }else if(type==='zodiac'){
+    const sign=G.profile?G.profile.zodiac:'牡羊座';
+    const data=FD.zodiac[sign];
+    if(data){
+      const cats=Object.keys(data);
+      const cat=cats[Math.floor(Math.random()*cats.length)];
+      title='星座占い - '+sign;
+      level=cat;
+      text=data[cat];
+    }else{title='星座占い';level='不明';text='星座が確認できません';}
+  }else if(type==='numerology'){
+    const num=Math.ceil(Math.random()*9);
+    title='数秘術';
+    level='運命数 '+num;
+    text=FD.numerology[num];
+  }else if(type==='blood'){
+    const bt=G.profile?G.profile.blood:'A';
+    const data=FD.blood[bt];
+    if(data){
+      const cats=Object.keys(data);
+      const cat=cats[Math.floor(Math.random()*cats.length)];
+      title='血液型占い - '+bt+'型';
+      level=cat;
+      text=data[cat];
+    }else{title='血液型占い';level='不明';text='血液型が確認できません';}
+  }else if(type==='moon'){
+    const phases=Object.keys(FD.moon);
+    const phase=phases[Math.floor(Math.random()*phases.length)];
+    title='月占い';
+    level=phase;
+    text=FD.moon[phase];
+  }else if(type==='crystal'){
+    title='クリスタルボール';
+    level='水晶の導き';
+    text=FD.crystal[Math.floor(Math.random()*FD.crystal.length)];
+  }else if(type==='palm'){
+    title='手相占い';
+    level='手のひらの秘密';
+    text=FD.palm[Math.floor(Math.random()*FD.palm.length)];
+  }else if(type==='dream'){
+    title='夢占い';
+    level='夢のメッセージ';
+    text=FD.dream[Math.floor(Math.random()*FD.dream.length)];
+  }else if(type==='funny'){
+    title='面白占い';
+    level='わっはっは！';
+    text=FD.funny[Math.floor(Math.random()*FD.funny.length)];
   }
+
+  // 結果表示
+  document.getElementById('f-name').textContent=npc.name+'の'+title;
+  document.getElementById('f-type-label').textContent=title;
+  document.getElementById('f-level').textContent=level;
+  document.getElementById('f-text').textContent=text;
+  if(detail){
+    document.getElementById('f-detail').textContent=detail;
+    document.getElementById('f-detail').style.display='block';
+  }else{
+    document.getElementById('f-detail').style.display='none';
+  }
+  document.getElementById('fortune-overlay').classList.add('show');
+  document.getElementById('f-close').onclick=()=>{
+    document.getElementById('fortune-overlay').classList.remove('show');
+  };
+
+  // 統計更新
+  G.fortuneCount++;
+  G.fortunePower=Math.min(100,G.fortunePower+5);
+  G.luck=Math.min(100,G.luck+3);
+  G.fortuneHistory.unshift({date:new Date().toLocaleDateString('ja-JP'),npc:npc.name,type:title,level:level,text:text});
+  const key=type+'_'+level;
+  G.collection[key]=(G.collection[key]||0)+1;
+  saveData();
+  updateUI();
+  playSE('fortune');
+
+  // バブル
+  addBubble(npc.x,npc.y-40,'占い完了！✨',50);
 }
 
-function drawAll() {
-  if (!ctx) return;
-  const w = canvas.width;
-  const h = canvas.height;
-  ctx.clearRect(0, 0, w, h);
-
-  const a = areas[G.areaIdx];
-
-  const sky = ctx.createLinearGradient(0, 0, 0, h * 0.45);
-  sky.addColorStop(0, a.sky[0]);
-  sky.addColorStop(0.5, a.sky[1]);
-  sky.addColorStop(1, a.sky[2]);
-  ctx.fillStyle = sky;
-  ctx.fillRect(0, 0, w, h * 0.45);
-
-  const grd = ctx.createLinearGradient(0, h * 0.45, 0, h);
-  grd.addColorStop(0, a.ground[0]);
-  grd.addColorStop(0.4, a.ground[1]);
-  grd.addColorStop(1, a.ground[2]);
-  ctx.fillStyle = grd;
-  ctx.fillRect(0, h * 0.45, w, h * 0.55);
-
-  drawAreaFeature(a.id, w, h);
-  drawParticles(w, h);
-
-  for (const n of G.npcs) {
-    drawDog(n.x, n.y, n.colorMain, n.colorBelly, n.frame, true);
-  }
-
-  drawDog(G.dx, G.dy, G.myDogColor, G.myDogBelly, G.frame, false);
-  drawBubbles();
-
-  ctx.globalAlpha = 0.3 + Math.sin(G.frame / 15) * 0.15;
-  ctx.fillStyle = '#FFB74D';
-  ctx.font = 'bold 20px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('◀', 18, h / 2);
-  ctx.fillText('▶', w - 18, h / 2);
-  ctx.fillText('▲', w / 2, 24);
-  ctx.fillText('▼', w / 2, h - 12);
-  ctx.globalAlpha = 1;
-
-  drawMinimap(w, h);
+// ===================== UI更新 =====================
+function updateUI(){
+  document.getElementById('h-count').textContent=G.fortuneCount;
+  document.getElementById('sv-power').textContent=Math.floor(G.fortunePower);
+  document.getElementById('sb-power').style.width=G.fortunePower+'%';
+  document.getElementById('sv-luck').textContent=Math.floor(G.luck);
+  document.getElementById('sb-luck').style.width=G.luck+'%';
 }
 
-function gameLoop() {
-  G.frame++;
-  G.gtime++;
+// ===================== 図鑑・履歴 =====================
+function openAlbum(){
+  const grid=document.getElementById('album-grid');
+  const types=['tarot','omikuji','zodiac','numerology','blood','moon','crystal','palm','dream','funny'];
+  const typeNames={tarot:'タロット',omikuji:'おみくじ',zodiac:'星座',numerology:'数秘術',blood:'血液型',moon:'月',crystal:'水晶',palm:'手相',dream:'夢',funny:'面白'};
+  let html='';
+  types.forEach(t=>{
+    let count=0;
+    Object.keys(G.collection).forEach(k=>{if(k.startsWith(t))count+=G.collection[k];});
+    html+='<div class="album-card"><div style="font-size:28px;margin-bottom:6px;">'+getTypeEmoji(t)+'</div><div class="ac-name">'+typeNames[t]+'占い</div><div class="ac-count">'+count+'回</div></div>';
+  });
+  grid.innerHTML=html;
+  document.getElementById('album-overlay').classList.add('show');
+}
+function closeAlbum(){document.getElementById('album-overlay').classList.remove('show');}
+function getTypeEmoji(t){return{tarot:'🃏',omikuji:'⛩️',zodiac:'⭐',numerology:'🔢',blood:'💉',moon:'🌙',crystal:'🔮',palm:'✋',dream:'💭',funny:'😂'}[t]||'🔮';}
 
-  if (G.tx !== null) {
-    const dx = G.tx - G.px;
-    const dy = G.ty - G.py;
-    const d = Math.hypot(dx, dy);
-    if (d > 3) {
-      const ease = Math.min(0.12, 4.0 / d);
-      G.px += dx * ease;
-      G.py += dy * ease;
-    } else {
-      G.tx = null;
-      G.ty = null;
-    }
+function openHistory(){
+  const list=document.getElementById('hist-list');
+  let html='';
+  G.fortuneHistory.slice(0,20).forEach(h=>{
+    html+='<div class="hist-item"><div class="hist-icon">🔮</div><div class="hist-info"><b>'+h.npc+'</b> '+h.type+'<br>'+h.level+' - '+h.text.substring(0,30)+'…<br><span style="color:#aaa;font-size:10px;">'+h.date+'</span></div></div>';
+  });
+  if(!html)html='<div style="text-align:center;color:#999;padding:40px;">まだ占い履歴がありません</div>';
+  list.innerHTML=html;
+  document.getElementById('history-overlay').classList.add('show');
+}
+function closeHistory(){document.getElementById('history-overlay').classList.remove('show');}
+
+// ===================== チュートリアル =====================
+const tutSteps=[
+  {title:'タップして移動',text:'画面をタップして移動できます。\n柴犬があなたについてきます！'},
+  {title:'占い師と話す',text:'柴犬やキャラクターをタップすると\n占いをしてもらえます！'},
+  {title:'エリアを探索',text:'画面の端をタップすると\n別のエリアに移動できます。\n6つのエリアを巡ろう！'}
+];
+function showTutorial(){
+  G.tutStep=0;
+  renderTutStep();
+  document.getElementById('tutorial-overlay').classList.add('show');
+}
+function renderTutStep(){
+  const s=tutSteps[G.tutStep];
+  document.getElementById('tut-title').textContent=s.title;
+  document.getElementById('tut-text').textContent=s.text;
+  let dots='';
+  for(let i=0;i<tutSteps.length;i++)dots+='<div class="tut-dot'+(i===G.tutStep?' active':'')+'"></div>';
+  document.getElementById('tut-dots').innerHTML=dots;
+}
+function nextTutorial(){
+  G.tutStep++;
+  if(G.tutStep>=tutSteps.length){
+    document.getElementById('tutorial-overlay').classList.remove('show');
+    G.tutDone=true;
+    localStorage.setItem('shibaFortuneTutDone','true');
+  }else{renderTutStep();}
+}
+
+// ===================== バブル・パーティクル =====================
+function addBubble(x,y,text,life){G.bubbles.push({x,y,text,life:life||40});}
+
+// ===================== ゲームループ =====================
+function startLoop(){if(G.loopRunning)return;G.loopRunning=true;G.lastTime=performance.now();requestAnimationFrame(gameFrame);}
+function stopLoop(){G.loopRunning=false;}
+function gameFrame(now){
+  if(!G.loopRunning)return;
+  const dt=now-G.lastTime;
+  if(dt>=16){G.lastTime=now;gameLoop();}
+  requestAnimationFrame(gameFrame);
+}
+
+function gameLoop(){
+  G.frame++;G.gtime++;
+
+  // プレイヤー移動
+  if(G.tx!==null){
+    const dx=G.tx-G.px,dy=G.ty-G.py,d=Math.hypot(dx,dy);
+    if(d>3){const ease=Math.min(0.12,4.0/d);G.px+=dx*ease;G.py+=dy*ease;}
+    else{G.tx=null;G.ty=null;}
   }
 
-  const targetX = G.px + 25;
-  const targetY = G.py + 15;
-  const dx2 = targetX - G.dx;
-  const dy2 = targetY - G.dy;
-  const d2 = Math.hypot(dx2, dy2);
-  if (d2 > 5) {
-    const lerp = 0.08;
-    G.dx += dx2 * lerp;
-    G.dy += dy2 * lerp;
+  // 犬追従
+  const tdx=G.px-30,tdy=G.py+15;
+  const ddx=tdx-G.dx,ddy=tdy-G.dy,dd=Math.hypot(ddx,ddy);
+  if(dd>5){const lerp=0.06+Math.min(1,2.2/dd*3)*0.08;G.dx+=ddx*lerp;G.dy+=ddy*lerp;}
+
+  // NPC移動
+  for(const n of G.npcs){
+    n.fr++;
+    n.x+=n.vx;n.y+=n.vy;
+    if(n.x<30||n.x>cW-30)n.vx*=-1;
+    if(n.y<canvas.height*0.25||n.y>canvas.height*0.8)n.vy*=-1;
+    if(Math.random()>0.98){n.vx=(Math.random()-.5)*0.6;n.vy=(Math.random()-.5)*0.3;}
   }
 
-  moveNPCs();
+  // 境界
+  G.px=Math.max(25,Math.min(cW-25,G.px));
+  G.py=Math.max(canvas.height*0.25,Math.min(canvas.height*0.85,G.py));
 
-  const m = 25;
-  G.px = Math.max(m, Math.min(cW - m, G.px));
-  G.py = Math.max(cH * 0.25, Math.min(cH * 0.85, G.py));
+  // 運気ゆらぎ
+  if(G.gtime%300===0)G.luck=Math.max(20,Math.min(100,G.luck+(Math.random()-.5)*10));
+
+  // バブル更新
+  G.bubbles=G.bubbles.filter(b=>{b.life--;b.y-=0.5;return b.life>0;});
 
   drawAll();
 }
 
-function startLoop() {
-  if (G.loopRunning) return;
-  G.loopRunning = true;
-  G.lastTime = performance.now();
-  requestAnimationFrame(gameFrame);
-}
+// ===================== 描画 =====================
+function drawAll(){
+  if(!ctx)return;
+  const w=canvas.width,h=canvas.height;
+  ctx.clearRect(0,0,w,h);
+  const a=areas[G.areaIdx];
 
-function gameFrame(now) {
-  if (!G.loopRunning) return;
-  const dt = now - G.lastTime;
-  if (dt >= 16) {
-    G.lastTime = now;
-    gameLoop();
-  }
-  requestAnimationFrame(gameFrame);
-}
+  // 空
+  const sky=ctx.createLinearGradient(0,0,0,h*0.45);
+  sky.addColorStop(0,a.sky[0]);sky.addColorStop(0.5,a.sky[1]);sky.addColorStop(1,a.sky[2]);
+  ctx.fillStyle=sky;ctx.fillRect(0,0,w,h*0.45);
 
-function changeArea(idx) {
-  if (idx < 0 || idx >= areas.length) return;
-  cW = canvas.width;
-  cH = canvas.height;
-  G.areaIdx = idx;
-  G.px = cW / 2;
-  G.py = cH * 0.7;
-  G.dx = cW / 2;
-  G.dy = cH * 0.7;
-  spawnNPCs();
-  
-  document.getElementById('area-name').textContent = areas[idx].name;
-  document.getElementById('area-title').textContent = areas[idx].name;
-}
-
-document.getElementById('start-btn').onclick = () => {
-  document.getElementById('title-screen').classList.remove('active');
-  document.getElementById('game-screen').classList.add('active');
-
-  resizeCanvas();
-  cW = canvas.width;
-  cH = canvas.height;
-  G.px = cW / 2;
-  G.py = cH * 0.65;
-  G.dx = cW / 2 + 25;
-  G.dy = cH * 0.65 + 15;
-
-  changeArea(0);
-  startLoop();
-};
-
-canvas.addEventListener('click', (e) => {
-  const rect = canvas.getBoundingClientRect();
-  const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-  const y = (e.clientY - rect.top) * (canvas.height / rect.height);
-  handleTap(x, y);
-});
-
-function handleTap(x, y) {
-  // NPC tap detection
-  for (const n of G.npcs) {
-    if (Math.hypot(n.x - x, n.y - y) < 40) {
-      talkNPC(n);
-      return;
+  // 太陽/月
+  if(G.areaIdx===3||G.areaIdx===4){
+    ctx.fillStyle='#FFFFCC';ctx.shadowColor='#FFFFCC';ctx.shadowBlur=20;
+    ctx.beginPath();ctx.arc(w*0.85,h*0.08,15,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=0;
+    // 星
+    ctx.fillStyle='#FFD700';
+    for(let i=0;i<12;i++){
+      const sx=(G.frame*0.3+i*97)%w;
+      const sy=h*0.05+Math.sin(G.frame*0.02+i*1.3)*h*0.15;
+      ctx.beginPath();ctx.arc(sx,sy,1.5,0,Math.PI*2);ctx.fill();
     }
+  }else{
+    ctx.fillStyle='#FFF9C4';ctx.shadowColor='#FFEE58';ctx.shadowBlur=25;
+    ctx.beginPath();ctx.arc(w*0.85,h*0.08,20,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=0;
   }
-  // Edge tap for area change
-  if (x < 50) { changeArea(G.areaIdx - 1); return; }
-  if (x > cW - 50) { changeArea(G.areaIdx + 1); return; }
-  // Move
-  G.tx = x;
-  G.ty = y;
+
+  // 雲
+  drawCloud(w*0.2+Math.sin(G.frame*0.005)*20,h*0.06,1);
+  drawCloud(w*0.6,h*0.1+Math.cos(G.frame*0.006)*10,.7);
+  drawCloud(w*0.9,h*0.05,.5);
+
+  // 地面
+  const grd=ctx.createLinearGradient(0,h*0.45,0,h);
+  grd.addColorStop(0,a.ground[0]);grd.addColorStop(.4,a.ground[1]);grd.addColorStop(1,a.ground[2]);
+  ctx.fillStyle=grd;ctx.fillRect(0,h*0.45,w,h*0.55);
+
+  // エリア固有描画
+  drawAreaFeatures(a.id,w,h);
+
+  // 矢印ヒント
+  ctx.globalAlpha=0.3+Math.sin(G.frame/15)*0.15;
+  ctx.fillStyle='#FFB74D';ctx.font='bold 20px sans-serif';ctx.textAlign='center';
+  if(G.areaIdx>0)ctx.fillText('◀',18,h/2);
+  if(G.areaIdx<areas.length-1)ctx.fillText('▶',w-18,h/2);
+  ctx.globalAlpha=1;
+
+  // NPC描画
+  for(const n of G.npcs){
+    if(n.kind==='cat')drawCat(n.x,n.y,n.fr);
+    else if(n.kind==='plankton')drawPlankton(n.x,n.y,n.colorMain,n.fr);
+    else if(n.kind==='serow')drawSerow(n.x,n.y,n.fr);
+    else drawDog(n.x,n.y,n.colorMain,n.colorBelly,n.fr);
+    // 名前ラベル
+    ctx.fillStyle='rgba(0,0,0,.5)';ctx.font='bold 9px sans-serif';ctx.textAlign='center';
+    ctx.fillText(n.name,n.x,n.y+25);
+  }
+
+  // プレイヤー
+  drawOwner(G.px,G.py);
+
+  // プレイヤーの犬
+  drawDog(G.dx,G.dy,'#C9A772','#FFF8E1',G.frame);
+
+  // バブル
+  for(const b of G.bubbles){
+    ctx.globalAlpha=Math.min(1,b.life/20);
+    const tw=ctx.measureText(b.text).width;
+    ctx.fillStyle='rgba(0,0,0,.6)';
+    roundRect(ctx,b.x-tw/2-8,b.y-10,tw+16,22,8);ctx.fill();
+    ctx.fillStyle='#fff';ctx.font='bold 11px sans-serif';ctx.textAlign='center';
+    ctx.fillText(b.text,b.x,b.y+4);ctx.globalAlpha=1;
+  }
+
+  // ミニマップ
+  drawMinimap(w,h);
+
+  // パーティクル
+  ctx.fillStyle='rgba(255,183,77,.5)';
+  for(let i=0;i<5;i++){
+    const px=(G.frame*1.5+i*130)%w;
+    const py=h*0.15+Math.sin(G.frame*0.03+i*2)*h*0.1;
+    ctx.beginPath();ctx.arc(px,py,1.5+Math.sin(G.frame*0.1+i)*0.5,0,Math.PI*2);ctx.fill();
+  }
 }
 
-canvas.addEventListener('touchstart', (e) => {
-  e.preventDefault();
-  const rect = canvas.getBoundingClientRect();
-  const touch = e.touches[0];
-  const x = (touch.clientX - rect.left) * (canvas.width / rect.width);
-  const y = (touch.clientY - rect.top) * (canvas.height / rect.height);
-  handleTap(x, y);
-  
-  if (x < 30) changeArea(G.areaIdx - 3);
-  else if (x > cW - 30) changeArea(G.areaIdx + 3);
-  else if (y < 30) changeArea(G.areaIdx - 1);
-  else if (y > cH - 30) changeArea(G.areaIdx + 1);
-});
+function roundRect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
 
-function talkNPC(npc) {
-  const modal = document.getElementById('modal');
-  const title = document.getElementById('modal-title');
-  const msg = document.getElementById('modal-message');
-  const btn = document.getElementById('modal-btn');
-  
-  title.textContent = npc.name;
-  msg.textContent = npc.greeting;
-  
-  btn.onclick = () => {
-    modal.classList.remove('show');
-    showFortune(npc.type, npc.name);
-    G.fortuneCount++;
-    document.getElementById('fortune-count').textContent = G.fortuneCount;
-  };
-  
-  document.getElementById('modal-close').onclick = () => {
-    modal.classList.remove('show');
-  };
-  
-  modal.classList.add('show');
+// ===== 描画関数 =====
+function drawDog(x,y,cm,cb,fr){
+  ctx.save();
+  // 影
+  ctx.fillStyle='rgba(0,0,0,.1)';ctx.beginPath();ctx.ellipse(x,y+16,16,5,0,0,Math.PI*2);ctx.fill();
+  // 胴体
+  ctx.fillStyle=cm;ctx.beginPath();ctx.ellipse(x,y,24,18,0,0,Math.PI*2);ctx.fill();
+  // お腹
+  ctx.fillStyle=cb;ctx.beginPath();ctx.ellipse(x,y+6,14,12,0,0,Math.PI*2);ctx.fill();
+  // 頭
+  ctx.fillStyle=cm;ctx.beginPath();ctx.arc(x+22,y-12,13,0,Math.PI*2);ctx.fill();
+  // 耳
+  ctx.beginPath();ctx.moveTo(x+16,y-26);ctx.lineTo(x+12,y-36);ctx.lineTo(x+24,y-28);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(x+28,y-26);ctx.lineTo(x+32,y-36);ctx.lineTo(x+36,y-28);ctx.closePath();ctx.fill();
+  // 目
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse(x+18,y-15,4,5,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(x+28,y-15,4,5,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#333';ctx.beginPath();ctx.arc(x+18,y-14,2,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(x+28,y-14,2,0,Math.PI*2);ctx.fill();
+  // 鼻
+  ctx.fillStyle='#333';ctx.beginPath();ctx.arc(x+23,y-8,2.5,0,Math.PI*2);ctx.fill();
+  // しっぽ
+  const tw=Math.sin(fr*0.08)*12;
+  ctx.strokeStyle=cm;ctx.lineWidth=4;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(x-24,y+6);ctx.quadraticCurveTo(x-38,y-4+tw,x-42,y-14+tw);ctx.stroke();
+  ctx.restore();
 }
 
-window.addEventListener('resize', () => {
-  resizeCanvas();
-  cW = canvas.width;
-  cH = canvas.height;
-  G.px = cW / 2;
-  G.py = cH * 0.7;
-  G.dx = cW / 2;
-  G.dy = cH * 0.7;
-  spawnNPCs();
-});
+function drawCat(x,y,fr){
+  ctx.save();
+  ctx.fillStyle='#FF9800';ctx.beginPath();ctx.ellipse(x,y+5,12,16,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(x,y-8,10,0,Math.PI*2);ctx.fill();
+  // 尖った耳
+  ctx.beginPath();ctx.moveTo(x-8,y-16);ctx.lineTo(x-5,y-26);ctx.lineTo(x-2,y-16);ctx.fill();
+  ctx.beginPath();ctx.moveTo(x+2,y-16);ctx.lineTo(x+5,y-26);ctx.lineTo(x+8,y-16);ctx.fill();
+  // 目
+  ctx.fillStyle='#FFEB3B';ctx.beginPath();ctx.ellipse(x-4,y-10,2,3,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(x+4,y-10,2,3,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#333';ctx.beginPath();ctx.arc(x-4,y-10,1,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(x+4,y-10,1,0,Math.PI*2);ctx.fill();
+  // 鼻
+  ctx.fillStyle='#FF69B4';ctx.beginPath();ctx.arc(x,y-5,1.5,0,Math.PI*2);ctx.fill();
+  // しっぽ
+  ctx.strokeStyle='#FF9800';ctx.lineWidth=3;ctx.beginPath();
+  ctx.moveTo(x+10,y+5);ctx.quadraticCurveTo(x+18,Math.sin(fr*0.12)*8+y,x+20,y-10);ctx.stroke();
+  ctx.restore();
+}
 
-window.addEventListener('load', () => {
-  drawDog(100, 60, '#C9A772', '#E8D5C4', 0, false);
-});
+function drawPlankton(x,y,col,fr){
+  ctx.save();
+  const bob=Math.sin(fr*0.06)*3;
+  ctx.globalAlpha=0.7+0.3*Math.sin(fr*0.05);
+  ctx.fillStyle=col;
+  for(let i=0;i<4;i++){
+    const a=(Math.PI*2/4)*i+fr*0.02;
+    const px=x+Math.cos(a)*5;const py=y+bob+Math.sin(a)*5;
+    ctx.beginPath();ctx.arc(px,py,2.5,0,Math.PI*2);ctx.fill();
+  }
+  ctx.beginPath();ctx.arc(x,y+bob,4,0,Math.PI*2);ctx.fill();
+  ctx.globalAlpha=1;
+  ctx.restore();
+}
+
+function drawSerow(x,y,fr){
+  ctx.save();
+  // 胴体
+  ctx.fillStyle='#795548';ctx.beginPath();ctx.ellipse(x,y,20,14,0,0,Math.PI*2);ctx.fill();
+  // 頭
+  ctx.beginPath();ctx.arc(x+20,y-4,11,0,Math.PI*2);ctx.fill();
+  // 角
+  ctx.strokeStyle='#555';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(x+17,y-13);ctx.lineTo(x+15,y-22);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x+23,y-13);ctx.lineTo(x+25,y-22);ctx.stroke();
+  // 目
+  ctx.fillStyle='#333';ctx.beginPath();ctx.arc(x+24,y-5,2,0,Math.PI*2);ctx.fill();
+  // 脚
+  ctx.strokeStyle='#795548';ctx.lineWidth=3;
+  for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(x-10+i*7,y+12);ctx.lineTo(x-10+i*7,y+22);ctx.stroke();}
+  ctx.restore();
+}
+
+function drawOwner(x,y){
+  ctx.save();
+  // 頭
+  ctx.fillStyle='#FFDBAC';ctx.beginPath();ctx.arc(x,y-16,8,0,Math.PI*2);ctx.fill();
+  // 髪
+  ctx.fillStyle='#5D4037';ctx.beginPath();ctx.arc(x,y-20,8,Math.PI,0);ctx.fill();
+  // 体
+  ctx.fillStyle='#FF7043';ctx.fillRect(x-7,y-6,14,16);
+  // 腕
+  ctx.fillStyle='#FFDBAC';ctx.fillRect(x-12,y-4,5,4);ctx.fillRect(x+7,y-4,5,4);
+  // 脚
+  ctx.fillStyle='#455A64';ctx.fillRect(x-5,y+10,4,8);ctx.fillRect(x+1,y+10,4,8);
+  ctx.restore();
+}
+
+function drawCloud(x,y,s){
+  ctx.save();ctx.translate(x,y);ctx.scale(s,s);
+  ctx.fillStyle='rgba(255,255,255,.7)';
+  ctx.beginPath();ctx.arc(-12,0,10,0,Math.PI*2);ctx.arc(0,-4,14,0,Math.PI*2);ctx.arc(12,0,10,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+
+function drawMinimap(w,h){
+  const mx=w-65,my=10,mw=55,mh=45;
+  ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(mx,my,mw,mh);
+  ctx.strokeStyle='#FFB74D';ctx.lineWidth=1;ctx.strokeRect(mx,my,mw,mh);
+  for(let i=0;i<6;i++){
+    const row=Math.floor(i/3),col=i%3;
+    const px=mx+5+col*17,py=my+5+row*18;
+    ctx.fillStyle=i===G.areaIdx?'#FFB74D':'#555';
+    ctx.beginPath();ctx.arc(px+6,py+6,5,0,Math.PI*2);ctx.fill();
+  }
+}
+
+function drawAreaFeatures(id,w,h){
+  if(id==='village'){
+    // 家
+    ctx.fillStyle='#CD853F';ctx.fillRect(w*0.12,h*0.33,65,55);
+    ctx.fillStyle='#FF6347';ctx.beginPath();ctx.moveTo(w*0.12,h*0.33);ctx.lineTo(w*0.12+32,h*0.22);ctx.lineTo(w*0.12+65,h*0.33);ctx.closePath();ctx.fill();
+    // 窓
+    ctx.fillStyle='#87CEEB';ctx.fillRect(w*0.12+15,h*0.33+12,12,12);ctx.fillRect(w*0.12+38,h*0.33+12,12,12);
+    // ドア
+    ctx.fillStyle='#8B4513';ctx.fillRect(w*0.12+24,h*0.33+30,18,25);
+    // 井戸
+    ctx.fillStyle='#808080';ctx.fillRect(w*0.7,h*0.45,30,25);
+    ctx.fillStyle='#666';ctx.fillRect(w*0.7-2,h*0.43,34,6);
+    // 花
+    const colors=['#FF69B4','#FFD700','#FF6347','#9370DB','#00CED1'];
+    for(let i=0;i<8;i++){
+      ctx.fillStyle=colors[i%colors.length];
+      ctx.beginPath();ctx.arc(w*0.3+i*25,h*0.48+Math.sin(i)*8,4,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#228B22';ctx.fillRect(w*0.3+i*25-1,h*0.48+Math.sin(i)*8+3,2,8);
+    }
+  }else if(id==='tarot'){
+    // ゴシック建物
+    ctx.fillStyle='#4A148C';ctx.fillRect(w*0.1,h*0.25,90,80);
+    ctx.fillStyle='#7B1FA2';ctx.beginPath();ctx.moveTo(w*0.1,h*0.25);ctx.lineTo(w*0.1+45,h*0.1);ctx.lineTo(w*0.1+90,h*0.25);ctx.closePath();ctx.fill();
+    // 窓（ステンドグラス風）
+    ctx.fillStyle='#CE93D8';ctx.beginPath();ctx.arc(w*0.1+45,h*0.32,12,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#E1BEE7';ctx.beginPath();ctx.arc(w*0.1+45,h*0.32,6,0,Math.PI*2);ctx.fill();
+    // クリスタルボール
+    const glow=0.5+0.3*Math.sin(G.frame*0.05);
+    ctx.fillStyle='rgba(186,85,211,'+glow+')';ctx.beginPath();ctx.arc(w*0.65,h*0.4,18,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#9C27B0';ctx.lineWidth=2;ctx.stroke();
+    // 魔法記号
+    ctx.fillStyle='rgba(206,147,216,.6)';ctx.font='18px sans-serif';
+    ctx.fillText('✦',w*0.8,h*0.2);ctx.fillText('✧',w*0.5,h*0.15);ctx.fillText('✦',w*0.85,h*0.35);
+  }else if(id==='shrine'){
+    // 鳥居
+    ctx.strokeStyle='#D32F2F';ctx.lineWidth=6;
+    ctx.beginPath();ctx.moveTo(w*0.2,h*0.5);ctx.lineTo(w*0.2,h*0.3);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(w*0.45,h*0.5);ctx.lineTo(w*0.45,h*0.3);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(w*0.17,h*0.3);ctx.lineTo(w*0.48,h*0.3);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(w*0.19,h*0.34);ctx.lineTo(w*0.46,h*0.34);ctx.stroke();
+    // 神社本殿
+    ctx.fillStyle='#8B4513';ctx.fillRect(w*0.55,h*0.35,70,55);
+    ctx.fillStyle='#D32F2F';ctx.beginPath();ctx.moveTo(w*0.53,h*0.35);ctx.lineTo(w*0.55+35,h*0.2);ctx.lineTo(w*0.55+72,h*0.35);ctx.closePath();ctx.fill();
+    // 石段
+    ctx.fillStyle='#999';
+    for(let i=0;i<3;i++)ctx.fillRect(w*0.3-i*5,h*0.5+i*8,w*0.1+i*10,5);
+  }else if(id==='zodiac'){
+    // 天文台ドーム
+    ctx.fillStyle='#37474F';ctx.beginPath();ctx.arc(w*0.7,h*0.35,35,Math.PI,0);ctx.fill();
+    ctx.fillRect(w*0.7-35,h*0.35,70,40);
+    // 望遠鏡
+    ctx.strokeStyle='#607D8B';ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(w*0.3,h*0.45);ctx.lineTo(w*0.2,h*0.3);ctx.stroke();
+    ctx.fillStyle='#78909C';ctx.beginPath();ctx.arc(w*0.2,h*0.3,8,0,Math.PI*2);ctx.fill();
+    // 星座ライン
+    ctx.strokeStyle='rgba(255,215,0,.4)';ctx.lineWidth=1;
+    const stars=[[w*0.4,h*0.1],[w*0.5,h*0.15],[w*0.55,h*0.08],[w*0.45,h*0.2],[w*0.35,h*0.18]];
+    ctx.beginPath();stars.forEach((s,i)=>{if(i===0)ctx.moveTo(s[0],s[1]);else ctx.lineTo(s[0],s[1]);});ctx.stroke();
+    ctx.fillStyle='#FFD700';stars.forEach(s=>{ctx.beginPath();ctx.arc(s[0],s[1],3,0,Math.PI*2);ctx.fill();});
+  }else if(id==='spring'){
+    // 泉
+    const shimmer=0.4+0.2*Math.sin(G.frame*0.03);
+    ctx.fillStyle='rgba(0,188,212,'+shimmer+')';ctx.beginPath();ctx.ellipse(w*0.4,h*0.45,50,30,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(77,208,225,.6)';ctx.beginPath();ctx.ellipse(w*0.4,h*0.45,30,18,0,0,Math.PI*2);ctx.fill();
+    // クリスタル
+    ctx.fillStyle='#9C27B0';
+    ctx.beginPath();ctx.moveTo(w*0.7,h*0.35);ctx.lineTo(w*0.73,h*0.25);ctx.lineTo(w*0.76,h*0.35);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#AB47BC';
+    ctx.beginPath();ctx.moveTo(w*0.75,h*0.38);ctx.lineTo(w*0.77,h*0.3);ctx.lineTo(w*0.8,h*0.38);ctx.closePath();ctx.fill();
+    // 月光効果
+    ctx.fillStyle='rgba(255,255,200,.15)';ctx.beginPath();ctx.arc(w*0.4,h*0.2,60,0,Math.PI*2);ctx.fill();
+  }else if(id==='alley'){
+    // カラフルショップ
+    ctx.fillStyle='#FFCCFF';ctx.fillRect(w*0.08,h*0.35,50,45);
+    ctx.fillStyle='#FF69B4';ctx.beginPath();ctx.moveTo(w*0.08,h*0.35);ctx.lineTo(w*0.08+25,h*0.26);ctx.lineTo(w*0.08+50,h*0.35);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#CCFFCC';ctx.fillRect(w*0.35,h*0.33,50,47);
+    ctx.fillStyle='#66BB6A';ctx.beginPath();ctx.moveTo(w*0.35,h*0.33);ctx.lineTo(w*0.35+25,h*0.24);ctx.lineTo(w*0.35+50,h*0.33);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#CCCCFF';ctx.fillRect(w*0.62,h*0.35,50,45);
+    ctx.fillStyle='#7986CB';ctx.beginPath();ctx.moveTo(w*0.62,h*0.35);ctx.lineTo(w*0.62+25,h*0.26);ctx.lineTo(w*0.62+50,h*0.35);ctx.closePath();ctx.fill();
+    // ランタン
+    const lanternColors=['#FF6B6B','#FFD700','#FF69B4','#87CEEB'];
+    for(let i=0;i<4;i++){
+      ctx.fillStyle=lanternColors[i];
+      const lx=w*0.15+i*w*0.22;
+      const ly=h*0.22+Math.sin(G.frame*0.04+i)*3;
+      ctx.beginPath();ctx.arc(lx,ly,6,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='#999';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(lx,ly-6);ctx.lineTo(lx,ly-15);ctx.stroke();
+    }
+    // のぼり
+    ctx.fillStyle='rgba(255,183,77,.7)';ctx.fillRect(w*0.88,h*0.15,12,50);
+    ctx.fillStyle='#fff';ctx.font='bold 9px sans-serif';ctx.textAlign='center';
+    ctx.save();ctx.translate(w*0.88+6,h*0.2);
+    '占い'.split('').forEach((c,i)=>{ctx.fillText(c,0,i*12);});
+    ctx.restore();
+  }
+}
 </script>
 </body>
 </html>
