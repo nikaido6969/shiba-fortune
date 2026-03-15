@@ -1459,7 +1459,7 @@
         // Game loop
         function gameLoop() {
             const canvas = document.getElementById('gcanvas');
-            if (!canvas || !state.currentScreen === 'game') {
+            if (!canvas || state.currentScreen !== 'game') {
                 requestAnimationFrame(gameLoop);
                 return;
             }
@@ -1515,19 +1515,14 @@
             const blood = document.getElementById('userBloodType').value;
             const zodiac = document.getElementById('userZodiac').value;
 
-            if (!blood || !zodiac) {
-                alert('血液型と星座を選んでください');
-                return;
-            }
-
             state.playerName = name;
             state.playerGender = gender;
             state.playerBirthday = birthday;
-            state.playerBloodType = blood;
-            state.playerZodiac = zodiac;
+            state.playerBloodType = blood || 'O';
+            state.playerZodiac = zodiac || 'おひつじ座';
 
             document.getElementById('player-name').textContent = name;
-            document.getElementById('player-blood').textContent = blood;
+            document.getElementById('player-blood').textContent = state.playerBloodType;
 
             // Initialize player position
             state.playerX = document.getElementById('gcanvas').width / 2;
@@ -1539,9 +1534,7 @@
         }
 
         function goToTitle() {
-            if (confirm('本当に終了しますか？')) {
-                showScreen('title');
-            }
+            showScreen('title');
         }
 
         function changeArea(direction) {
