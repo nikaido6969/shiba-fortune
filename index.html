@@ -214,14 +214,14 @@
                     </div>
                 </div>
                 <div class="form-buttons">
-                    <button class="btn btn-secondary" onclick="app.showScreen('titleScreen')">戻る</button>
+                    <button class="btn btn-secondary" id="profileBackBtn" onclick="app.showScreen('titleScreen')">戻る</button>
                     <button class="btn btn-primary" onclick="app.saveProfile()">占ってもらう</button>
                 </div>
             </div>
         </div>
 
         <div id="menuScreen" class="screen">
-            <button class="profile-btn" onclick="app.showScreen('profileScreen')">👤</button>
+            <button class="profile-btn" onclick="app.editProfile()">👤</button>
             <div class="menu-header">
                 <div class="greeting" id="greeting">こんにちは！</div>
                 <div class="zodiac-badge" id="zodiacBadge">♈ おひつじ座</div>
@@ -852,6 +852,26 @@ class FortuneApp {
     }
 
     startGame() {
+        this.prefillProfile();
+        this.showScreen('profileScreen');
+    }
+
+    prefillProfile() {
+        if (this.profile) {
+            document.getElementById('nameInput').value = this.profile.name || '';
+            document.getElementById('yearInput').value = this.profile.year || '';
+            document.getElementById('monthInput').value = this.profile.month || '';
+            document.getElementById('dayInput').value = this.profile.day || '';
+            if (this.profile.bloodType) {
+                this.selectBloodType(this.profile.bloodType);
+            }
+        }
+    }
+
+    editProfile() {
+        this.prefillProfile();
+        document.getElementById('profileBackBtn').textContent = 'キャンセル';
+        document.getElementById('profileBackBtn').setAttribute('onclick', "app.showScreen('menuScreen')");
         this.showScreen('profileScreen');
     }
 
@@ -1245,6 +1265,8 @@ const app = new FortuneApp();
 
 if (app.profile) {
     app.showMenu();
+} else {
+    app.showScreen('titleScreen');
 }
 </script>
 </body>
