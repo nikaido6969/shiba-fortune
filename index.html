@@ -1,1273 +1,746 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>柴犬うらないハウス</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-            font-family: 'Hiragino Maru Gothic ProN', 'Hiragino Sans', 'Meiryo', sans-serif;
-            -webkit-user-select: none;
-            user-select: none;
-            overflow: hidden;
-        }
-
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 200, 100, 0.5); border-radius: 4px; }
-
-        body { position: fixed; overflow: auto; padding: max(0px, env(safe-area-inset-top)) max(0px, env(safe-area-inset-right)) max(0px, env(safe-area-inset-bottom)) max(0px, env(safe-area-inset-left)); }
-        .container { width: 100%; height: 100%; position: relative; overflow: hidden; }
-        .screen { position: absolute; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s ease; pointer-events: none; }
-        .screen.active { opacity: 1; pointer-events: auto; }
-
-        #titleScreen { background: linear-gradient(135deg, #3a2a5d 0%, #5a3a8d 30%, #7a4aad 60%, #5a3a7d 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: auto; color: white; }
-        .stars-bg { position: absolute; width: 100%; height: 100%; top: 0; left: 0; }
-        .star { position: absolute; background: white; border-radius: 50%; animation: twinkle 3s infinite; }
-        @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-
-        .title-content { position: relative; z-index: 10; text-align: center; padding: 20px; }
-        .shiba-fortune-teller { font-size: 120px; margin-bottom: 20px; animation: float 3s ease-in-out infinite; filter: drop-shadow(0 4px 8px rgba(255, 200, 100, 0.3)); }
-        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
-
-        .title { font-size: 48px; font-weight: bold; margin-bottom: 10px; text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); letter-spacing: 2px; }
-        .subtitle { font-size: 18px; margin-bottom: 40px; opacity: 0.9; font-weight: 300; }
-
-        .btn { padding: 14px 28px; font-size: 18px; border: none; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; font-family: 'Hiragino Maru Gothic ProN', 'Hiragino Sans', 'Meiryo', sans-serif; font-weight: bold; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); min-height: 44px; min-width: 44px; }
-        .btn-primary { background: linear-gradient(135deg, #ffc864 0%, #ffb84d 100%); color: #5a3a1a; box-shadow: 0 4px 12px rgba(255, 200, 100, 0.3); }
-        .btn-primary:active { transform: scale(0.95); }
-        .btn-secondary { background: linear-gradient(135deg, #e8d4f8 0%, #d4bce8 100%); color: #4a2a5a; }
-        .btn-secondary:active { transform: scale(0.95); }
-
-        #profileScreen { background: linear-gradient(135deg, #fff4e6 0%, #ffe8d6 50%, #f0e6ff 100%); overflow: auto; padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #333; }
-        .form-container { width: 100%; max-width: 400px; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); }
-        .form-title { font-size: 28px; font-weight: bold; margin-bottom: 8px; text-align: center; color: #5a3a5a; }
-        .form-subtitle { font-size: 14px; text-align: center; color: #888; margin-bottom: 24px; }
-        .form-group { margin-bottom: 20px; }
-        .form-label { display: block; font-size: 14px; font-weight: bold; color: #5a3a5a; margin-bottom: 8px; }
-
-        input[type="text"], input[type="number"], select { width: 100%; padding: 12px; border: 2px solid #ffe8cc; border-radius: 8px; font-size: 16px; font-family: 'Hiragino Maru Gothic ProN', 'Hiragino Sans', 'Meiryo', sans-serif; transition: border-color 0.3s ease; color: #333; }
-        input[type="text"]:focus, input[type="number"]:focus, select:focus { outline: none; border-color: #ffb84d; box-shadow: 0 0 0 3px rgba(255, 184, 77, 0.1); }
-
-        .date-inputs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-        .blood-type-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 8px; }
-        .blood-type-btn { padding: 12px; border: 2px solid #ffe8cc; border-radius: 8px; background: white; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; color: #5a3a5a; min-height: 44px; }
-        .blood-type-btn.selected { background: #ffb84d; border-color: #ffb84d; color: white; box-shadow: 0 4px 12px rgba(255, 184, 77, 0.3); }
-        .form-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 30px; }
-
-        #menuScreen { background: linear-gradient(135deg, #fff4e6 0%, #ffe8d6 50%, #f0e6ff 100%); overflow: auto; padding: 20px; color: #333; }
-        .menu-header { text-align: center; margin-bottom: 30px; padding: 0 20px; }
-        .greeting { font-size: 24px; font-weight: bold; color: #5a3a5a; margin-bottom: 8px; }
-        .zodiac-badge { display: inline-block; background: linear-gradient(135deg, #ffb84d 0%, #ffc864 100%); color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-top: 8px; box-shadow: 0 2px 8px rgba(255, 184, 77, 0.3); }
-
-        .fortune-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 30px; }
-        .fortune-card { background: white; border-radius: 16px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); border: 2px solid transparent; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 44px; }
-        .fortune-card:active { transform: scale(0.95); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12); }
-        .fortune-icon { font-size: 32px; margin-bottom: 10px; }
-        .fortune-label { font-size: 12px; font-weight: bold; color: #5a3a5a; }
-
-        .menu-footer { text-align: center; padding: 20px; }
-        .collection-btn { background: linear-gradient(135deg, #e8d4f8 0%, #d4bce8 100%); color: #4a2a5a; padding: 12px 24px; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: bold; font-family: 'Hiragino Maru Gothic ProN', 'Hiragino Sans', 'Meiryo', sans-serif; min-height: 44px; width: 100%; }
-
-        #resultScreen { background: linear-gradient(135deg, #fff4e6 0%, #ffe8d6 50%, #f0e6ff 100%); overflow: auto; padding: 20px; display: flex; flex-direction: column; }
-        .result-container { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); margin-bottom: 20px; }
-        .fortune-teller-speak { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 25px; }
-        .fortune-avatar { font-size: 80px; flex-shrink: 0; animation: bounce 2s ease-in-out infinite; }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-
-        .speech-bubble { background: linear-gradient(135deg, #fff9f0 0%, #fff4e6 100%); border: 2px solid #ffc864; border-radius: 12px; padding: 15px; font-size: 14px; color: #5a3a5a; position: relative; }
-        .speech-bubble::before { content: ''; position: absolute; bottom: -8px; left: 20px; width: 0; height: 0; border-left: 8px solid transparent; border-right: 0px solid transparent; border-top: 8px solid #ffc864; }
-
-        .fortune-content { margin: 25px 0; }
-        .fortune-section { margin-bottom: 20px; }
-        .fortune-section-label { font-size: 13px; font-weight: bold; color: #8a6a8a; margin-bottom: 6px; }
-        .fortune-text { font-size: 16px; color: #333; line-height: 1.6; }
-
-        .lucky-items { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; }
-        .lucky-item { background: linear-gradient(135deg, #fff9f0 0%, #fff4e6 100%); border: 2px solid #ffc864; border-radius: 12px; padding: 15px; text-align: center; }
-        .lucky-item-label { font-size: 12px; color: #8a6a8a; font-weight: bold; margin-bottom: 6px; }
-        .lucky-item-value { font-size: 18px; font-weight: bold; color: #5a3a5a; }
-
-        .star-rating { margin: 20px 0; text-align: center; }
-        .stars { font-size: 32px; letter-spacing: 4px; margin: 10px 0; }
-        .luck-text { font-size: 14px; color: #8a6a8a; font-weight: bold; }
-
-        .result-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
-
-        .tarot-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 15px; margin: 20px 0; }
-        .tarot-card { aspect-ratio: 2/3; background: linear-gradient(135deg, #7a5a8a 0%, #5a3a7a 100%); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 40px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); border: 2px solid #9a7aaa; min-height: 44px; }
-        .tarot-card:active { transform: scale(0.95); }
-        .tarot-card.flipped { background: linear-gradient(135deg, #ffc864 0%, #ffb84d 100%); border-color: #ffc864; }
-        .tarot-card-content { text-align: center; }
-        .tarot-card-number { font-size: 12px; color: white; margin-top: 5px; }
-
-        .compatibility-input { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .compatibility-input input { width: 100%; }
-        .compatibility-result { text-align: center; font-size: 24px; font-weight: bold; color: #5a3a5a; margin: 20px 0; }
-        .compatibility-meter { width: 100%; height: 20px; background: #ffe8cc; border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
-        .compatibility-fill { height: 100%; background: linear-gradient(90deg, #ffb84d 0%, #ffc864 100%); transition: width 0.5s ease; }
-
-        .omikuji-container { text-align: center; margin: 30px 0; }
-        .omikuji-stick { font-size: 80px; animation: shake 0.5s ease-in-out; }
-        @keyframes shake { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-5deg); } 75% { transform: rotate(5deg); } }
-
-        .omikuji-level { font-size: 28px; font-weight: bold; color: #c41e3a; margin: 20px 0; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
-        .waka-poem { background: #f9f9f9; border-left: 4px solid #ffc864; padding: 15px; margin: 15px 0; font-size: 14px; line-height: 2; color: #555; }
-
-        .moon-phase { font-size: 60px; text-align: center; margin: 20px 0; }
-        .profile-btn { position: fixed; top: 20px; right: 20px; width: 50px; height: 50px; border-radius: 50%; background: white; border: 2px solid #ffc864; font-size: 24px; cursor: pointer; z-index: 100; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); min-height: 44px; min-width: 44px; }
-
-        #collectionScreen { background: linear-gradient(135deg, #fff4e6 0%, #ffe8d6 50%, #f0e6ff 100%); overflow: auto; padding: 20px; color: #333; }
-        .collection-header { text-align: center; margin-bottom: 25px; font-size: 24px; font-weight: bold; color: #5a3a5a; }
-        .collection-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; margin-bottom: 30px; }
-        .collection-item { background: white; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
-        .collection-icon { font-size: 32px; margin-bottom: 8px; }
-        .collection-name { font-size: 11px; color: #5a3a5a; font-weight: bold; }
-        .collection-date { font-size: 9px; color: #aaa; margin-top: 4px; }
-
-        .history-list { display: flex; flex-direction: column; gap: 12px; }
-        .history-item { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
-        .history-title { font-weight: bold; color: #5a3a5a; margin-bottom: 6px; }
-        .history-content { font-size: 14px; color: #666; line-height: 1.5; }
-        .history-date { font-size: 11px; color: #aaa; margin-top: 8px; }
-
-        .back-btn { background: linear-gradient(135deg, #e8d4f8 0%, #d4bce8 100%); color: #4a2a5a; padding: 12px 24px; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: bold; font-family: 'Hiragino Maru Gothic ProN', 'Hiragino Sans', 'Meiryo', sans-serif; margin-top: 20px; width: 100%; min-height: 44px; }
-
-        .sparkle { position: fixed; pointer-events: none; z-index: 50; }
-        @keyframes sparkle-fade { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0); } }
-
-        .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
-        .modal.show { display: flex; }
-        .modal-content { background: white; border-radius: 20px; padding: 30px; max-width: 90%; max-height: 90%; overflow: auto; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); }
-        .modal-close { float: right; font-size: 28px; font-weight: bold; cursor: pointer; color: #aaa; margin-top: -10px; min-height: 44px; min-width: 44px; display: flex; align-items: center; justify-content: center; }
-        .modal-close:hover { color: #666; }
-
-        .numerology-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; }
-        .numerology-item { background: #f9f9f9; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc864; }
-        .numerology-label { font-weight: bold; color: #5a3a5a; margin-bottom: 5px; }
-        .numerology-text { font-size: 14px; color: #666; }
-
-        .compatibility-chart { margin-top: 20px; }
-        .compatibility-row { display: grid; grid-template-columns: 100px 1fr; gap: 10px; margin-bottom: 10px; align-items: center; }
-        .blood-type-row { font-weight: bold; color: #5a3a5a; }
-        .compat-bar { height: 24px; background: #ffe8cc; border-radius: 4px; overflow: hidden; }
-        .compat-fill-bar { height: 100%; background: linear-gradient(90deg, #ffb84d 0%, #ffc864 100%); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: white; }
-
-        .three-card-spread { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 30px 0; }
-        .spread-position { text-align: center; }
-        .spread-label { font-size: 12px; color: #8a6a8a; font-weight: bold; margin-bottom: 10px; }
-
-        @media (max-width: 600px) {
-            .title { font-size: 36px; }
-            .fortune-grid { grid-template-columns: repeat(2, 1fr); }
-            .result-buttons { grid-template-columns: 1fr; }
-            .form-buttons { grid-template-columns: 1fr; }
-            .three-card-spread { grid-template-columns: 1fr; }
-            .compatibility-row { grid-template-columns: 80px 1fr; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>柴犬占い師の館</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;overflow:hidden;background:#111;font-family:'Hiragino Maru Gothic ProN','Hiragino Sans','Meiryo',sans-serif;touch-action:none;}
+#app{width:100%;height:100%;position:relative;overflow:hidden;}
+.screen{display:none;width:100%;height:100%;position:absolute;top:0;left:0;flex-direction:column;opacity:0;transition:opacity 0.35s ease-in-out;}
+.screen.active{display:flex;opacity:1;}
+.screen.fade-out{opacity:0;}
+#title-screen{background:linear-gradient(180deg,#1a1230 0%,#2d2255 35%,#3d2a6a 65%,#1a1230 100%);justify-content:center;align-items:center;gap:32px;overflow:hidden;}
+.title-stars{position:absolute;width:100%;height:100%;pointer-events:none;overflow:hidden;}
+.star{position:absolute;background:#fff;border-radius:50%;animation:twinkle 2s infinite alternate;}
+@keyframes twinkle{from{opacity:.2}to{opacity:1}}
+.title-logo{text-align:center;z-index:1;}
+.title-text{color:#FFB74D;font-size:28px;font-weight:bold;margin-top:10px;text-shadow:0 0 20px rgba(255,183,77,.5);letter-spacing:3px;}
+.title-sub{color:#FFCC80;font-size:14px;margin-top:6px;}
+.title-desc{background:rgba(0,0,0,.45);border:1px solid rgba(255,183,77,.3);border-radius:14px;padding:14px 20px;max-width:320px;text-align:center;z-index:1;}
+.title-desc p{color:#fff;font-size:13px;line-height:1.7;}
+.btn-p{background:linear-gradient(135deg,#FFB74D,#FF8F00);color:#fff;border:none;border-radius:50px;padding:16px 52px;font-size:18px;font-weight:bold;cursor:pointer;z-index:1;box-shadow:0 4px 24px rgba(255,143,0,.5);transition:transform .1s;font-family:inherit;}
+.btn-p:active{transform:scale(.95);}
+#game-screen{background:#111;}
+#gcanvas{display:block;width:100%;flex:1;touch-action:none;cursor:pointer;}
+#hud{position:absolute;top:env(safe-area-inset-top,8px);left:8px;z-index:10;display:flex;flex-direction:column;gap:5px;}
+.hud-pill{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:12px;padding:4px 10px;font-size:10px;color:#fff;display:flex;align-items:center;gap:5px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 2px 8px rgba(0,0,0,.15);}
+.hud-pill b{color:#FFB74D;}
+#bottom-ui{background:linear-gradient(180deg,rgba(26,26,48,.95),rgba(18,18,42,.98));padding:10px 12px env(safe-area-inset-bottom,10px);display:flex;flex-direction:column;gap:7px;border-top:1px solid rgba(255,183,77,.2);flex-shrink:0;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
+.area-row{display:flex;justify-content:space-between;align-items:center;}
+.area-nm{color:#FFB74D;font-size:12px;font-weight:bold;}
+#modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:200;align-items:center;justify-content:center;}
+#modal.show{display:flex;}
+#mbox{background:#fff;border-radius:24px;padding:28px 22px;max-width:340px;width:92%;text-align:center;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:modalPop .3s ease-out;}
+@keyframes modalPop{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
+#mbox h3{font-size:18px;color:#333;margin-bottom:6px;}
+#mbox p{font-size:12px;color:#666;line-height:1.6;margin-bottom:14px;}
+.mbtn{background:#FFB74D;color:#fff;border:none;border-radius:50px;padding:12px 30px;font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit;margin:4px;}
+#fortune-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:200;align-items:center;justify-content:center;padding:16px;}
+#fortune-overlay.show{display:flex;}
+#fortune-box{background:linear-gradient(135deg,#FFFDF5,#FFF8E1);border-radius:24px;padding:24px;max-width:360px;width:100%;max-height:75vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:modalPop .3s ease-out;}
+#fortune-box h2{color:#E65100;font-size:18px;margin-bottom:4px;text-align:center;}
+#fortune-box .fortune-type{color:#999;font-size:11px;text-align:center;margin-bottom:12px;}
+#fortune-box .fortune-result{background:#fff;border:2px solid #FFB74D;border-radius:14px;padding:16px;margin:12px 0;text-align:center;}
+#fortune-box .fortune-level{color:#FF8F00;font-size:20px;font-weight:bold;margin-bottom:8px;}
+#fortune-box .fortune-text{color:#333;font-size:13px;line-height:1.8;white-space:pre-wrap;}
+.fortune-close{background:#FFB74D;color:#fff;border:none;border-radius:50px;padding:12px 40px;font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit;margin-top:16px;width:100%;}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div id="titleScreen" class="screen active">
-            <div class="stars-bg" id="starsBg"></div>
-            <div class="title-content">
-                <div class="shiba-fortune-teller">🐕‍🦺✨</div>
-                <div class="title">柴犬うらないハウス</div>
-                <div class="subtitle">コロ占い師があなたの運勢を占います</div>
-                <button class="btn btn-primary" onclick="app.startGame()">占いスタート</button>
-            </div>
-        </div>
+<div id="app">
+<div id="title-screen" class="screen active">
+<div class="title-stars"></div>
+<div class="title-logo">
+<canvas id="title-canvas" width="200" height="120" style="display:block;margin:0 auto;"></canvas>
+<div class="title-text">柴犬占い師の館</div>
+<div class="title-sub">運命を占いましょう</div>
+</div>
+<div class="title-desc">
+<p>6つの占いの館を巡って、柴犬占い師たちから運命を占ってもらおう！</p>
+</div>
+<button class="btn-p" id="start-btn">占いをはじめる</button>
+</div>
 
-        <div id="profileScreen" class="screen">
-            <div class="form-container">
-                <div class="form-title">🐕 プロフィール</div>
-                <div class="form-subtitle">占いの準備をしましょう</div>
-                <div class="form-group">
-                    <label class="form-label">お名前</label>
-                    <input type="text" id="nameInput" placeholder="例: 太郎" maxlength="20">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">生年月日</label>
-                    <div class="date-inputs">
-                        <input type="number" id="yearInput" placeholder="西暦" min="1900" max="2025">
-                        <input type="number" id="monthInput" placeholder="月" min="1" max="12">
-                        <input type="number" id="dayInput" placeholder="日" min="1" max="31">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">血液型</label>
-                    <div class="blood-type-selector">
-                        <button class="blood-type-btn" onclick="app.selectBloodType('A')">A型</button>
-                        <button class="blood-type-btn" onclick="app.selectBloodType('B')">B型</button>
-                        <button class="blood-type-btn" onclick="app.selectBloodType('O')">O型</button>
-                        <button class="blood-type-btn" onclick="app.selectBloodType('AB')">AB型</button>
-                    </div>
-                </div>
-                <div class="form-buttons">
-                    <button class="btn btn-secondary" id="profileBackBtn" onclick="app.showScreen('titleScreen')">戻る</button>
-                    <button class="btn btn-primary" onclick="app.saveProfile()">占ってもらう</button>
-                </div>
-            </div>
-        </div>
+<div id="game-screen" class="screen">
+<canvas id="gcanvas" width="400" height="600"></canvas>
+<div id="hud">
+<div class="hud-pill"><b>現在地:</b> <span id="area-name">村</span></div>
+<div class="hud-pill"><b>占い数:</b> <span id="fortune-count">0</span></div>
+</div>
+<div id="bottom-ui">
+<div class="area-row">
+<div class="area-nm" id="area-title">占い村</div>
+</div>
+</div>
+</div>
 
-        <div id="menuScreen" class="screen">
-            <button class="profile-btn" onclick="app.editProfile()">👤</button>
-            <div class="menu-header">
-                <div class="greeting" id="greeting">こんにちは！</div>
-                <div class="zodiac-badge" id="zodiacBadge">♈ おひつじ座</div>
-            </div>
-            <div class="fortune-grid" id="fortuneGrid"></div>
-            <div class="menu-footer">
-                <button class="collection-btn" onclick="app.showScreen('collectionScreen')">ラッキーアイテムコレクション</button>
-            </div>
-        </div>
+<div id="modal">
+<div id="mbox">
+<h3 id="modal-title">占い師</h3>
+<p id="modal-message">こんにちは</p>
+<button class="mbtn" id="modal-btn">占ってもらう</button>
+<button class="mbtn" style="background:#999;" id="modal-close">閉じる</button>
+</div>
+</div>
 
-        <div id="resultScreen" class="screen">
-            <button class="profile-btn" onclick="app.showScreen('menuScreen')">×</button>
-            <div class="result-container">
-                <div class="fortune-teller-speak">
-                    <div class="fortune-avatar" id="fortuneAvatar">🐕‍🦺</div>
-                    <div class="speech-bubble" id="speechBubble">占いの結果です...</div>
-                </div>
-                <div id="resultContent" class="fortune-content"></div>
-            </div>
-            <div class="result-container">
-                <div class="result-buttons">
-                    <button class="btn btn-secondary" onclick="app.showScreen('menuScreen')">メニューに戻る</button>
-                    <button class="btn btn-primary" onclick="app.currentFortune && app.addToCollection(app.currentFortune)">お気に入り💕</button>
-                </div>
-            </div>
-        </div>
+<div id="fortune-overlay">
+<div id="fortune-box">
+<h2 id="fortune-name">占い</h2>
+<div class="fortune-type" id="fortune-type-label"></div>
+<div class="fortune-result">
+<div class="fortune-level" id="fortune-level">大吉</div>
+<div class="fortune-text" id="fortune-text">運が良い日です</div>
+</div>
+<button class="fortune-close" id="fortune-btn-close">閉じる</button>
+</div>
+</div>
+</body>
 
-        <div id="collectionScreen" class="screen">
-            <button class="profile-btn" onclick="app.showScreen('menuScreen')">×</button>
-            <div class="collection-header">💎 ラッキーアイテムコレクション</div>
-            <div class="collection-items" id="collectionItems"></div>
-            <div class="collection-header" style="margin-top: 40px; font-size: 18px;">📖 占い履歴</div>
-            <div class="history-list" id="historyList"></div>
-            <button class="back-btn" onclick="app.showScreen('menuScreen')">メニューに戻る</button>
-        </div>
-    </div>
+<script>
+const canvas = document.getElementById('gcanvas');
+const ctx = canvas.getContext('2d');
+const titleCanvas = document.getElementById('title-canvas');
+const titleCtx = titleCanvas.getContext('2d');
 
-    <script>
-const ZODIACS = {
-    aries: { name: 'おひつじ座', emoji: '♈', dates: [[3,21],[4,19]] },
-    taurus: { name: 'おうし座', emoji: '♉', dates: [[4,20],[5,20]] },
-    gemini: { name: 'ふたご座', emoji: '♊', dates: [[5,21],[6,20]] },
-    cancer: { name: 'かに座', emoji: '♋', dates: [[6,21],[7,22]] },
-    leo: { name: 'しし座', emoji: '♌', dates: [[7,23],[8,22]] },
-    virgo: { name: 'おとめ座', emoji: '♍', dates: [[8,23],[9,22]] },
-    libra: { name: 'てんびん座', emoji: '♎', dates: [[9,23],[10,22]] },
-    scorpio: { name: 'さそり座', emoji: '♏', dates: [[10,23],[11,21]] },
-    sagittarius: { name: 'いて座', emoji: '♐', dates: [[11,22],[12,21]] },
-    capricorn: { name: 'やぎ座', emoji: '♑', dates: [[12,22],[1,19]] },
-    aquarius: { name: 'みずがめ座', emoji: '♒', dates: [[1,20],[2,18]] },
-    pisces: { name: 'うお座', emoji: '♓', dates: [[2,19],[3,20]] }
+let cW = canvas.width;
+let cH = canvas.height;
+
+const G = {
+  areaIdx: 0,
+  px: cW / 2,
+  py: cH * 0.7,
+  tx: null,
+  ty: null,
+  dx: cW / 2,
+  dy: cH * 0.7,
+  frame: 0,
+  gtime: 0,
+  loopRunning: false,
+  lastTime: 0,
+  npcs: [],
+  bubbles: [],
+  fortuneCount: 0,
+  myDogColor: '#C9A772',
+  myDogBelly: '#E8D5C4'
 };
 
-const ZODIAC_FORTUNES = {
-    aries: [
-        { overall: 'エネルギッシュな一日。新しいことに挑戦する絶好の日です。', love: '好意を持たれています。積極的に行動するといいでしょう。', work: 'リーダーシップが発揮できます。重要な決定を下すなら今日です。', health: '体力に満ちています。スポーツを楽しむのに最適です。' },
-        { overall: '静かな運気。焦らず自分のペースで進みましょう。', love: '相手の気持ちをよく聞きましょう。理解が深まります。', work: '地道な作業が吉。基礎固めの日となります。', health: '疲れが溜まっています。休息を心がけてください。' },
-        { overall: 'チャンスが訪れます。準備万端で迎えましょう。', love: '思い切った行動が必要。勇気を出してアクションを。', work: 'アイデアが光ります。提案してみる価値があります。', health: '気分爽快。運動不足を解消するのに良い日です。' },
-        { overall: '人間関係が深まる日。大切な人と時間を過ごしましょう。', love: '信頼が何より大切。相手を信じることから始まります。', work: 'チームワークが重要。協調性を大事にしましょう。', health: '心身ともにリラックス。瞑想やヨガが効果的です。' },
-        { overall: '直感力が冴える日。第六感を信じてみてください。', love: '感情を素直に表現すると上手くいきます。', work: 'クリエイティブな仕事が捗ります。いつもと違うやり方を試すといいでしょう。', health: '精神的な満足感が大切。好きなことをしましょう。' },
-        { overall: '幸運が舞い込みやすい日。アンテナを高くしておきましょう。', love: '新しい出会いの予感。異なる環境へ足を運んでみて。', work: '思わぬ良い提案が来るでしょう。柔軟に対応してください。', health: '免疫力が高まっています。予防を心がけましょう。' },
-        { overall: '落ち着きがもたらす成功。急がず確実に進みましょう。', love: '相手とのペースを合わせることが大切です。', work: '細かい作業が上手くいきます。チェックと修正の日に。', health: '消化器系に注意。バランスの取れた食事を心がけて。' },
-        { overall: '変化の兆しが見えます。柔軟に対応することが吉。', love: '相手の話に耳を傾けましょう。新しい一面が見えます。', work: '状況が変わってきます。適応力が問われます。', health: '気分の波があります。安定的な生活を心がけて。' },
-        { overall: '自分らしさが活きる日。個性を大切にしましょう。', love: 'ユニークさが魅力になります。自信を持ってください。', work: '独創的なアプローチが高く評価されます。', health: '心の充足が身体の健康につながります。' },
-        { overall: '計画が実を結ぶ日。これまでの努力が報われます。', love: '長く続いた想いが花を咲かせるかもしれません。', work: 'プロジェクトが前に進みます。推し進めましょう。', health: '頑張りすぎずに。バランスを取ることが大切です。' },
-        { overall: '運命的な出来事が起きる可能性があります。', love: '決断の時が来たかもしれません。覚悟を決めてみて。', work: '大きな転機が訪れるでしょう。選択を迫られるかも。', health: '変化を受け入れることで心身が楽になります。' },
-        { overall: '穏やかで平和な一日。感謝の気持ちを大切に。', love: 'いつも側にいてくれる人への感謝を伝えましょう。', work: '日々の仕事を丁寧に進めることが吉。', health: '自然との触れ合いが心を癒します。' },
-        { overall: '挑戦のエネルギー溢れる日。恐れずに進みましょう。', love: '積極的なアプローチが吉です。行動を起こして。', work: '難しいタスクにこそ挑戦するべき。成長の機会です。', health: '体力が有り余っています。運動して発散しましょう。' },
-        { overall: '思慮深さが導く一日。よく考えてから行動を。', love: '相手の気持ちを深く理解しようとしましょう。', work: '分析と計画が重要。急がずに進めてください。', health: 'ストレス解消が大切。瞑想や読書がおすすめです。' },
-        { overall: '幸せを感じられる日。身の回りの良いことに目を向けて。', love: '相手の笑顔が最高の幸せ。一緒にいることを喜びましょう。', work: '良好な人間関係が成功につながります。', health: '心が充実すると体も健康になります。喜びを感じて。' }
-    ],
-    taurus: [
-        { overall: '着実な運気。コツコツ進めることが大切です。', love: '相手を信頼し、安定した関係を築きましょう。', work: '基礎を固める日。地道な作業が報われます。', health: '安定した生活が健康につながります。' },
-        { overall: 'エネルギー溢れる日。行動を起こしやすい運気です。', love: '思い切った行動が吉。自分の気持ちを表現してみて。', work: 'セールスやプレゼンが上手くいきます。', health: '体力が高まっています。積極的に動きましょう。' },
-        { overall: '落ち着きと成功がもたらされる日。', love: '相手とのペースを大切にしましょう。', work: '計画通りに進みます。心に余裕をもって進めて。', health: '穏やかな一日。バランスの取れた生活を心がけて。' },
-        { overall: '運気が好転する兆しが見えます。', love: '新しい関係の可能性があります。目を開いていて。', work: 'チャンスが巡ってきます。準備万端で待ちましょう。', health: '回復力が高まっています。疲れが取れやすい日です。' },
-        { overall: '直感が冴える日。第六感を信じてみてください。', love: '相手の本当の気持ちが見えるかもしれません。', work: 'クリエイティブなアイデアが生まれる日。', health: '心と体が一体となるバランスの良い日です。' },
-        { overall: '幸運の波が来ています。乗ってみてください。', love: '予想外の嬉しい出来事があるかもしれません。', work: 'テンションが高い分、業務が捗りやすいです。', health: '元気一杯。思い切り活動できる日です。' },
-        { overall: '静寂の中に実りあり。瞑想的な一日。', love: '心の深い部分で相手とつながる日。', work: '集中力が高まります。難しい仕事に取り組んで。', health: '心の休息が最優先。ゆっくり過ごしましょう。' },
-        { overall: '変化が始まる日。新しい風が吹き始めます。', love: '関係に新しい局面が訪れるかもしれません。', work: '環境が変わり始めます。適応力が試されます。', health: '気分の変化に対応できる体力が大切です。' },
-        { overall: '自分の価値が高まる日。自信を持ってください。', love: 'あなたの魅力が最大限引き出される時。', work: '実績が認められ、評価が上がるかもしれません。', health: '自分を大切にする気持ちが健康をもたらします。' },
-        { overall: '成果が出始める日。頑張りが報われます。', love: '愛情が深まっていくのを感じるでしょう。', work: 'プロジェクトが軌道に乗ります。推し進めて。', health: '継続した努力が実を結びます。' },
-        { overall: '運命の分岐点。重要な決断の日になるかも。', love: '人生を共に歩むか。決断が迫られるかも。', work: '重要な局面に直面します。慎重に判断してください。', health: '心身の状態が大きく変わる可能性があります。' },
-        { overall: '平和と調和の日。周囲との関係が良好です。', love: '相手との絆が深まります。共に過ごす時間を大切に。', work: '良好な人間関係が仕事の力になります。', health: 'リラックスすることが最高の薬です。' },
-        { overall: '活力が溢れる日。新しいことに挑戦するなら今。', love: '相手を喜ばせたい気持ちが高まります。表現してみて。', work: '挑戦的なプロジェクトに取り組むのに最適。', health: 'エネルギッシュに過ごせます。運動がおすすめ。' },
-        { overall: '思索の時間が大切。自分の内面と向き合いましょう。', love: '相手の気持ちを深く考える時間を持ってみて。', work: '戦略の立案に向いている時間です。計画を練って。', health: 'メンタルケアを意識しましょう。瞑想が効果的。' },
-        { overall: '喜びと満足が訪れる日。感謝の気持ちで過ごして。', love: '愛される喜びを感じられる日。相手に感謝を。', work: '仕事の充実感を感じられるでしょう。', health: '心が満たされると健康になります。幸せを感じて。' }
-    ],
-    gemini: [
-        { overall: 'コミュニケーション運が高い日。話題が弾みます。', love: '会話の中で相手をより理解できる日。', work: 'プレゼンやミーティングが上手くいきます。', health: '心が活発で体も軽い。活動的な一日に。' },
-        { overall: '行動運が高まっています。積極的に動きましょう。', love: '相手とのデート。新しい場所へ行ってみて。', work: '移動や外回りが吉。営業活動に最適です。', health: '外出して運動することが健康につながります。' },
-        { overall: '学習運が高い日。新しいことを学ぶなら今。', love: '相手の新しい一面を発見できるかもしれません。', work: '新しいスキルを習得するのに最適な日。', health: '脳の活性化が健康を促進します。' },
-        { overall: '人間関係が広がる日。新しい出会いが期待できます。', love: '友人を通じた新しい出会いの可能性。', work: 'ネットワーク作りが吉。人脈を広げるなら今。', health: '社交活動で心が満たされます。' },
-        { overall: '直感と理性のバランスが最高の日。', love: 'フィーリングで相手を理解できる日。', work: '分析と創造性の両方が発揮できます。', health: '心身のバランスが整っています。' },
-        { overall: '幸運が連鎖する日。良いことが続きます。', love: '相手から素敵なサプライズが期待できます。', work: 'テンションの高さが成功につながります。', health: '運気が良いので気分も上昇。活動的に。' },
-        { overall: '思考が整理される日。整理整頓のタイミング。', love: '関係の整理整頓が必要かもしれません。', work: 'デスク周りの片付けが仕事の効率化につながります。', health: 'スッキリした環境が心の健康を促します。' },
-        { overall: '変わりやすい気分の日。柔軟性を大切に。', love: '相手の気分を読むことが大切です。', work: '状況の変化に素早く対応してください。', health: '気分に左右されやすいので気をつけて。' },
-        { overall: '個性が輝く日。自分らしさを表現しましょう。', love: 'あなたのユニークさが相手を惹きつけます。', work: '個性的なアプローチが評価されます。', health: '自分の好きなことをすることが一番の薬です。' },
-        { overall: '努力が実を結ぶ日。これまでの頑張りが報われます。', love: '愛情が実を結びます。希望を持ってください。', work: 'プロジェクトが成功へと向かいます。', health: '継続した健康管理が実を結びます。' },
-        { overall: '人生の転機が訪れる日。覚悟を決めてください。', love: '関係が大きく変わるかもしれません。', work: '人事異動や転職の可能性が出てきます。', health: '大きな変化に対応する体力をつけましょう。' },
-        { overall: '落ち着きと調和の日。穏やかに過ごしましょう。', love: '相手との日常の幸せを感じられる日。', work: '日々の業務を丁寧に進めることが吉。', health: 'リラックスすることが最優先。休息を。' },
-        { overall: '挑戦心が高まる日。新しい目標に向かいましょう。', love: '相手との関係をさらに深める努力を。', work: '難しいタスクに取り組むべき日です。成長機会。', health: 'チャレンジ精神が体を強くします。' },
-        { overall: '思考が深くなる日。瞑想的な一日。', love: '相手の気持ちを深く考える時間を大切に。', work: '戦略の策定や分析に向いた日です。', health: '心の整理が大切。自分と向き合ってみて。' },
-        { overall: '喜びに満ちた日。感謝の気持ちで過ごして。', love: '愛する人との時間が最高の幸せ。一緒にいるだけで満足。', work: '充実感を感じられるでしょう。やりがいを感じて。', health: '心の幸福が体の健康をもたらします。' }
-    ]
-};
-
-const TAROT_MAJOR_ARCANA = [
-    { number: 0, name: '愚者', emoji: '🤡', upright: '自由、新しい始まり、冒険心', reversed: '無責任さ、軽率さ、危険な行動', advice: '新しい可能性を恐れずに受け入れましょう。' },
-    { number: 1, name: '魔術師', emoji: '🎩', upright: '意志、能力、行動、創造性', reversed: '詐欺、矛盾、権力の悪用', advice: '自分の能力を信じて、行動に移してください。' },
-    { number: 2, name: '女教皇', emoji: '📚', upright: '知識、直感、秘密、女性性', reversed: '浅い知識、無視、秘密の欠落', advice: '直感に耳を傾けることが大切です。' },
-    { number: 3, name: '皇帝', emoji: '👑', upright: '権力、リーダーシップ、統治、安定', reversed: '弱さ、支配欲、不安定性', advice: 'リーダーシップを発揮する時が来ました。' },
-    { number: 4, name: '皇后', emoji: '👸', upright: '豊かさ、母性、創造性、成長', reversed: '依存、支配、成長の停止', advice: '創造的なエネルギーを発揮してください。' },
-    { number: 5, name: '教皇', emoji: '⛪', upright: '伝統、信仰、保守的、教え', reversed: '独立、規則の破り、新しい思想', advice: '自分の信念に従うことの大切さを学んでください。' },
-    { number: 6, name: '恋人', emoji: '💕', upright: '愛、調和、選択、価値観の一致', reversed: '別離、矛盾、選択の困難', advice: 'あなたの心の声に耳を傾けてください。' },
-    { number: 7, name: '戦車', emoji: '🚗', upright: '意志、支配、行動、勝利', reversed: '逆行、失控、挫折', advice: '前へ進む決断をしてください。' },
-    { number: 8, name: '力', emoji: '💪', upright: '強さ、勇気、内的力、忍耐', reversed: '弱さ、虐待、失われた力', advice: '自分の内的力を信じてください。' },
-    { number: 9, name: '隠者', emoji: '🕯️', upright: '内省、探求、瞑想、沈黙', reversed: '孤立、隠れ、逃避', advice: '内面と向き合う時間を大切にしてください。' },
-    { number: 10, name: '運命の輪', emoji: '🎡', upright: '運命、周期、変化、運', reversed: '逆転、悪い運、固定化', advice: '人生の周期を受け入れてください。' },
-    { number: 11, name: '正義', emoji: '⚖️', upright: '正義、真実、因果応報、バランス', reversed: '不正、偏見、不均衡', advice: '公正さと誠実さを保ってください。' },
-    { number: 12, name: '吊された男', emoji: '🔗', upright: '犠牲、視点の転換、執着の手放し', reversed: 'スタック、無動機、スタグナント', advice: '新しい視点から物事を見てください。' },
-    { number: 13, name: '死神', emoji: '💀', upright: '変化、終わり、新しい始まり、変革', reversed: '停滞、抵抗、拒否', advice: '変化を受け入れることで新しい道が開きます。' },
-    { number: 14, name: '節制', emoji: '⚗️', upright: 'バランス、調和、節度、忍耐', reversed: '失衡、過剰、喧嘩', advice: 'バランスの取れた生活を心がけてください。' },
-    { number: 15, name: '悪魔', emoji: '😈', upright: '束縛、物質性、執着、誘惑', reversed: '解放、覚醒、自由の回復', advice: '自分を束縛しているものに気づいてください。' },
-    { number: 16, name: '塔', emoji: '🏚️', upright: 'キャタストロフ、啓示、破壊、混乱', reversed: '内的危機、抵抗、遅い崩壊', advice: '崩壊の後に新しい構築が始まります。' },
-    { number: 17, name: '星', emoji: '⭐', upright: '希望、信仰、明るい未来、導き', reversed: '絶望、不信、暗さ', advice: '希望を失わずに前へ進んでください。' },
-    { number: 18, name: '月', emoji: '🌙', upright: '幻想、潜在意識、直感、不安', reversed: '明晰さ、理性、真実', advice: '自分の直感を信じてください。' },
-    { number: 19, name: '太陽', emoji: '☀️', upright: '成功、喜び、活力、明るさ', reversed: '失敗、陰鬱、停滞', advice: '明るい未来はあなたを待っています。' },
-    { number: 20, name: '審判', emoji: '📯', upright: '再生、覚醒、呼び出し、評価', reversed: '自己疑い、逃避、判断なし', advice: '自分の人生を振り返る時が来ました。' },
-    { number: 21, name: '世界', emoji: '🌍', upright: '完成、成就、統一、全体性', reversed: '未完成、未達成、分断', advice: 'あなたの旅は完成へと向かっています。' }
+const areas = [
+  { id: 'village', name: '占い村', sky: ['#87CEEB', '#B0E0E6', '#E0F6FF'], ground: ['#90EE90', '#98FB98', '#7CCD7C'] },
+  { id: 'tarot', name: 'タロットホール', sky: ['#4a148c', '#6a1b9a', '#7b1fa2'], ground: ['#4a148c', '#6a1b9a', '#3d095c'] },
+  { id: 'shrine', name: '占い神社', sky: ['#FFE4B5', '#FFDAB9', '#FFD0B0'], ground: ['#D2B48C', '#DEB887', '#C9A772'] },
+  { id: 'zodiac', name: '星読みの丘', sky: ['#001a4d', '#003d99', '#0052cc'], ground: ['#2d5a2d', '#3d7a3d', '#1d4d1d'] },
+  { id: 'spring', name: '神秘の泉', sky: ['#1a237e', '#283593', '#3949ab'], ground: ['#1a5f3b', '#2d7a4d', '#0f4d2d'] },
+  { id: 'alley', name: 'ふわふわ小路', sky: ['#FFB3BA', '#FFCCCB', '#FFDAB9'], ground: ['#FFE4B5', '#FFDAB9', '#FFCCCC'] }
 ];
 
-const NUMEROLOGY = {
-    1: { name: '独立', description: 'リーダーシップ、独立心、開拓精神に溢れた人。新しい道を切り拓く力を持っています。', strengths: ['独立心', '決断力', '行動力'], weaknesses: ['わがまま', '独裁的', '孤立'], compatible: [3, 5, 7] },
-    2: { name: '調和', description: '協調性に富み、バランス感覚に優れた人。人間関係を大切にし、調和を求めます。', strengths: ['協調性', '思慮深さ', '共感力'], weaknesses: ['優柔不断', '依存傾向', '受動的'], compatible: [4, 6, 8] },
-    3: { name: '表現', description: '創造性と表現力に長けた人。楽しさと笑顔をもたらす魅力的な存在です。', strengths: ['創造性', '社交性', '楽観性'], weaknesses: ['散漫', '浮気性', '無責任'], compatible: [1, 5, 9] },
-    4: { name: '基礎', description: '安定性と実行力が特徴。地道に努力を続け、信頼できる人です。', strengths: ['安定性', '実行力', '信頼性'], weaknesses: ['融通性の欠如', '保守的', '頑固'], compatible: [2, 6, 8] },
-    5: { name: '自由', description: '自由を愛し、変化を求める多才な人。様々な経験を通じて成長します。', strengths: ['適応力', '多才', '冒険心'], weaknesses: ['落ち着きのなさ', '浮気性', 'まとまりの欠如'], compatible: [1, 3, 7] },
-    6: { name: '責任', description: '責任感が強く、愛情深い人。家族や周囲の人を守りたいという気持ちが強いです。', strengths: ['責任感', '愛情深さ', '奉仕心'], weaknesses: ['干渉的', '完璧主義', '自己犠牲'], compatible: [2, 4, 9] },
-    7: { name: '智慧', description: '精神的な深さと洞察力を持った人。思考力と直感が優れています。', strengths: ['洞察力', '精神性', 'IQ'], weaknesses: ['孤立傾向', '冷淡', '悲観的'], compatible: [1, 5, 9] },
-    8: { name: '力', description: 'パワーと現実性を兼ね備えた人。物質的成功と権力を手にしやすい性質です。', strengths: ['実行力', 'カリスマ性', '成功志向'], weaknesses: ['支配欲', '物質主義', '冷酷さ'], compatible: [2, 4, 6] },
-    9: { name: '完成', description: '普遍愛と完成を目指す人。人類の発展に貢献したいという願いを持っています。', strengths: ['普遍愛', '包容力', '理想主義'], weaknesses: ['空想的', '身勝手', '完璧主義'], compatible: [3, 6, 7] },
-    11: { name: 'マスター11', description: 'スピリチュアルな力を持つマスターナンバー。インスピレーションと啓発をもたらします。', strengths: ['霊感', 'インスピレーション', '直感'], weaknesses: ['不安定', '過敏', '逃避傾向'], compatible: [2, 7, 9] },
-    22: { name: 'マスター22', description: '大いなる建設者。大きな夢を現実化させる力を持ったマスターナンバーです。', strengths: ['実行力', '大局観', '完成力'], weaknesses: ['完璧主義', '過負荷', '挫折への恐怖'], compatible: [4, 6, 8] },
-    33: { name: 'マスター33', description: '最高のマスターナンバー。愛と光をもたらす使命を持っています。', strengths: ['普遍愛', '教育力', '癒し'], weaknesses: ['自己犠牲', 'メサイアコンプレックス', '感情的'], compatible: [3, 6, 9] }
-};
-
-const BLOOD_TYPE_FORTUNES = {
-    A: [
-        { overall: '真面目さが光る日。正直な対応が信頼を呼びます。', love: '相手の期待に応えたい気持ちが高まります。', work: '完璧を目指す姿勢が成果につながります。', health: 'ストレスを溜めやすいので注意が必要です。' },
-        { overall: '細心の注意が役に立つ日。チェックを丁寧に。', love: '相手の小さな変化に気づくでしょう。', work: 'ミスを防ぐ日。確認作業が重要です。', health: '神経が過敏になっています。リラックスを。' },
-        { overall: 'バランス感覚が優れた日。調整役として活躍。', love: '相手の気持ちをよく聞いて理解しましょう。', work: 'チームの調和を取ることが仕事です。', health: 'ストレス解消が大切。好きなことをしましょう。' },
-        { overall: '計画性が高まる日。予定を立てるなら今。', love: '未来を一緒に考えてみましょう。', work: 'スケジュール管理が上手くいきます。', health: '規則正しい生活が健康につながります。' },
-        { overall: '責任感が強まる日。信頼される行動を。', love: '相手に安心感を与えられます。', work: '任せられた仕事を確実にこなしましょう。', health: '心身の疲労に注意してください。' },
-        { overall: '直感と理性のバランスが良い日。', love: 'フィーリングと現実のバランスが取れます。', work: '判断が的確になります。決断を。', health: '心身のバランスが整っています。' },
-        { overall: '慎重さが身を守る日。焦らず確認を。', love: '相手を信じるまでに時間がかかるかも。', work: 'ダブルチェックが事故を防ぎます。', health: '無理をせず、自分のペースで。' },
-        { overall: '協調性が高い日。周囲と上手く協働。', love: 'チームの一員として関係を大切に。', work: 'グループワークが捗ります。', health: '社交活動が心の健康を促します。' },
-        { overall: '秩序と安定を求める日。落ち着きが吉。', love: '安定した関係が心地よい。現状を保ちましょう。', work: '既存の方法で確実に進めましょう。', health: 'ルーティンが心身を安定させます。' },
-        { overall: '誠実さが評価される日。正直であることが大切。', love: '素直な気持ちを表現してみて。', work: '真摯な態度が信頼を勝ち取ります。', health: 'ストレスフリーな環境を整えましょう。' },
-        { overall: '完璧さを求める日。品質を高めましょう。', love: '相手にとって完璧なパートナーを目指して。', work: '高い基準を満たすよう努力を。', health: '完璧さの追求がストレスになる可能性。気をつけて。' },
-        { overall: '警戒心が強まる日。注意力が鋭くなります。', love: '相手が本当に信頼できるか確かめたい気持ちに。', work: 'リスク管理が上手くいきます。', health: '疑い深くなっていないか自問してください。' },
-        { overall: '美しさや品質に敏感な日。こだわりを大切に。', love: '相手の良さをさらに発見できるでしょう。', work: 'クオリティへのこだわりが成果を生みます。', health: '心地よさが心身の健康につながります。' },
-        { overall: '社会的責任を感じる日。正義感が高まります。', love: 'モラルに基づいた関係を築きましょう。', work: '倫理的な判断が重要になります。', health: '心の満足度が健康につながります。' },
-        { overall: '思慮深さが導く一日。内省の時間を大切に。', love: '自分の気持ちと相手の気持ちをよく考えて。', work: '戦略的思考が役に立つ日です。', health: '瞑想や読書が心を落ち着かせます。' }
-    ],
-    B: [
-        { overall: 'フレッシュなエネルギー。新しいことを試すなら今。', love: '新しい恋の可能性。行動してみて。', work: '斬新なアイデアが評価されます。', health: '活発に動くことが健康につながります。' },
-        { overall: '個性が光る日。自分らしくいてください。', love: 'ユニークさが相手を魅了します。', work: '独創的なアプローチが成功します。', health: '自分のペースを大切にしましょう。' },
-        { overall: '柔軟性が活きる日。状況に合わせて対応を。', love: '相手の意見も聞いてみましょう。', work: '臨機応変な対応が求められます。', health: 'ストレスなく流れに身を任せて。' },
-        { overall: '自由を求める気持ちが強い日。窮屈さを避けて。', love: '相手に束縛されたくない気持ちが出やすい日。', work: '自分のやり方で進めたい欲望が。', health: '自由な環境が最高の薬です。' },
-        { overall: 'オプティミスティック。前向きに進みましょう。', love: '明るさが相手を惹きつけます。', work: 'ポジティブなエネルギーが成功につながります。', health: '気分が良いので運動すると効果的です。' },
-        { overall: '好奇心旺盛。新しい経験に目を向けて。', love: '新しい出会いや関係の展開がありそう。', work: 'ネットワーク拡大の好機です。', health: 'ワクワク感が免疫力を高めます。' },
-        { overall: '自分中心になりやすい日。周囲への配慮を。', love: '相手の気持ちを優先させることを意識して。', work: 'チームワークを忘れずに。', health: '自己中心的になっていないか確認を。' },
-        { overall: '落ち着きが足りない日。フォーカスが大切。', love: '相手にしっかり向き合う時間を確保を。', work: '集中力を高める工夫が必要です。', health: '注意散漫になると事故の元。気をつけて。' },
-        { overall: '情熱的なエネルギー。やりたいことに全力を。', love: '相手への愛情が深まる時。', work: '熱心さが周囲を動かします。', health: '運動して熱いエネルギーを発散させて。' },
-        { overall: '理想主義が高まる日。夢を見ましょう。', love: '相手との理想の関係を思い描いて。', work: '大きなビジョンを持つのに良い日。', health: 'リラックスして未来を想像してください。' },
-        { overall: '変化を求める気持ちが強い日。チャレンジを。', love: '関係に新しい刺激が必要かも。', work: '環境を変えてみるのもいいでしょう。', health: '退屈さを避けて新しいことを試して。' },
-        { overall: '社交性が高い日。人付き合いを楽しみましょう。', love: '異なるタイプの人との出会いに期待。', work: 'ネットワーク作りが吉。積極的に参加して。', health: '人間関係が心の栄養になります。' },
-        { overall: '直感が冴える日。第六感を信じてみて。', love: '相手の本当の気持ちが見えるかも。', work: 'インスピレーションが降りてくる日。', health: '自分の内なる声に耳を傾けてください。' },
-        { overall: '寛容さが出ている日。人を受け入れましょう。', love: '相手を理解しようとする姿勢が大切。', work: '他者の意見も認めることが大事。', health: '寛容さの心が心身を癒します。' },
-        { overall: '楽しさが溢れる日。人生を楽しみましょう。', love: '相手との笑顔と幸せな時間を大切に。', work: '仕事も楽しみながら進めて。', health: '喜びと笑顔が最高の健康促進。' }
-    ],
-    O: [
-        { overall: 'リーダーシップが発揮できる日。前に出て。', love: '相手をリードする立場になるでしょう。', work: 'リーダーとしての役割が回るかも。', health: '自信を持つことが健康につながります。' },
-        { overall: '大らかさが光る日。細かいことは気にしないで。', love: '相手の小さな欠点も許せる心に。', work: '大局的な視点で物事を見ましょう。', health: 'リラックス気分で過ごせます。' },
-        { overall: '親切心が高い日。人を助けることが吉。', love: '相手の望むことをしてあげたい気持ちに。', work: 'サポート役として活躍するでしょう。', health: '人の役に立つことが心の満足になります。' },
-        { overall: '勇敢さが出ている日。チャレンジを恐れないで。', love: '告白や告白されるチャンスが来るかも。', work: '困難なタスクに取り組むべき日。', health: '勇気が体を強くします。' },
-        { overall: '情熱と活力に満ちた日。全力で進みましょう。', love: '相手への思いが最高潮。気持ちを伝えて。', work: 'エネルギッシュに仕事が進みます。', health: 'ダイナミックに活動できる日。運動がベスト。' },
-        { overall: '直感と行動力が一致した日。迷わず進んで。', love: 'フィーリングで相手を理解できます。', work: 'スピード感を持って進めてください。', health: '運気が高いので何をしても上手く。' },
-        { overall: '率直さが求められる日。本音を言いましょう。', love: '素直に気持ちを伝えることが大切。', work: '誠実なコミュニケーションが信頼を生みます。', health: 'ストレス解消になります。' },
-        { overall: '仲間意識が高い日。チームワークを大切に。', love: '相手とのチームとしての絆が深まります。', work: 'グループでの協力が成功のカギ。', health: '社交活動が最高の健康薬。' },
-        { overall: '実行力が高い日。やりたいことを実行に。', love: '相手との関係を具体的に進める時。', work: '計画を実行に移すなら今。', health: '行動することが活力を生みます。' },
-        { overall: '包容力が最大の日。皆を受け入れて。', love: '相手の全てを受け入れられる心に。', work: '皆の意見を聞いて統一する役割に。', health: '寛容な心が心身の健康を促します。' },
-        { overall: '決断力が優れた日。選択を迷わずに。', love: '関係について決断する時が来たかも。', work: '重要な判断が求められる日。', health: '決断の先に新しい人生が待っています。' },
-        { overall: '感謝の気持ちが溢れる日。皆に感謝を。', love: '相手への感謝を言葉と行動で示して。', work: '周囲への感謝が信頼につながります。', health: '感謝の心が免疫力を高めます。' },
-        { overall: '友情が深まる日。友人を大切に。', love: '友人の中から相手が見えるかも。', work: '仲間との絆が仕事の力になります。', health: '友人との関係が心の栄養に。' },
-        { overall: '楽観性が高い日。前向きに行きましょう。', love: '二人の未来を楽しく思い描いて。', work: 'ポジティブなエネルギーが波及します。', health: '明るさが健康を引き寄せます。' },
-        { overall: '達成感を感じられる日。頑張りが報われます。', love: '愛情が実を結びます。希望を持ってください。', work: 'プロジェクト完成が見えるでしょう。', health: '成功体験が心身を満たします。' }
-    ],
-    AB: [
-        { overall: '理性と感情のバランスが優れた日。', love: '論理的かつ感情的に相手を理解できます。', work: '分析的判断と創造性が融合します。', health: 'バランスが取れた心身の状態です。' },
-        { overall: '複雑性を理解する力が高い日。', love: '相手の複雑な気持ちが理解できるでしょう。', work: '複合的な問題の解決に向いています。', health: '複雑さを受け入れることが大切。' },
-        { overall: '客観的視点が優れた日。冷静に見ましょう。', love: 'より良い関係のために冷静に考えてみて。', work: '状況の客観的評価が重要です。', health: 'メンタルの冷静さが大切です。' },
-        { overall: '独立心と調和の両立が上手い日。', love: '相手を尊重しながら自分も大切に。', work: '自分のペースと協調のバランスが取れます。', health: '自分らしさを保つことが健康のカギ。' },
-        { overall: '社交的でありながら慎重な日。', love: '広い視点で相手と関係を見るでしょう。', work: 'ネットワークを広げつつ慎重に進む。', health: '対人関係の質が心の健康を左右します。' },
-        { overall: '直感と論理のハイブリッド状態。', love: 'フィーリングと理性の両方で判断できます。', work: '最高の判断ができる組み合わせです。', health: '心身の調和が最高にとれています。' },
-        { overall: '個性的かつ協調的な日。', love: '自分らしさを出しながら相手も大切に。', work: 'ユニークながら皆の意見も聞きます。', health: '自分らしさと社交の両立が健康に。' },
-        { overall: '双方向の理解が進む日。', love: '相手の気持ちをより深く理解できるでしょう。', work: 'コミュニケーション効果が高い日。', health: 'ストレス解消に対話が効果的。' },
-        { overall: '適応力と原則のバランス。', love: '相手に合わせつつも自分の価値観を保ちます。', work: '柔軟性と一貫性の両方を発揮できます。', health: 'バランス感覚が免疫力を高めます。' },
-        { overall: '両極端を統合する力がある日。', love: '対立する気持ちをまとめられる力に。', work: '相反する要素を統合する能力が発揮。', health: '統合のエネルギーが心身を癒します。' },
-        { overall: '分析と直感のベストコンビ。', love: '理屈と感情を両方大切にできます。', work: '最高の判断能力を発揮できるでしょう。', health: 'バランスが整った状態です。' },
-        { overall: '表と裏の理解が深い日。', love: '相手の複雑さをより理解できます。', work: '深い分析が可能になります。', health: '複雑さを受け入れる心の柔軟性が大切。' },
-        { overall: '中立的視点から見つめる日。', love: '冷静に関係を評価できるでしょう。', work: '偏りのない判断ができる時。', health: 'ニュートラルな心身の状態。' },
-        { overall: '距離感のバランスが最適な日。', love: '相手との適切な距離を保てます。', work: 'パーソナルスペースの配慮が上手く。', health: '心理的距離が適切に取れています。' },
-        { overall: '複数の視点から見える日。', love: '色々な角度から相手を理解できます。', work: '多面的なアプローチが可能。', health: '柔軟な見方が心を自由にします。' }
-    ]
-};
-
-const LUCKY_ITEMS_POOL = [
-    { emoji: '🐕', name: 'しば犬コロ' },
-    { emoji: '💎', name: 'ダイヤモンド' },
-    { emoji: '🌟', name: '星' },
-    { emoji: '🍀', name: 'クローバー' },
-    { emoji: '🎀', name: 'リボン' },
-    { emoji: '💕', name: 'ハート' },
-    { emoji: '🔮', name: '水晶玉' },
-    { emoji: '🌸', name: '桜' },
-    { emoji: '🌈', name: '虹' },
-    { emoji: '🎁', name: 'プレゼント' },
-    { emoji: '📿', name: 'ビーズ' },
-    { emoji: '🦋', name: 'チョウチョ' },
-    { emoji: '🌙', name: '月' },
-    { emoji: '☀️', name: '太陽' },
-    { emoji: '💫', name: 'スター' },
-    { emoji: '🎃', name: 'パンプキン' },
-    { emoji: '🎄', name: 'クリスマスツリー' },
-    { emoji: '🎆', name: '花火' },
-    { emoji: '🧿', name: 'アイ（邪眼）' },
-    { emoji: '⚡', name: '雷' },
-    { emoji: '🔥', name: '炎' },
-    { emoji: '💎', name: '宝石' },
-    { emoji: '👑', name: 'クラウン' },
-    { emoji: '🎯', name: 'ターゲット' },
-    { emoji: '🏆', name: 'トロフィー' },
-    { emoji: '🎖️', name: 'メダル' },
-    { emoji: '🌺', name: 'ハイビスカス' },
-    { emoji: '🌻', name: 'ヒマワリ' },
-    { emoji: '🌷', name: 'チューリップ' },
-    { emoji: '🌹', name: 'バラ' },
-    { emoji: '🍓', name: 'イチゴ' },
-    { emoji: '🍒', name: 'さくらんぼ' },
-    { emoji: '🍑', name: 'モモ' },
-    { emoji: '🍊', name: 'オレンジ' },
-    { emoji: '🍋', name: 'レモン' },
-    { emoji: '🍌', name: 'バナナ' },
-    { emoji: '🍉', name: 'スイカ' },
-    { emoji: '🍔', name: 'ハンバーガー' },
-    { emoji: '🍕', name: 'ピザ' },
-    { emoji: '🍰', name: 'ケーキ' },
-    { emoji: '🍪', name: 'クッキー' },
-    { emoji: '🍩', name: 'ドーナッツ' },
-    { emoji: '🍫', name: 'チョコレート' },
-    { emoji: '🎂', name: 'バースデーケーキ' },
-    { emoji: '🍹', name: 'トロピカルドリンク' },
-    { emoji: '☕', name: 'コーヒー' },
-    { emoji: '🍵', name: 'お茶' },
-    { emoji: '🧁', name: 'カップケーキ' },
-    { emoji: '🍯', name: 'ハチミツ' },
-    { emoji: '🎪', name: 'サーカステント' },
-    { emoji: '🎨', name: 'パレット' }
+const npcData = [
+  { id: 'koro', name: 'コロ占い師', area: 0, colorMain: '#8B6F47', colorBelly: '#D4B896', type: 'tarot', greeting: '水晶球であなたの運命を見ましょう' },
+  { id: 'tarot-master', name: 'タロットマスター犬', area: 1, colorMain: '#6A0DAD', colorBelly: '#C8A2D0', type: 'tarot', greeting: 'タロットの声が聞こえる...' },
+  { id: 'star-reader', name: '星読みシバ', area: 3, colorMain: '#1E88E5', colorBelly: '#90CAF9', type: 'zodiac', greeting: '星があなたの運命を語る...' },
+  { id: 'omikuji', name: 'おみくじ番犬', area: 2, colorMain: '#D32F2F', colorBelly: '#EF9A9A', type: 'omikuji', greeting: 'おみくじを引いてみませんか' },
+  { id: 'numerology', name: '数秘術博士犬', area: 0, colorMain: '#388E3C', colorBelly: '#A5D6A7', type: 'numerology', greeting: 'あなたの数秘を計算します' },
+  { id: 'blood', name: '血液型占い犬', area: 4, colorMain: '#EC407A', colorBelly: '#F8BBD0', type: 'blood', greeting: '血液型で性格がわかる...' },
+  { id: 'moon', name: '月読みシバ', area: 4, colorMain: '#BDBDBD', colorBelly: '#EEEEEE', type: 'moon', greeting: '今夜の月は...' },
+  { id: 'funny', name: '面白占い大先生', area: 5, colorMain: '#FF6F00', colorBelly: '#FFB74D', type: 'funny', greeting: 'わっはっは！楽しい占いだ！' },
+  { id: 'crystal-ball', name: 'クリスタル占い犬', area: 1, colorMain: '#7C4DFF', colorBelly: '#B39DDB', type: 'tarot', greeting: 'クリスタルボールを見つめます...' },
+  { id: 'numerology-2', name: '数の魔術師', area: 0, colorMain: '#00695C', colorBelly: '#80CBC4', type: 'numerology', greeting: '数には秘密が隠されている' },
+  { id: 'shrine-dog', name: '巫女シバ', area: 2, colorMain: '#C62828', colorBelly: '#EF5350', type: 'omikuji', greeting: 'おみくじでご託宣を受けましょう' },
+  { id: 'spring-reader', name: 'スプリング占い', area: 4, colorMain: '#00897B', colorBelly: '#4DB6AC', type: 'moon', greeting: '泉の水が答えを映す...' },
+  { id: 'fortune-teller', name: 'フォーチュン犬', area: 5, colorMain: '#F57C00', colorBelly: '#FFB74D', type: 'funny', greeting: 'えい、えい、ほい！' }
 ];
 
-const OMIKUJI_DATA = {
-    '大吉': [
-        {
-            whole: '最高の運気があります。何をしても上手くいく時です。大きなチャンスが訪れます。',
-            love: 'あなたの真摯な気持ちが相手に届きます。新しい関係が芽生えるかも。',
-            work: 'キャリアの大きな転機。望んでいた状況が実現します。',
-            money: '臨時収入の可能性。金銭面でも恵まれます。',
-            health: '心身ともに絶好調です。エネルギッシュに過ごせます。',
-            travel: 'トラブルなく快適な移動ができます。思い出に残る経験になるでしょう。',
-            poem: 'あけぼのの\n光いっぱい\nこころにあり\nすべていのちの\nよろこび満つ'
-        },
-        {
-            whole: '幸運の絶頂期。全てのことが上手くいく絶好のタイミング。夢実現の時。',
-            love: 'ソウルメイトに出会える可能性。関係が進展します。',
-            work: '大抜擢の可能性。実績が認められるでしょう。',
-            money: '大きな利益。予期しない幸運も。',
-            health: '最高に健康。病気知らずの状態です。',
-            travel: '旅先での良い出会いと経験。安全快適。',
-            poem: 'よろこびの\nいぶきが満ちて\n光がさし\n新しき世界\n開かれゆく'
-        },
-        {
-            whole: 'この上なき幸運。願いが叶う時です。積極的に動いてください。',
-            love: '理想的な出会い。相手は完璧なパートナー。',
-            work: 'プロジェクト成功。昇進の可能性も。',
-            money: '金運絶好調。投資も成功します。',
-            health: '精力充沛。何でもできる状態。',
-            travel: 'どこへ行っても楽しい体験。最高の旅。',
-            poem: 'さくら花\n咲き誇りたる\nあけぼのに\nすべてのいのち\nしあわせ満つ'
-        },
-        {
-            whole: '天運に恵まれた時。大きな夢を持ってください。全て上手くいきます。',
-            love: '真実の愛に出会えます。二人の絆は永遠。',
-            work: '天職が見つかる。やりがいを感じられます。',
-            money: '金銭面での大きな成功。経済的自由も。',
-            health: '身体と心が完全に調和。最良の状態。',
-            travel: '運命的な出会いと経験が待っています。',
-            poem: 'ありがとう\nの心の満ちて\n光あり\nすべてのもの\nが輝く'
-        },
-        {
-            whole: '次々と幸運が訪れます。乗り遅れないように。人生最高の時期。',
-            love: 'あなたの望む関係が実現します。最高の相手と。',
-            work: 'キャリアの最高地点へ。世界が変わります。',
-            money: '想像以上の幸せ。経済的豊かさ。',
-            health: 'あらゆる病が遠ざかります。完全健康。',
-            travel: 'どこへ行っても幸運が続きます。',
-            poem: 'くれなゐの\nあけぼのの空\n光まぶし\nたましいまでが\nよろこびに満つ'
-        }
-    ],
-    '吉': [
-        {
-            whole: '良い運気が続いています。前向きに進むことが大切。',
-            love: '関係が深まる時期。相手への思いを伝えてみて。',
-            work: '着実に進みます。継続が力となります。',
-            money: 'コツコツ貯めると豊かになります。無駄を避けて。',
-            health: '概ね良好。小さなことに注意して。',
-            travel: '予定通り楽しい旅ができるでしょう。',
-            poem: 'みどりなる\n木々の間より\n光さし\n新しき道\n開かれゆく'
-        },
-        {
-            whole: '順調な運気。感謝の気持ちを大切に。',
-            love: '相手との関係が上手くいきます。思いやりを。',
-            work: '成果が出始めます。もう一歩の努力を。',
-            money: '少しずつ増えます。堅実さが大切。',
-            health: '健康管理に気をつければ大丈夫。',
-            travel: '安全で楽しい旅になるでしょう。',
-            poem: 'すみかまで\n日の光さし\nあたたかし\n心もまた\nときめきてくる'
-        },
-        {
-            whole: '運気は上向き。焦らず進めば吉。',
-            love: '相手との絆が深まります。愛しあいましょう。',
-            work: '頑張りが報われ始めます。さらに頑張って。',
-            money: '金銭面での安定。少しずつ増える時期。',
-            health: '体調は良好。予防を心がけて。',
-            travel: '無事安全に旅ができます。',
-            poem: 'ながれゆく\n小川の水も\nきらめきて\n生命のいぶき\n感じられん'
-        },
-        {
-            whole: '幸運は続きます。感謝を忘れずに。',
-            love: '二人の関係は着実に進みます。',
-            work: 'チームの一員として活躍できます。',
-            money: 'しっかり管理すれば増えていきます。',
-            health: 'バランスの取れた状態。維持しましょう。',
-            travel: '計画通りに進みます。無事帰還。',
-            poem: 'そよ風が\nほおをなでて\nやさしくて\nこころにきびしき\nおもいもひくし'
-        },
-        {
-            whole: '前進の運。諦めずに続けることが大切。',
-            love: '関係は確実に進んでいます。時間が味方。',
-            work: '努力が少しずつ実を結びます。',
-            money: '堅実な運用が大切。無駄を避けて。',
-            health: '概ね良好。小さなケアが大切。',
-            travel: '平穏な旅。思い出も多くできるでしょう。',
-            poem: 'あゆみゆく\n人の背中に\n光あり\nいつもかわらぬ\nみちがありて'
-        }
-    ],
-    '中吉': [
-        {
-            whole: '運気は平穏。焦らず進むことが大切。',
-            love: '関係は安定しています。今は様子を見て。',
-            work: '進捗は順調。このペースで続けて。',
-            money: '安定しています。無理な投資は避けて。',
-            health: '特に問題ありません。小さなことに注意を。',
-            travel: 'おおむね順調。予定通り進むでしょう。',
-            poem: 'うすぐもり\nていどのそら也\n星見えて\nしずかなよの\nなかにあるかな'
-        },
-        {
-            whole: '順調さが続きます。感謝を忘れずに。',
-            love: '関係は良好。このままで大丈夫。',
-            work: '成果が出ています。継続が大切。',
-            money: '安定的に増えています。',
-            health: '良好。小さなことに気をつけて。',
-            travel: '無事に進みます。',
-            poem: 'あさつゆが\nはなびらぬらし\nしずかなり\nあるがままなる\nいのちのかたち'
-        },
-        {
-            whole: '穏やかな運気。着実に進みます。',
-            love: '関係は安定。時間をかけて深める時。',
-            work: '着実な進展。焦らずに続けて。',
-            money: 'コツコツ貯めることが大切。',
-            health: '概ね問題なし。自己管理を。',
-            travel: '平穏な旅になるでしょう。',
-            poem: 'かすかなる\n香りただよい\nここちよし\nあるがままなる\nじぶんのかたち'
-        },
-        {
-            whole: '運気は安定。今は準備の時。',
-            love: '関係は落ち着いています。',
-            work: '基礎を固める時期。',
-            money: '堅実さが大切。',
-            health: '問題ありません。',
-            travel: 'おおむね楽しい旅に。',
-            poem: 'しずかなる\nもりのおくまで\nさしのぼり\nあかきもしろき\nあかつきのそら'
-        },
-        {
-            whole: 'バランスの取れた時期。現状維持が吉。',
-            love: '関係は良い状態を保っています。',
-            work: '順調に進んでいます。',
-            money: '増減がない状態。',
-            health: '特に問題ありません。',
-            travel: '平穏で安全。',
-            poem: 'なにもなき\nがありがたくて\nほほえみて\nいつもかわらぬ\nいただきのそら'
-        }
-    ],
-    '小吉': [
-        {
-            whole: '少し運気が上向き。小さな幸運が訪れます。',
-            love: '関係に小さな進展。期待は控えめに。',
-            work: '少しずつ前に進みます。',
-            money: 'わずかな増え。無駄を避けて。',
-            health: '概ね大丈夫。注意が必要。',
-            travel: '無事に終わるでしょう。',
-            poem: 'ちいさなる\nよろこびもまた\nきらめきて\nあるがままなる\nじぶんをうけし'
-        },
-        {
-            whole: '運気は安定。小さな進展あり。',
-            love: '関係は少しずつ深まる。',
-            work: '小さな成果が。',
-            money: 'わずかな増え。',
-            health: '大丈夫。',
-            travel: 'つつがなく。',
-            poem: 'ちいさきを\nかたちとなし\nあるかなと\nさやかにきこゆ\nゆふぐれのまち'
-        },
-        {
-            whole: '穏やかで、わずかな幸運。',
-            love: '関係は平穏。',
-            work: '進展は緩やか。',
-            money: 'わずかに増える。',
-            health: '問題なし。',
-            travel: '安全に。',
-            poem: 'よわきなる\nひかりもまた\nありがたし\nたましいまでが\nやすらぎを得て'
-        },
-        {
-            whole: '小さな幸運が訪れます。',
-            love: '関係は良好に。',
-            work: 'わずかな進展。',
-            money: 'ゆっくり増える。',
-            health: 'おおむね良好。',
-            travel: '無事に。',
-            poem: 'ちいさなを\nうやまいかなし\nこころよし\nありのままなる\nじぶんをいつくし'
-        },
-        {
-            whole: '小さなチャンスがあります。',
-            love: '関係は改善方向。',
-            work: 'わずかずつ前へ。',
-            money: 'ゆるやかに増え。',
-            health: '特に問題なし。',
-            travel: 'おだやかに。',
-            poem: 'こころには\nちいさきよろこ\nあふれいて\nひとひとりぐに\nかなしみもなし'
-        }
-    ],
-    '末吉': [
-        {
-            whole: '運気は弱まっています。注意が必要。',
-            love: '関係に停滞感。行動を控えて。',
-            work: '進展が止まっています。',
-            money: '減少気味。節約を心がけて。',
-            health: '小さな不調が。対策を。',
-            travel: 'トラブルの可能性。注意深く。',
-            poem: 'あまくれば\nやがてうしなう\nとおもいて\nそとおりすぎよ\nはげしきおもい'
-        },
-        {
-            whole: '運気が弱まっています。辛抱の時。',
-            love: '関係は停滞。',
-            work: '進展なし。',
-            money: '厳しい状態。',
-            health: '疲労が溜まっている。',
-            travel: '予期しないトラブル。',
-            poem: 'ふゆもまた\nやがてはるくる\nおもいにて\nがまんつよまり\nこころもやさし'
-        },
-        {
-            whole: '運気が低迷。忍耐が必要。',
-            love: '関係は冷え込む。',
-            work: '停滞感が強い。',
-            money: '苦しい状態。',
-            health: '体調不調。',
-            travel: 'トラブルが多い。',
-            poem: 'あらぶれど\nやがてしづまる\nみなのもの\nあるがままなる\nいのちをいぶき'
-        },
-        {
-            whole: '厳しい時期。堪忍が大事。',
-            love: '関係に課題。',
-            work: '成果が出ない。',
-            money: '減少傾向。',
-            health: '注意が必要。',
-            travel: 'トラブルの危険。',
-            poem: 'くらきよも\nやがてはあけと\nおもいたり\nこころのなかに\nひかりとどまり'
-        },
-        {
-            whole: '運気は下降。注意と努力が必須。',
-            love: '関係に課題が増える。',
-            work: '成果が期待できない。',
-            money: '厳しい状況。',
-            health: '体調管理が重要。',
-            travel: '避けた方がいい時期。',
-            poem: 'よもすがら\nあかしあかして\nあかつきぞ\nぬくもりもあり\nあさきひもあり'
-        }
-    ],
-    '凶': [
-        {
-            whole: '非常に厳しい運気。慎重さが命。',
-            love: '関係が悪化する可能性。離別も。',
-            work: 'トラブルが多発。失敗の危機。',
-            money: '大損失の可能性。一切の投資を避けて。',
-            health: '重大な病気の可能性。医者へ。',
-            travel: '事故やトラブル。移動は避けて。',
-            poem: 'くれなゐも\nあさぐもりたり\nあらしきて\nすべてをあらしは\nさらいゆくかな'
-        },
-        {
-            whole: '大凶に近い悪運。ひたすら耐えよ。',
-            love: '別離の危機。',
-            work: '大失敗の可能性。',
-            money: '深刻な損失。',
-            health: '危機的状況。',
-            travel: '絶対避けるべき。',
-            poem: 'あらぶれる\nあらしのなかに\nすべてが\nとかされてゆく\nおぼえもなしに'
-        },
-        {
-            whole: 'きわめて悪い運気。祈るのみ。',
-            love: '関係は破綻へ。',
-            work: '人生最悪期。',
-            money: '全財産喪失の危機。',
-            health: '最悪の状態。',
-            travel: '断固移動を避けよ。',
-            poem: 'あしきこと\nのみぞおころ\nこのころぞ\nあらしがあらぬ\nもなきころかな'
-        },
-        {
-            whole: '最悪の運気。全てを避けよ。',
-            love: '最悪の状況。',
-            work: '全く駄目。',
-            money: '絶望的。',
-            health: '危機的。',
-            travel: '行くべからず。',
-            poem: 'くろきよぞ\nくろきもなおく\nくろかりて\nもはやもとなく\nくろみだけかな'
-        },
-        {
-            whole: '悪運の絶頂。何もするな。',
-            love: '最悪へ向かう。',
-            work: '全て失う危機。',
-            money: '全て失う。',
-            health: '最悪状態。',
-            travel: '絶対厳禁。',
-            poem: 'あからさまなる\nあくのりきなれ\nあるかなし\nそれもたえたり\nあるやあらざる'
-        }
-    ],
-    '大凶': [
-        {
-            whole: '終末の運気。絶望的。',
-            love: '完全な破断。',
-            work: '全面的失敗。',
-            money: '全財喪失。',
-            health: '命の危機。',
-            travel: '死の可能性。',
-            poem: 'すべてが\nやみに吸いこまれ\nもはやなし\nかえることなき\nいのちのすべて'
-        },
-        {
-            whole: '人生最悪期。',
-            love: '最悪。',
-            work: '最悪。',
-            money: '最悪。',
-            health: '最悪。',
-            travel: '最悪。',
-            poem: 'くやしくも\nくろきやみには\nなすすべも\nなきなきながら\nたえしのぶるか'
-        },
-        {
-            whole: '絶望的状況。',
-            love: '終わり。',
-            work: '終わり。',
-            money: '終わり。',
-            health: '終わり。',
-            travel: '終わり。',
-            poem: 'おわりなき\nくろきやすみぞ\nあるかなと\nもはやなきなき\nおもいのみかな'
-        },
-        {
-            whole: '最終段階。',
-            love: '完全破断。',
-            work: '全滅。',
-            money: '全滅。',
-            health: '全滅。',
-            travel: '全滅。',
-            poem: 'ふかきよぞ\nもはやかえられ\nぬことのみ\nうらむることも\nなほとおもいて'
-        },
-        {
-            whole: '究極の悪運。',
-            love: '終局。',
-            work: '終局。',
-            money: '終局。',
-            health: '終局。',
-            travel: '終局。',
-            poem: 'かなしくも\nやがてはあけず\nあめなれど\nあるはあるかな\nかなしきいのち'
-        }
-    ]
+const fortuneData = {
+  tarot: {
+    '魔術師': { upright: ['才能と力の時。新しい開始が訪れます。', 'あなたの潜在能力が開花する瞬間です。', '創造性が高まり、夢実現へ向かう。'], reverse: ['準備不足。計画の見直しが必要です。', '力を失った状態。焦らず進みましょう。', '本当の力を見つめ直す時です。'] },
+    '女教皇': { upright: ['直感を信じましょう。内なる声が響く。', '秘密が明かされます。真実が現れる。', '内なる叡智があなたを導く時。'], reverse: ['直感が曇っている状態です。', '秘密が隠されたままになります。', '知識の欠如に注意が必要です。'] },
+    '女帝': { upright: ['豊かさと幸せが訪れます。', '創造的な力が満ちています。', '美と調和の素晴らしい時期です。'], reverse: ['豊かさが失われる可能性があります。', '創造力が枯渇している状態です。', '調和が乱れている状態です。'] },
+    '皇帝': { upright: ['権力と支配。指導力が必要です。', 'あなたのリーダーシップが輝く時。', '確実な勝利が訪れます。'], reverse: ['権力の喪失。弱さが目立ちます。', '支配下にある状態です。', '勝利が遠い状況が続く。'] },
+    '教皇': { upright: ['伝統と知識。教えを求めましょう。', 'スピリチュアルな導きがあります。', '信仰心が報われる時期です。'], reverse: ['教義の反発。独立心が必要です。', '信仰の危機に直面しています。', 'スピリチュアルな迷いがあります。'] },
+    '恋人': { upright: ['愛と調和。重要な選択の時です。', '恋愛運が高まります。', '心のつながりが深まる時期。'], reverse: ['愛の喪失。別れの予兆があります。', '選択肢に迷っている状態です。', '関係が冷え込んでいます。'] },
+    '戦車': { upright: ['勝利と前進。強い意志があります。', 'あなたが目標に向かって進みます。', '困難を乗り越える力があります。'], reverse: ['失敗と後退。意志が弱まります。', '前に進めない状態が続く。', '対立と衝突が起こります。'] },
+    '力': { upright: ['内なる力。自信と勇気があります。', 'あなたは強い。困難に立ち向かえる。', '動物とのつながりが深い。'], reverse: ['弱さと無力感に襲われる。', '力を失っている状態です。', '本当の強さを忘れています。'] },
+    '隠者': { upright: ['沈黙と瞑想。内面の探求が始まる。', '静寂の中に答えが隠れている。', '一人の時間が必要です。'], reverse: ['孤立と隔離。誰かと関わるべき。', '内向的すぎる状態です。', '光を求める必要があります。'] },
+    '運命の輪': { upright: ['運命の転換。サイクルが変わります。', '良い変化が訪れます。', 'すべてが循環しています。'], reverse: ['悪い運命。逆転が起こります。', 'サイクルの繰り返しが続く。', '変化が拒まれている状態です。'] },
+    '正義': { upright: ['バランスと公正。真実が勝ちます。', 'あなたの行動が報われます。', '因果応報の時期が来ました。'], reverse: ['不公正。バランスが欠けています。', 'あなたが不利な立場にいます。', '真実が隠されている状態です。'] },
+    '吊られた男': { upright: ['停止と犠牲。新しい視点が得られる。', '待つべき時期が来ました。', '別の角度から見ることが大切。'], reverse: ['停止から解放されます。', 'ついに動く時が来ました。', '新しい方向へ進みます。'] },
+    '死神': { upright: ['変化と終わり。新しい始まりへ。', '何かが終わろうとしています。', 'リセットの時期です。'], reverse: ['停滞。変化を拒んでいます。', '終わりが延長している状態。', '成長が止まっています。'] },
+    '節制': { upright: ['バランスと調和。適度さが大切。', 'あなたは正しい道を歩んでいる。', '自制心が必要とされています。'], reverse: ['不節制。バランスが崩れています。', '過度な状態が続いています。', '自制心を失っている状態です。'] },
+    '悪魔': { upright: ['束縛と誘惑。物質的欲望があります。', 'あなたは何かに支配されている。', '自由を求める必要があります。'], reverse: ['解放と自由。枷を外せます。', '支配から逃げられます。', '新しい自由が訪れます。'] },
+    '塔': { upright: ['破壊と混乱。突然の変化が来る。', '基盤が揺らぐ出来事があります。', '苦しい時期が訪れます。'], reverse: ['まだ立っている状態です。', '被害が最小限で済みます。', '最悪の時期は過ぎました。'] },
+    '星': { upright: ['希望と導き。光が見えます。', 'あなたは正しい方向に進んでいる。', '夢が叶う時期が来ました。'], reverse: ['失望と絶望に包まれている。', 'あなたは迷っています。', '希望を失っている状態です。'] },
+    '月': { upright: ['直感と夢。幻想と不安があります。', 'あなたの潜在意識が活動しています。', '真実は見えにくい状態です。'], reverse: ['幻想の終わり。澄んだ視界が得られる。', '真実が明かされます。', '不安が消えていく時期。'] },
+    '太陽': { upright: ['成功と喜び。光と温かさがある。', 'あなたの人生は輝いています。', '素晴らしい時期が訪れます。'], reverse: ['失敗と暗さ。光が奪われた。', 'あなたは悩んでいます。', 'まだ暗い時期が続きます。'] },
+    '審判': { upright: ['回顧と評価。再生の時期が来た。', 'あなたの過去が評価されます。', '新しい段階へ進みます。'], reverse: ['自己評価の欠如。再生できない。', 'あなたは評価されていない。', 'やり直すチャンスを失っています。'] },
+    '世界': { upright: ['完成と達成。統一と満足があります。', 'あなたは目標に到達します。', 'すべてが完全になります。'], reverse: ['未完成。停滞が続いています。', 'あなたはまだ遠い状態です。', '完成が見えない状態です。'] }
+  },
+  omikuji: {
+    '大吉': ['何をしても成功する素晴らしい日です。', '最高の運が降りてきています。', '願いが叶う最高のチャンスです。', '今日は運命の日。思いっきり挑戦しましょう。', 'この運を逃してはいけません。'],
+    '中吉': ['良い運に恵まれています。今日は素晴らしい日。', 'いい出来事が待っています。期待しましょう。', '成功の可能性が高い時期です。', 'まあまあ上手くいくでしょう。', '幸運が味方についています。'],
+    '小吉': ['まあまあの運気です。進みましょう。', 'ゆっくり進むことが大切な時期。', '小さな幸せがあります。感謝しましょう。', 'コツコツ進むのが吉です。', 'まずまず調子がいいです。'],
+    '末吉': ['運がやや弱い状態です。慎重に。', '焦らず進みましょう。急がば回れ。', '慎重さが必要とされている時期。', '今日はひかえめに動くのが吉。', 'チャレンジより準備の時期。'],
+    '凶': ['運が下がっています。今日は注意深く。', '今は行動を控えましょう。様子見が正解。', '内面の準備が大切です。', '今日は大人しくしているのが吉。', 'トラブル回避が今日のテーマ。'],
+    '大凶': ['最悪の運です。気をつけてください。', '今は何もしないことが吉です。', '時間を待つことが最善です。', 'すべては次の日のために。今日は辛抱です。', 'これ以上ない悪い日。逃げ切ることが成功。']
+  },
+  zodiac: {
+    'おひつじ座': { 全体運: '情熱が高まる月。新しい挑戦に向かう勇気が出ます。前に進む力があります。', 恋愛運: '積極的になれる時期。告白のチャンスが訪れます。', 仕事運: 'リーダーシップが発揮できます。周囲がついてきます。' },
+    'おうし座': { 全体運: '安定と充実の時期です。基盤が固まります。', 恋愛運: '穏やかな愛情が育まれます。信頼が深まる。', 仕事運: '着実な成果が出ます。地道な努力が報われる。' },
+    'ふたご座': { 全体運: 'コミュニケーションが活発になります。', 恋愛運: '新しい出会いの予感があります。', 仕事運: 'アイデアが次々と湧きます。提案が受け入れられる。' },
+    'かに座': { 全体運: '家族との絆が深まります。', 恋愛運: '深い愛情を求める時期です。本気の感情。', 仕事運: '根気強さが報われます。パーティー役が活躍。' },
+    'しし座': { 全体運: '自信と輝きが戻ります。', 恋愛運: 'モテ期が来ています。魅力が最高潮。', 仕事運: '注目を集める活躍ができます。スポットライトを浴びる。' },
+    'おとめ座': { 全体運: '整理と改善の時期。スッキリしていく。', 恋愛運: '相手の良さが見えます。理解が深まる。', 仕事運: '細かな工夫が功を奏します。完璧さが評価される。' },
+    'てんびん座': { 全体運: 'バランスの取れた時期。調和が生まれる。', 恋愛運: '調和と美しさが輝きます。', 仕事運: '交渉が上手くいきます。両者の合意が得られる。' },
+    'さそり座': { 全体運: '深い洞察力が働きます。本質が見える。', 恋愛運: '激しい愛情が芽生えます。情熱的な時期。', 仕事運: '隠れた才能が開花します。秘めた力が出現。' },
+    'いて座': { 全体運: '自由と冒険を求める時期。', 恋愛運: '新しい世界が広がります。視野が広がる。', 仕事運: '大きなチャレンジに成功します。大型案件に成功。' },
+    'やぎ座': { 全体運: '着実な成長の時期です。確実に進む。', 恋愛運: '責任感ある関係が形成されます。', 仕事運: 'キャリアアップの好機です。昇進の時期。' },
+    'みずがめ座': { 全体運: '革新的なアイデアが生まれます。新しい視点。', 恋愛運: '友情から愛への発展があります。', 仕事運: '独創的な成果が期待できます。革新が評価される。' },
+    'うお座': { 全体運: '直感と創造性が高まります。', 恋愛運: 'ロマンティックな出来事が起こります。', 仕事運: '感性を活かした成功が得られます。芸術的成功。' }
+  },
+  numerology: {
+    1: 'リーダーシップと独立の運。あなたは先駆者です。自分の道を切り拓く時期。',
+    2: 'バランスと協調の運。パートナーシップが大切。二人で一つの力を発揮する。',
+    3: '創造性と表現の運。あなたのアイデアが輝く。創作活動に最適な時期。',
+    4: '安定と基盤の運。堅実な進みが正解。基礎を固める大切な時期。',
+    5: '変化と自由の運。新しい経験が訪れます。冒険心を発揮しましょう。',
+    6: '調和と愛の運。家族と人間関係が大切。周囲への思いやりが重要。',
+    7: '精神性と知識の運。内面の成長が重要。瞑想と学習に適した時期。',
+    8: '成功と豊かさの運。物質的な達成が来ます。金銭運が高い時期。',
+    9: '完成と宇宙の運。新しいサイクルが始まります。すべてがリセットされる。'
+  },
+  blood: {
+    'O型': ['社交性が高く人気者。親しみやすい雰囲気です。', 'リーダー気質で大らか。物事が上手くいく傾向。', '目標達成力が強い。仲間を大事にします。'],
+    'A型': ['用心深く慎重。計画的に行動します。', '人間関係を大事にする。信頼厚い人柄。', '完璧主義で細かい配慮ができる。'],
+    'B型': ['自由気ままで個性的。ユニークな魅力。', 'マイペースで気楽。ストレスが少ない傾向。', '好奇心旺盛で行動力がある。'],
+    'AB型': ['二面性を持つ。思慮深い人物です。', 'クールに見えて優しい心を持つ。', '理性的でバランスが取れている。']
+  },
+  moon: {
+    '新月': '新しいスタートの時。願いを立てましょう。始まりの力があります。',
+    '上弦': '成長と上昇の時期。前に進む力があります。努力が報われる。',
+    '満月': '完成と達成の時。結果が出ます。スポットライトを浴びる。',
+    '下弦': '反省と浄化の時期。内面を見つめる時です。',
+    '月食': '大きな変化が起こります。転機です。人生が変わる。',
+    '日食': '神聖な力が働きます。運命が変わる時。新しい段階へ。'
+  },
+  funny: [
+    'あなたは来世で柴犬です。絶対幸せになります。',
+    '占い師が言うには、あなたは本当に運がいい。か、か、かなり。',
+    'これからあなたに起こることは...秘密です。',
+    'えっ、運がいい？悪い？そんなの個人差。',
+    'タロットカードが言ってます。「頑張ってね」って。',
+    'あなたの運勢は...カラスの行動次第です。',
+    'この占いの的中率は...52%です。正確には51.9%。',
+    'あなたの幸せ度は100%。だって今生きてるからね。',
+    '占い的には「多分大丈夫」な運気です。多分ね。',
+    'カード的には「ま、何とかなるんじゃない」',
+    'あなたは実は占い師より運がいい。秘密です。',
+    '運勢カレンダーによると「毎日チャンス」だそうです。',
+    '私の占いは当たらない。気にしないで。本当に。',
+    'あなたの運は「その時次第」です。責任はとりません。',
+    '占いより直感を信じた方がいい。正直に。',
+    'えっ、本気で信じてるんですか？ラッキー。',
+    'あなたのラッキーカラーは「全色」です。セーフ。',
+    '今日のあなたは「今日のあなた」です。当たった。',
+    'これからのあなたは「頑張り次第」。期待してない。',
+    '占いなんて気にするな。人生は自分で作るんだ。説得力。'
+  ]
 };
 
-class FortuneApp {
-    constructor() {
-        this.profile = this.loadProfile();
-        this.collection = this.loadCollection();
-        this.history = this.loadHistory();
-        this.currentFortune = null;
-        this.selectedBloodType = this.profile?.bloodType || null;
-        this.initStars();
-    }
+function drawDog(x, y, colorMain, colorBelly, frame, isNPC) {
+  ctx.fillStyle = 'rgba(0,0,0,.1)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 16, 16, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
 
-    initStars() {
-        const bg = document.getElementById('starsBg');
-        if (!bg) return;
-        for (let i = 0; i < 50; i++) {
-            const star = document.createElement('div');
-            star.className = 'star';
-            star.style.width = Math.random() * 3 + 'px';
-            star.style.height = star.style.width;
-            star.style.left = Math.random() * 100 + '%';
-            star.style.top = Math.random() * 100 + '%';
-            star.style.animationDelay = Math.random() * 3 + 's';
-            bg.appendChild(star);
-        }
-    }
+  ctx.fillStyle = colorMain;
+  ctx.beginPath();
+  ctx.ellipse(x, y, 24, 18, 0, 0, Math.PI * 2);
+  ctx.fill();
 
-    startGame() {
-        this.prefillProfile();
-        this.showScreen('profileScreen');
-    }
+  ctx.fillStyle = colorBelly;
+  ctx.beginPath();
+  ctx.ellipse(x, y + 6, 14, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
 
-    prefillProfile() {
-        if (this.profile) {
-            document.getElementById('nameInput').value = this.profile.name || '';
-            document.getElementById('yearInput').value = this.profile.year || '';
-            document.getElementById('monthInput').value = this.profile.month || '';
-            document.getElementById('dayInput').value = this.profile.day || '';
-            if (this.profile.bloodType) {
-                this.selectBloodType(this.profile.bloodType);
-            }
-        }
-    }
+  ctx.fillStyle = colorMain;
+  ctx.beginPath();
+  ctx.arc(x + 22, y - 12, 13, 0, Math.PI * 2);
+  ctx.fill();
 
-    editProfile() {
-        this.prefillProfile();
-        document.getElementById('profileBackBtn').textContent = 'キャンセル';
-        document.getElementById('profileBackBtn').setAttribute('onclick', "app.showScreen('menuScreen')");
-        this.showScreen('profileScreen');
-    }
+  ctx.beginPath();
+  ctx.moveTo(x + 16, y - 26);
+  ctx.lineTo(x + 12, y - 36);
+  ctx.lineTo(x + 24, y - 28);
+  ctx.closePath();
+  ctx.fill();
 
-    selectBloodType(type) {
-        this.selectedBloodType = type;
-        document.querySelectorAll('.blood-type-btn').forEach(btn => {
-            btn.classList.remove('selected');
-            if (btn.textContent.includes(type)) {
-                btn.classList.add('selected');
-            }
-        });
-    }
+  ctx.beginPath();
+  ctx.moveTo(x + 28, y - 26);
+  ctx.lineTo(x + 32, y - 36);
+  ctx.lineTo(x + 36, y - 28);
+  ctx.closePath();
+  ctx.fill();
 
-    saveProfile() {
-        const name = document.getElementById('nameInput').value || 'ゲスト';
-        const year = parseInt(document.getElementById('yearInput').value) || 2000;
-        const month = parseInt(document.getElementById('monthInput').value) || 1;
-        const day = parseInt(document.getElementById('dayInput').value) || 1;
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.ellipse(x + 18, y - 15, 4, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(x + 28, y - 15, 4, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
 
-        if (!this.selectedBloodType) {
-            alert('血液型を選択してください');
-            return;
-        }
+  ctx.fillStyle = '#333';
+  ctx.beginPath();
+  ctx.arc(x + 18, y - 14, 2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + 28, y - 14, 2, 0, Math.PI * 2);
+  ctx.fill();
 
-        this.profile = { name, year, month, day, bloodType: this.selectedBloodType };
-        localStorage.setItem('fortuneProfile', JSON.stringify(this.profile));
+  ctx.fillStyle = '#333';
+  ctx.beginPath();
+  ctx.arc(x + 23, y - 8, 2, 0, Math.PI * 2);
+  ctx.fill();
 
-        this.showMenu();
-    }
-
-    showMenu() {
-        const zodiac = this.getZodiac(this.profile.month, this.profile.day);
-        document.getElementById('greeting').textContent = `こんにちは、${this.profile.name}さん！`;
-        document.getElementById('zodiacBadge').textContent = `${this.getZodiacEmoji(zodiac)} ${zodiac}`;
-
-        const fortuneGrid = document.getElementById('fortuneGrid');
-        fortuneGrid.innerHTML = '';
-
-        const fortunes = [
-            { label: '星座占い', icon: '♈', type: 'zodiac' },
-            { label: 'タロット占い', icon: '🃏', type: 'tarot' },
-            { label: '数秘術', icon: '🔢', type: 'numerology' },
-            { label: '血液型占い', icon: '🩸', type: 'bloodType' },
-            { label: '相性占い', icon: '💕', type: 'compatibility' },
-            { label: 'おみくじ', icon: '🎰', type: 'omikuji' },
-            { label: '月占い', icon: '🌙', type: 'moonFortune' },
-            { label: '今日の総合運', icon: '✨', type: 'overall' }
-        ];
-
-        fortunes.forEach(f => {
-            const card = document.createElement('div');
-            card.className = 'fortune-card';
-            card.innerHTML = `<div class="fortune-icon">${f.icon}</div><div class="fortune-label">${f.label}</div>`;
-            card.onclick = () => this.getFortune(f.type);
-            fortuneGrid.appendChild(card);
-        });
-
-        this.showScreen('menuScreen');
-    }
-
-    getZodiac(month, day) {
-        for (const [key, zodiac] of Object.entries(ZODIACS)) {
-            const [startMonth, startDay] = zodiac.dates[0];
-            const [endMonth, endDay] = zodiac.dates[1];
-            if ((month === startMonth && day >= startDay) || (month === endMonth && day <= endDay)) {
-                return zodiac.name;
-            }
-        }
-        return ZODIACS.aries.name;
-    }
-
-    getZodiacEmoji(zodiacName) {
-        for (const zodiac of Object.values(ZODIACS)) {
-            if (zodiac.name === zodiacName) return zodiac.emoji;
-        }
-        return '♈';
-    }
-
-    getZodiacKey(month, day) {
-        for (const [key, zodiac] of Object.entries(ZODIACS)) {
-            const [startMonth, startDay] = zodiac.dates[0];
-            const [endMonth, endDay] = zodiac.dates[1];
-            if ((month === startMonth && day >= startDay) || (month === endMonth && day <= endDay)) {
-                return key;
-            }
-        }
-        return 'aries';
-    }
-
-    seededRandom(seed) {
-        const x = Math.sin(seed) * 10000;
-        return x - Math.floor(x);
-    }
-
-    getFortune(type) {
-        const today = new Date();
-        const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate() + (this.profile?.year || 2000);
-
-        this.currentFortune = { type, date: new Date().toLocaleString('ja-JP') };
-
-        let html = '';
-
-        if (type === 'zodiac') {
-            const zodiacKey = this.getZodiacKey(this.profile.month, this.profile.day);
-            const fortunes = ZODIAC_FORTUNES[zodiacKey] || ZODIAC_FORTUNES.aries;
-            const index = Math.floor(this.seededRandom(seed) * fortunes.length);
-            const fortune = fortunes[index];
-
-            html = `
-                <div class="fortune-section">
-                    <div class="fortune-section-label">全体運</div>
-                    <div class="fortune-text">${fortune.overall}</div>
-                </div>
-                <div class="fortune-section">
-                    <div class="fortune-section-label">恋愛運</div>
-                    <div class="fortune-text">${fortune.love}</div>
-                </div>
-                <div class="fortune-section">
-                    <div class="fortune-section-label">仕事運</div>
-                    <div class="fortune-text">${fortune.work}</div>
-                </div>
-                <div class="fortune-section">
-                    <div class="fortune-section-label">健康運</div>
-                    <div class="fortune-text">${fortune.health}</div>
-                </div>
-            `;
-
-            const luckyItems = this.getLuckyItems(seed, 3);
-            html += '<div class="lucky-items">';
-            luckyItems.forEach(item => {
-                html += `<div class="lucky-item"><div class="lucky-item-label">ラッキーアイテム</div><div class="lucky-item-value">${item.emoji} ${item.name}</div></div>`;
-            });
-            html += '</div>';
-
-            this.currentFortune.title = '星座占い：' + this.getZodiac(this.profile.month, this.profile.day);
-        } else if (type === 'tarot') {
-            const cardIndex = Math.floor(this.seededRandom(seed) * TAROT_MAJOR_ARCANA.length);
-            const card = TAROT_MAJOR_ARCANA[cardIndex];
-
-            html = `
-                <div style="text-align: center; margin: 20px 0;">
-                    <div style="font-size: 60px; margin: 20px 0;">${card.emoji}</div>
-                    <div style="font-size: 18px; font-weight: bold; color: #5a3a5a;">${card.number}. ${card.name}</div>
-                </div>
-                <div class="fortune-section">
-                    <div class="fortune-section-label">正位置</div>
-                    <div class="fortune-text">${card.upright}</div>
-                </div>
-                <div class="fortune-section">
-                    <div class="fortune-section-label">逆位置</div>
-                    <div class="fortune-text">${card.reversed}</div>
-                </div>
-                <div class="fortune-section">
-                    <div class="fortune-section-label">アドバイス</div>
-                    <div class="fortune-text">${card.advice}</div>
-                </div>
-            `;
-
-            this.currentFortune.title = 'タロット占い：' + card.number + '. ' + card.name;
-        } else if (type === 'numerology') {
-            const lifePathNum = (this.profile.year % 10 + Math.floor(this.profile.year / 10) % 10 + this.profile.month + this.profile.day) % 9 || 9;
-            const nums = [11, 22, 33].includes(lifePathNum) ? [lifePathNum] : (lifePathNum === 9 ? [9] : [lifePathNum, 11, 22].filter(n => n <= 9 || n === 11 || n === 22));
-            const num = NUMEROLOGY[lifePathNum];
-
-            html = `
-                <div class="fortune-section">
-                    <div class="fortune-section-label">ライフパスナンバー：${lifePathNum}</div>
-                    <div class="fortune-text">${num.description}</div>
-                </div>
-                <div class="numerology-grid">
-                    <div class="numerology-item">
-                        <div class="numerology-label">強み</div>
-                        <div class="numerology-text">${num.strengths.join('、')}</div>
-                    </div>
-                    <div class="numerology-item">
-                        <div class="numerology-label">弱み</div>
-                        <div class="numerology-text">${num.weaknesses.join('、')}</div>
-                    </div>
-                    <div class="numerology-item">
-                        <div class="numerology-label">相性の良い数字</div>
-                        <div class="numerology-text">${num.compatible.join('、')}</div>
-                    </div>
-                </div>
-            `;
-
-            this.currentFortune.title = '数秘術：' + num.name + '(' + lifePathNum + ')';
-        } else if (type === 'bloodType') {
-            const btFortunes = BLOOD_TYPE_FORTUNES[this.profile.bloodType];
-            const index = Math.floor(this.seededRandom(seed) * btFortunes.length);
-            const fortune = btFortunes[index];
-
-            html = `
-                <div class="fortune-section">
-                    <div class="fortune-section-label">全体運</div>
-                    <div class="fortune-text">${fortune.overall}</div>
-                </div>
-                <div class="fortune-section">
-                    <div class="fortune-section-label">恋愛運</div>
-                    <div class="fortune-text">${fortune.love}</div>
-                </div>
-                <div class="fortune-section">
-                    <div class="fortune-section-label">仕事運</div>
-                    <div class="fortune-text">${fortune.work}</div>
-                </div>
-                <div class="fortune-section">
-                    <div class="fortune-section-label">健康運</div>
-                    <div class="fortune-text">${fortune.health}</div>
-                </div>
-            `;
-
-            this.currentFortune.title = '血液型占い：' + this.profile.bloodType + '型';
-        } else if (type === 'omikuji') {
-            const levels = ['大吉', '吉', '中吉', '小吉', '末吉', '凶', '大凶'];
-            const level = levels[Math.floor(this.seededRandom(seed) * levels.length)];
-            const omikujis = OMIKUJI_DATA[level];
-            const index = Math.floor(this.seededRandom(seed + 1) * omikujis.length);
-            const omikuji = omikujis[index];
-
-            html = `
-                <div class="omikuji-container">
-                    <div class="omikuji-stick">🎰</div>
-                    <div class="omikuji-level">${level}</div>
-                </div>
-                <div class="fortune-section">
-                    <div class="fortune-section-label">全体運</div>
-                    <div class="fortune-text">${omikuji.whole}</div>
-                </div>
-                <div class="fortune-section">
-                    <div class="fortune-section-label">恋愛運</div>
-                    <div class="fortune-text">${omikuji.love}</div>
-                </div>
-                <div class="fortune-section">
-                    <div class="fortune-section-label">仕事運</div>
-                    <div class="fortune-text">${omikuji.work}</div>
-                </div>
-                <div class="fortune-section">
-                    <div class="fortune-section-label">金運</div>
-                    <div class="fortune-text">${omikuji.money}</div>
-                </div>
-                <div class="fortune-section">
-                    <div class="fortune-section-label">健康運</div>
-                    <div class="fortune-text">${omikuji.health}</div>
-                </div>
-                <div class="fortune-section">
-                    <div class="fortune-section-label">旅行運</div>
-                    <div class="fortune-text">${omikuji.travel}</div>
-                </div>
-                <div class="waka-poem">${omikuji.poem}</div>
-            `;
-
-            this.currentFortune.title = 'おみくじ：' + level;
-        } else if (type === 'moonFortune') {
-            const today = new Date();
-            const phase = Math.floor((today.getDate() / 30) * 8);
-            const phases = ['🌑新月', '🌒三日月', '🌓上弦の月', '🌔満月へ', '🌕満月', '🌖満月から', '🌗下弦の月', '🌘暁月'];
-            const moonPhase = phases[phase % phases.length];
-
-            const moonFortunes = {
-                '🌑新月': 'スタートの運気。新しいことを始めるなら今です。願いを込めて行動を。',
-                '🌒三日月': '成長の兆し。小さな進展が見られます。希望を持ちましょう。',
-                '🌓上弦の月': '上昇気流。運気が高まっています。挑戦する時です。',
-                '🌔満月へ': 'クライマックスへ。全力を尽くしましょう。成果が近いです。',
-                '🌕満月': '完成と成就。願いが叶いやすい時。感謝の気持ちを。',
-                '🌖満月から': 'リセットの時期。手放すことの大切さを学びます。',
-                '🌗下弦の月': '手放しと整理。不要なものを減らしましょう。',
-                '🌘暁月': '休息と準備。次の新月に向けて心身を整えて。'
-            };
-
-            html = `
-                <div class="moon-phase">${moonPhase}</div>
-                <div class="fortune-section">
-                    <div class="fortune-section-label">月の運気</div>
-                    <div class="fortune-text">${moonFortunes[moonPhase] || '月のリズムに身を任せましょう。'}</div>
-                </div>
-            `;
-
-            this.currentFortune.title = '月占い：' + moonPhase;
-        } else if (type === 'overall') {
-            const zodiacKey = this.getZodiacKey(this.profile.month, this.profile.day);
-            const btFortunes = BLOOD_TYPE_FORTUNES[this.profile.bloodType];
-            const lifePathNum = (this.profile.year % 10 + Math.floor(this.profile.year / 10) % 10 + this.profile.month + this.profile.day) % 9 || 9;
-
-            const zodiacIdx = Math.floor(this.seededRandom(seed) * (ZODIAC_FORTUNES[zodiacKey]?.length || 1));
-            const bloodIdx = Math.floor(this.seededRandom(seed + 1) * btFortunes.length);
-
-            const zodiacFortune = (ZODIAC_FORTUNES[zodiacKey] || [])[zodiacIdx] || {};
-            const bloodFortune = btFortunes[bloodIdx] || {};
-
-            html = `
-                <div class="fortune-section">
-                    <div class="fortune-section-label">あなたの今日の運勢</div>
-                    <div class="fortune-text">複合運気分析による今日の総合的な運勢です。</div>
-                </div>
-                <div class="star-rating">
-                    <div class="luck-text">総合運気レベル</div>
-                    <div class="stars">⭐⭐⭐⭐✨</div>
-                </div>
-                <div class="fortune-section">
-                    <div class="fortune-section-label">星座からのメッセージ（${this.getZodiac(this.profile.month, this.profile.day)}）</div>
-                    <div class="fortune-text">${zodiacFortune.overall || '良い運気が流れています。'}</div>
-                </div>
-                <div class="fortune-section">
-                    <div class="fortune-section-label">血液型からのメッセージ（${this.profile.bloodType}型）</div>
-                    <div class="fortune-text">${bloodFortune.overall || '安定した運気です。'}</div>
-                </div>
-                <div class="fortune-section">
-                    <div class="fortune-section-label">数秘術からのメッセージ</div>
-                    <div class="fortune-text">ライフパスナンバー${lifePathNum}のあなたへ。${NUMEROLOGY[lifePathNum]?.description || '内なる力を信じてください。'}</div>
-                </div>
-            `;
-
-            this.currentFortune.title = '今日の総合運勢';
-        }
-
-        document.getElementById('speechBubble').textContent = 'コロが占った結果です...';
-        document.getElementById('resultContent').innerHTML = html;
-
-        this.addHistory(this.currentFortune.title);
-        this.showScreen('resultScreen');
-    }
-
-    getLuckyItems(seed, count) {
-        const items = [];
-        for (let i = 0; i < count; i++) {
-            const idx = Math.floor(this.seededRandom(seed + i) * LUCKY_ITEMS_POOL.length);
-            items.push(LUCKY_ITEMS_POOL[idx]);
-        }
-        return items;
-    }
-
-    addToCollection(fortune) {
-        const item = { ...fortune, id: Date.now() };
-        this.collection.push(item);
-        localStorage.setItem('fortuneCollection', JSON.stringify(this.collection));
-        alert('お気に入りに追加しました！');
-    }
-
-    addHistory(title) {
-        this.history.unshift({ title, date: new Date().toLocaleString('ja-JP'), id: Date.now() });
-        if (this.history.length > 50) this.history.pop();
-        localStorage.setItem('fortuneHistory', JSON.stringify(this.history));
-    }
-
-    showScreen(screenId) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        const screen = document.getElementById(screenId);
-        if (screen) {
-            screen.classList.add('active');
-            if (screenId === 'collectionScreen') this.updateCollection();
-        }
-    }
-
-    updateCollection() {
-        const collectionItems = document.getElementById('collectionItems');
-        const historyList = document.getElementById('historyList');
-
-        collectionItems.innerHTML = '';
-        this.collection.forEach(item => {
-            const col = document.createElement('div');
-            col.className = 'collection-item';
-            col.innerHTML = `<div class="collection-icon">💎</div><div class="collection-name">${item.title}</div><div class="collection-date">${new Date(item.date).toLocaleDateString('ja-JP')}</div>`;
-            collectionItems.appendChild(col);
-        });
-
-        historyList.innerHTML = '';
-        this.history.forEach(item => {
-            const hist = document.createElement('div');
-            hist.className = 'history-item';
-            hist.innerHTML = `<div class="history-title">${item.title}</div><div class="history-date">${item.date}</div>`;
-            historyList.appendChild(hist);
-        });
-    }
-
-    loadProfile() {
-        const stored = localStorage.getItem('fortuneProfile');
-        return stored ? JSON.parse(stored) : null;
-    }
-
-    loadCollection() {
-        const stored = localStorage.getItem('fortuneCollection');
-        return stored ? JSON.parse(stored) : [];
-    }
-
-    loadHistory() {
-        const stored = localStorage.getItem('fortuneHistory');
-        return stored ? JSON.parse(stored) : [];
-    }
+  const tailWag = Math.sin((frame + Math.random() * 30) * 0.08) * 12;
+  ctx.strokeStyle = colorMain;
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(x - 24, y + 6);
+  ctx.quadraticCurveTo(x - 38, y - 4 + tailWag, x - 42, y - 14 + tailWag);
+  ctx.stroke();
 }
 
-const app = new FortuneApp();
-
-if (app.profile) {
-    app.showMenu();
-} else {
-    app.showScreen('titleScreen');
+function drawAreaFeature(id, w, h) {
+  if (id === 'village') {
+    ctx.fillStyle = '#CD853F';
+    ctx.fillRect(w * 0.15, h * 0.35, 60, 50);
+    ctx.fillStyle = '#FF4500';
+    ctx.beginPath();
+    ctx.moveTo(w * 0.15, h * 0.35);
+    ctx.lineTo(w * 0.15 + 30, h * 0.25);
+    ctx.lineTo(w * 0.15 + 60, h * 0.35);
+    ctx.closePath();
+    ctx.fill();
+    
+    ctx.fillStyle = 'rgba(66,165,245,.5)';
+    ctx.beginPath();
+    ctx.arc(w * 0.8, h * 0.45, 20, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (id === 'tarot') {
+    ctx.fillStyle = '#6A0DAD';
+    ctx.fillRect(w * 0.15, h * 0.3, 80, 70);
+    ctx.fillStyle = '#9C27B0';
+    ctx.beginPath();
+    ctx.moveTo(w * 0.15, h * 0.3);
+    ctx.lineTo(w * 0.15 + 40, h * 0.15);
+    ctx.lineTo(w * 0.15 + 80, h * 0.3);
+    ctx.closePath();
+    ctx.fill();
+    
+    ctx.fillStyle = '#FFB74D';
+    ctx.beginPath();
+    ctx.arc(w * 0.55, h * 0.4, 15, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (id === 'shrine') {
+    ctx.strokeStyle = '#D32F2F';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(w * 0.3, h * 0.5);
+    ctx.lineTo(w * 0.7, h * 0.5);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(w * 0.4, h * 0.5);
+    ctx.lineTo(w * 0.4, h * 0.35);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(w * 0.6, h * 0.5);
+    ctx.lineTo(w * 0.6, h * 0.35);
+    ctx.stroke();
+    
+    ctx.fillStyle = '#8B4513';
+    ctx.fillRect(w * 0.35, h * 0.55, 50, 40);
+  } else if (id === 'zodiac') {
+    ctx.strokeStyle = '#666';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(w * 0.5, h * 0.35, 8, 0, Math.PI * 2);
+    ctx.stroke();
+    
+    ctx.fillStyle = '#FFD700';
+    for (let i = 0; i < 6; i++) {
+      const angle = (i / 6) * Math.PI * 2;
+      const px = w * 0.7 + Math.cos(angle) * 40;
+      const py = h * 0.3 + Math.sin(angle) * 40;
+      ctx.beginPath();
+      ctx.arc(px, py, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (id === 'spring') {
+    ctx.fillStyle = 'rgba(30,136,229,.6)';
+    ctx.beginPath();
+    ctx.ellipse(w * 0.5, h * 0.45, 40, 25, 0, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = 'rgba(66,165,245,.8)';
+    ctx.beginPath();
+    ctx.ellipse(w * 0.5, h * 0.45, 25, 15, 0, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = '#00BCD4';
+    ctx.beginPath();
+    ctx.moveTo(w * 0.3, h * 0.5);
+    ctx.lineTo(w * 0.25, h * 0.65);
+    ctx.lineTo(w * 0.35, h * 0.65);
+    ctx.closePath();
+    ctx.fill();
+  } else if (id === 'alley') {
+    ctx.fillStyle = '#FF6F00';
+    ctx.fillRect(w * 0.15, h * 0.4, 40, 40);
+    ctx.fillStyle = '#2196F3';
+    ctx.fillRect(w * 0.25, h * 0.35, 40, 45);
+    ctx.fillStyle = '#4CAF50';
+    ctx.fillRect(w * 0.35, h * 0.42, 40, 38);
+  }
 }
+
+function drawMinimap(w, h) {
+  const mmX = w - 60, mmY = 10, mmW = 50, mmH = 50;
+  ctx.fillStyle = 'rgba(0,0,0,.6)';
+  ctx.fillRect(mmX, mmY, mmW, mmH);
+  ctx.strokeStyle = '#FFB74D';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(mmX, mmY, mmW, mmH);
+
+  for (let i = 0; i < 6; i++) {
+    const row = Math.floor(i / 3);
+    const col = i % 3;
+    const px = mmX + 5 + col * 15;
+    const py = mmY + 5 + row * 20;
+    
+    ctx.fillStyle = i === G.areaIdx ? '#FFB74D' : '#666';
+    ctx.beginPath();
+    ctx.arc(px, py, 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawParticles(w, h) {
+  ctx.fillStyle = 'rgba(255,183,77,.6)';
+  for (let i = 0; i < 3; i++) {
+    const x = (G.frame * 2 + i * 100) % w;
+    const y = h * 0.2 + Math.sin(G.frame * 0.05 + i) * 30;
+    ctx.beginPath();
+    ctx.arc(x, y, 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawBubbles() {
+  G.bubbles.forEach(b => {
+    ctx.globalAlpha = Math.min(1, b.life / 20);
+    ctx.fillStyle = 'rgba(0,0,0,.7)';
+    ctx.beginPath();
+    ctx.roundRect(b.x - 40, b.y - 15, 80, 24, 8);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(b.text, b.x, b.y + 4);
+  });
+  G.bubbles = G.bubbles.filter(b => {
+    b.life--;
+    b.y -= 1;
+    return b.life > 0;
+  });
+}
+
+function showFortune(type, npcName) {
+  const overlay = document.getElementById('fortune-overlay');
+  const nameEl = document.getElementById('fortune-name');
+  const typeEl = document.getElementById('fortune-type-label');
+  const levelEl = document.getElementById('fortune-level');
+  const textEl = document.getElementById('fortune-text');
+
+  nameEl.textContent = npcName;
+  
+  let result = '';
+  if (type === 'tarot') {
+    const cards = Object.keys(fortuneData.tarot);
+    const card = cards[Math.floor(Math.random() * cards.length)];
+    const isUpright = Math.random() > 0.5;
+    typeEl.textContent = card + (isUpright ? ' 正位置' : ' 逆位置');
+    const readings = isUpright ? fortuneData.tarot[card].upright : fortuneData.tarot[card].reverse;
+    result = readings[Math.floor(Math.random() * readings.length)];
+    levelEl.textContent = isUpright ? '良い兆候' : '注意が必要';
+  } else if (type === 'omikuji') {
+    const levels = ['大吉', '中吉', '小吉', '末吉', '凶', '大凶'];
+    const level = levels[Math.floor(Math.random() * levels.length)];
+    typeEl.textContent = 'おみくじ';
+    const readings = fortuneData.omikuji[level];
+    result = readings[Math.floor(Math.random() * readings.length)];
+    levelEl.textContent = level;
+  } else if (type === 'zodiac') {
+    const signs = Object.keys(fortuneData.zodiac);
+    const sign = signs[Math.floor(Math.random() * signs.length)];
+    typeEl.textContent = '星座: ' + sign;
+    const categories = ['全体運', '恋愛運', '仕事運'];
+    const cat = categories[Math.floor(Math.random() * categories.length)];
+    result = fortuneData.zodiac[sign][cat];
+    levelEl.textContent = cat;
+  } else if (type === 'numerology') {
+    const num = Math.ceil(Math.random() * 9);
+    typeEl.textContent = '数秘 ' + num;
+    result = fortuneData.numerology[num];
+    levelEl.textContent = '数秘術 ' + num;
+  } else if (type === 'blood') {
+    const types = ['O型', 'A型', 'B型', 'AB型'];
+    const btype = types[Math.floor(Math.random() * types.length)];
+    typeEl.textContent = '血液型: ' + btype;
+    const readings = fortuneData.blood[btype];
+    result = readings[Math.floor(Math.random() * readings.length)];
+    levelEl.textContent = btype;
+  } else if (type === 'moon') {
+    const phases = ['新月', '上弦', '満月', '下弦', '月食', '日食'];
+    const phase = phases[Math.floor(Math.random() * phases.length)];
+    typeEl.textContent = '月相: ' + phase;
+    result = fortuneData.moon[phase];
+    levelEl.textContent = phase;
+  } else if (type === 'funny') {
+    typeEl.textContent = '面白占い';
+    result = fortuneData.funny[Math.floor(Math.random() * fortuneData.funny.length)];
+    levelEl.textContent = 'わっはっは！';
+  }
+
+  textEl.textContent = result;
+  overlay.classList.add('show');
+  
+  document.getElementById('fortune-btn-close').onclick = () => {
+    overlay.classList.remove('show');
+  };
+}
+
+function spawnNPCs() {
+  G.npcs = [];
+  for (const npc of npcData) {
+    if (npc.area === G.areaIdx) {
+      G.npcs.push({
+        ...npc,
+        x: Math.random() * (cW - 80) + 40,
+        y: Math.random() * (cH * 0.6 - 150) + cH * 0.25,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.3,
+        frame: 0
+      });
+    }
+  }
+}
+
+function moveNPCs() {
+  for (const n of G.npcs) {
+    n.x += n.vx;
+    n.y += n.vy;
+    
+    if (n.x < 30 || n.x > cW - 30) n.vx *= -1;
+    if (n.y < cH * 0.25 || n.y > cH * 0.85) n.vy *= -1;
+    
+    if (Math.random() > 0.98) {
+      n.vx = (Math.random() - 0.5) * 0.6;
+      n.vy = (Math.random() - 0.5) * 0.4;
+    }
+    n.frame++;
+  }
+}
+
+function drawAll() {
+  if (!ctx) return;
+  const w = canvas.width;
+  const h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  const a = areas[G.areaIdx];
+
+  const sky = ctx.createLinearGradient(0, 0, 0, h * 0.45);
+  sky.addColorStop(0, a.sky[0]);
+  sky.addColorStop(0.5, a.sky[1]);
+  sky.addColorStop(1, a.sky[2]);
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, w, h * 0.45);
+
+  const grd = ctx.createLinearGradient(0, h * 0.45, 0, h);
+  grd.addColorStop(0, a.ground[0]);
+  grd.addColorStop(0.4, a.ground[1]);
+  grd.addColorStop(1, a.ground[2]);
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, h * 0.45, w, h * 0.55);
+
+  drawAreaFeature(a.id, w, h);
+  drawParticles(w, h);
+
+  for (const n of G.npcs) {
+    drawDog(n.x, n.y, n.colorMain, n.colorBelly, n.frame, true);
+  }
+
+  drawDog(G.dx, G.dy, G.myDogColor, G.myDogBelly, G.frame, false);
+  drawBubbles();
+
+  ctx.globalAlpha = 0.3 + Math.sin(G.frame / 15) * 0.15;
+  ctx.fillStyle = '#FFB74D';
+  ctx.font = 'bold 20px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('◀', 18, h / 2);
+  ctx.fillText('▶', w - 18, h / 2);
+  ctx.fillText('▲', w / 2, 24);
+  ctx.fillText('▼', w / 2, h - 12);
+  ctx.globalAlpha = 1;
+
+  drawMinimap(w, h);
+}
+
+function gameLoop() {
+  G.frame++;
+  G.gtime++;
+
+  if (G.tx !== null) {
+    const dx = G.tx - G.px;
+    const dy = G.ty - G.py;
+    const d = Math.hypot(dx, dy);
+    if (d > 3) {
+      const ease = Math.min(0.12, 4.0 / d);
+      G.px += dx * ease;
+      G.py += dy * ease;
+    } else {
+      G.tx = null;
+      G.ty = null;
+    }
+  }
+
+  const targetX = G.px + 25;
+  const targetY = G.py + 15;
+  const dx2 = targetX - G.dx;
+  const dy2 = targetY - G.dy;
+  const d2 = Math.hypot(dx2, dy2);
+  if (d2 > 5) {
+    const lerp = 0.08;
+    G.dx += dx2 * lerp;
+    G.dy += dy2 * lerp;
+  }
+
+  moveNPCs();
+
+  const m = 25;
+  G.px = Math.max(m, Math.min(cW - m, G.px));
+  G.py = Math.max(cH * 0.25, Math.min(cH * 0.85, G.py));
+
+  drawAll();
+}
+
+function startLoop() {
+  if (G.loopRunning) return;
+  G.loopRunning = true;
+  G.lastTime = performance.now();
+  requestAnimationFrame(gameFrame);
+}
+
+function gameFrame(now) {
+  if (!G.loopRunning) return;
+  const dt = now - G.lastTime;
+  if (dt >= 16) {
+    G.lastTime = now;
+    gameLoop();
+  }
+  requestAnimationFrame(gameFrame);
+}
+
+function changeArea(idx) {
+  if (idx < 0 || idx >= areas.length) return;
+  G.areaIdx = idx;
+  G.px = cW / 2;
+  G.py = cH * 0.7;
+  G.dx = cW / 2;
+  G.dy = cH * 0.7;
+  spawnNPCs();
+  
+  document.getElementById('area-name').textContent = areas[idx].name;
+  document.getElementById('area-title').textContent = areas[idx].name;
+}
+
+document.getElementById('start-btn').onclick = () => {
+  document.getElementById('title-screen').classList.remove('active');
+  document.getElementById('game-screen').classList.add('active');
+  
+  titleCtx.clearRect(0, 0, titleCanvas.width, titleCanvas.height);
+  drawDog(100, 60, '#C9A772', '#E8D5C4', 0, false);
+  
+  changeArea(0);
+  startLoop();
+};
+
+canvas.addEventListener('click', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+  
+  G.tx = x;
+  G.ty = y;
+});
+
+canvas.addEventListener('touchstart', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches[0];
+  const x = (touch.clientX - rect.left) * (canvas.width / rect.width);
+  const y = (touch.clientY - rect.top) * (canvas.height / rect.height);
+  
+  for (const n of G.npcs) {
+    if (Math.hypot(x - n.x, y - n.y) < 30) {
+      talkNPC(n);
+      e.preventDefault();
+      return;
+    }
+  }
+  
+  G.tx = x;
+  G.ty = y;
+  
+  if (x < 30) changeArea(G.areaIdx - 3);
+  else if (x > cW - 30) changeArea(G.areaIdx + 3);
+  else if (y < 30) changeArea(G.areaIdx - 1);
+  else if (y > cH - 30) changeArea(G.areaIdx + 1);
+});
+
+function talkNPC(npc) {
+  const modal = document.getElementById('modal');
+  const title = document.getElementById('modal-title');
+  const msg = document.getElementById('modal-message');
+  const btn = document.getElementById('modal-btn');
+  
+  title.textContent = npc.name;
+  msg.textContent = npc.greeting;
+  
+  btn.onclick = () => {
+    modal.classList.remove('show');
+    showFortune(npc.type, npc.name);
+    G.fortuneCount++;
+    document.getElementById('fortune-count').textContent = G.fortuneCount;
+  };
+  
+  document.getElementById('modal-close').onclick = () => {
+    modal.classList.remove('show');
+  };
+  
+  modal.classList.add('show');
+}
+
+window.addEventListener('resize', () => {
+  cW = canvas.width;
+  cH = canvas.height;
+});
+
+window.addEventListener('load', () => {
+  drawDog(100, 60, '#C9A772', '#E8D5C4', 0, false);
+});
 </script>
 </body>
 </html>
