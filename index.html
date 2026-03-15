@@ -1,1197 +1,1593 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>柴犬うらないハウス</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{width:100%;height:100%;overflow:hidden;background:#FFF8F0;font-family:'Hiragino Maru Gothic ProN','Hiragino Sans','Meiryo',sans-serif;touch-action:none;}
-#app{width:100%;height:100%;position:relative;overflow:hidden;}
-.screen{display:none;width:100%;height:100%;position:absolute;top:0;left:0;flex-direction:column;opacity:0;transition:opacity 0.35s ease-in-out;overflow:hidden;}
-.screen.active{display:flex;opacity:1;}
-.screen.fade-out{opacity:0;}
-.tap-ripple{position:absolute;width:40px;height:40px;border-radius:50%;background:radial-gradient(circle,rgba(255,183,77,.6) 0%,transparent 70%);pointer-events:none;transform:scale(0);animation:rippleAnim .5s ease-out forwards;z-index:999;}
-@keyframes rippleAnim{0%{transform:scale(0);opacity:1}100%{transform:scale(2.5);opacity:0}}
-
-/* タイトル */
-#title-screen{background:linear-gradient(180deg,#FFFDF5 0%,#FFF3E0 35%,#FFE0B2 65%,#FFECD2 100%);justify-content:center;align-items:center;gap:32px;overflow:hidden;}
-.title-stars{position:absolute;width:100%;height:100%;pointer-events:none;overflow:hidden;}
-.star{position:absolute;background:rgba(255,183,77,.4);border-radius:50%;animation:twinkle 2s infinite alternate;}
-@keyframes twinkle{from{opacity:.2;transform:scale(1)}to{opacity:1;transform:scale(1.3)}}
-.title-logo{text-align:center;z-index:1;}
-.title-dog-emoji{font-size:90px;display:block;animation:bounce 1.5s ease-in-out infinite;filter:drop-shadow(0 0 24px rgba(255,183,77,.6));}
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
-.title-text{color:#E65100;font-size:28px;font-weight:bold;margin-top:10px;text-shadow:0 2px 8px rgba(255,143,0,.2);letter-spacing:3px;}
-.title-sub{color:#FF8F00;font-size:14px;margin-top:6px;}
-.title-desc{background:rgba(255,255,255,.7);border:1px solid rgba(255,183,77,.3);border-radius:14px;padding:14px 20px;max-width:320px;text-align:center;z-index:1;backdrop-filter:blur(8px);}
-.title-desc p{color:#5D4037;font-size:13px;line-height:1.7;}
-.btn-p{background:linear-gradient(135deg,#FFB74D,#FF8F00);color:#fff;border:none;border-radius:50px;padding:16px 52px;font-size:18px;font-weight:bold;cursor:pointer;z-index:1;box-shadow:0 4px 24px rgba(255,143,0,.5);transition:transform .1s;font-family:inherit;}
-.btn-p:active{transform:scale(.95);}
-
-/* プロフィール */
-#profile-screen{background:linear-gradient(180deg,#FEFBF3 0%,#FFF8E8 40%,#F5EFE0 100%);overflow-y:auto;}
-.p-header{background:linear-gradient(135deg,#FFB74D,#FF8F00);padding:18px 16px 14px;text-align:center;position:sticky;top:0;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.1);}
-.p-header h2{font-size:20px;color:#fff;}
-.p-header p{font-size:12px;color:rgba(255,255,255,.9);margin-top:3px;}
-.p-form{padding:20px 16px;display:flex;flex-direction:column;gap:18px;max-width:400px;margin:0 auto;width:100%;}
-.p-group{display:flex;flex-direction:column;gap:6px;}
-.p-group label{font-size:14px;font-weight:bold;color:#5D4037;}
-.p-group input{padding:12px 14px;border:2px solid #e0d5c0;border-radius:12px;font-size:16px;font-family:inherit;background:#fff;color:#333;outline:none;transition:border-color .2s;}
-.p-group input:focus{border-color:#FFB74D;}
-.blood-btns{display:flex;gap:8px;flex-wrap:wrap;}
-.blood-btn{flex:1;min-width:60px;padding:12px 8px;border:2px solid #e0d5c0;border-radius:12px;background:#fff;font-size:15px;font-weight:bold;color:#555;cursor:pointer;font-family:inherit;text-align:center;transition:all .2s;}
-.blood-btn.sel{border-color:#FFB74D;background:linear-gradient(135deg,#FFF8E1,#FFECB3);color:#E65100;box-shadow:0 2px 8px rgba(255,152,0,.2);}
-.blood-btn:active{transform:scale(.95);}
-.p-acts{padding:16px;display:flex;flex-direction:column;gap:8px;max-width:400px;margin:0 auto;width:100%;}
-
-/* ゲーム画面 */
-#game-screen{background:#E8F5E9;overflow:hidden;}
-#gcanvas{display:block;width:100%;flex:1;min-height:0;touch-action:none;cursor:pointer;}
-#hud{position:absolute;top:env(safe-area-inset-top,8px);left:8px;z-index:10;display:flex;flex-direction:column;gap:5px;}
-.hud-pill{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:12px;padding:4px 10px;font-size:10px;color:#fff;display:flex;align-items:center;gap:5px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 2px 8px rgba(0,0,0,.15);transition:all .2s;}
-.hud-pill b{color:#FFB74D;}
-
-/* 下部UI */
-#bottom-ui{background:linear-gradient(180deg,rgba(26,26,48,.95),rgba(18,18,42,.98));padding:10px 12px env(safe-area-inset-bottom,10px);display:flex;flex-direction:column;gap:7px;border-top:1px solid rgba(255,183,77,.2);flex-shrink:0;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
-.area-row{display:flex;justify-content:space-between;align-items:center;}
-.area-nm{color:#FFB74D;font-size:12px;font-weight:bold;}
-.area-prof{color:#FFCC80;font-size:10px;}
-.s-bars{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;}
-.s-item .s-lr{display:flex;justify-content:space-between;margin-bottom:2px;}
-.s-item .s-l{color:#fff;font-size:10px;font-weight:bold;}
-.s-item .s-v{color:#888;font-size:9px;}
-.s-bg{height:7px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.3);}
-.s-fill{height:100%;border-radius:3px;transition:width .4s;}
-.f-power{background:linear-gradient(90deg,#CE93D8,#AB47BC);}
-.f-luck{background:linear-gradient(90deg,#FFD700,#FFF176);}
-#ctrl{display:flex;gap:6px;padding:4px 0 2px;}
-.cb{flex:1;background:rgba(255,255,255,.1);color:#e0e0e0;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 4px;font-size:11px;font-weight:bold;cursor:pointer;font-family:inherit;text-align:center;transition:all .15s ease;backdrop-filter:blur(4px);}
-.cb:active{background:rgba(255,183,77,.3);transform:scale(.96);}
-
-/* モーダル */
-#modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:200;align-items:center;justify-content:center;}
-#modal.show{display:flex;}
-#mbox{background:#fff;border-radius:24px;padding:28px 22px;max-width:340px;width:92%;text-align:center;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:modalPop .3s ease-out;}
-@keyframes modalPop{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
-#mbox h3{font-size:18px;color:#333;margin-bottom:6px;}
-#mbox p{font-size:12px;color:#666;line-height:1.6;margin-bottom:14px;}
-.mbtn{background:#FFB74D;color:#fff;border:none;border-radius:50px;padding:12px 30px;font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit;margin:4px;}
-.mbtn:active{transform:scale(.95);}
-
-/* 占い結果 */
-#fortune-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:200;align-items:center;justify-content:center;padding:16px;}
-#fortune-overlay.show{display:flex;}
-#fortune-box{background:linear-gradient(135deg,#FFFDF5,#FFF8E1);border-radius:24px;padding:24px;max-width:360px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:modalPop .3s ease-out;border:2px solid #FFB74D;}
-#fortune-box h2{color:#E65100;font-size:20px;margin-bottom:4px;text-align:center;}
-#fortune-box .ft-type{color:#999;font-size:11px;text-align:center;margin-bottom:12px;}
-#fortune-box .ft-result{background:#fff;border:2px solid #FFB74D;border-radius:14px;padding:16px;margin:12px 0;text-align:center;}
-#fortune-box .ft-level{color:#FF8F00;font-size:22px;font-weight:bold;margin-bottom:8px;}
-#fortune-box .ft-text{color:#333;font-size:13px;line-height:1.8;white-space:pre-wrap;}
-#fortune-box .ft-detail{background:#FFF8E1;border-left:3px solid #FFB74D;padding:10px;border-radius:0 8px 8px 0;margin-top:10px;font-size:12px;color:#5D4037;line-height:1.6;}
-.fortune-close{background:#FFB74D;color:#fff;border:none;border-radius:50px;padding:12px 40px;font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit;margin-top:16px;width:100%;}
-.fortune-close:active{transform:scale(.95);}
-
-/* 図鑑 */
-#album-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:200;overflow-y:auto;padding:20px;}
-#album-overlay.show{display:flex;flex-direction:column;align-items:center;}
-.album-title{color:#FFB74D;font-size:20px;font-weight:bold;margin:16px 0 12px;text-align:center;}
-.album-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-width:360px;width:100%;}
-.album-card{background:rgba(255,255,255,.95);border-radius:16px;padding:14px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.1);}
-.album-card .ac-name{font-size:12px;font-weight:bold;color:#333;}
-.album-card .ac-count{font-size:10px;color:#888;margin-top:2px;}
-.album-close{background:#FFB74D;color:#fff;border:none;border-radius:50px;padding:12px 40px;font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit;margin:16px 0 20px;}
-
-/* 履歴 */
-#history-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:200;overflow-y:auto;padding:20px;}
-#history-overlay.show{display:flex;flex-direction:column;align-items:center;}
-.hist-list{max-width:360px;width:100%;display:flex;flex-direction:column;gap:8px;}
-.hist-item{background:rgba(255,255,255,.95);border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;}
-.hist-icon{font-size:24px;}
-.hist-info{flex:1;font-size:12px;color:#555;}
-.hist-info b{color:#E65100;}
-
-/* チュートリアル */
-#tutorial-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;flex-direction:column;gap:20px;padding:20px;}
-#tutorial-overlay.show{display:flex;}
-.tut-card{background:#fff;border-radius:20px;padding:24px;max-width:320px;width:100%;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.3);animation:modalPop .4s ease-out;}
-.tut-card h3{font-size:18px;color:#333;margin-bottom:10px;}
-.tut-card p{font-size:13px;color:#666;line-height:1.7;margin-bottom:16px;}
-.tut-step{display:flex;gap:6px;justify-content:center;margin-bottom:12px;}
-.tut-dot{width:8px;height:8px;border-radius:50%;background:#ddd;transition:all .3s;}
-.tut-dot.active{background:#FFB74D;width:20px;border-radius:4px;}
-
-/* デイリー占いバナー */
-.daily-banner{position:absolute;top:50px;left:50%;transform:translateX(-50%);background:rgba(255,183,77,.95);color:#fff;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:bold;z-index:15;box-shadow:0 4px 12px rgba(255,143,0,.3);animation:slideDown .5s ease-out;pointer-events:none;}
-@keyframes slideDown{0%{transform:translateX(-50%) translateY(-30px);opacity:0}100%{transform:translateX(-50%) translateY(0);opacity:1}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>柴犬うらないハウス</title>
+    <style>
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            -webkit-user-select: none; user-select: none;
+        }
+        html, body {
+            width: 100%; height: 100%; overflow: hidden;
+            font-family: 'Hiragino Maru Gothic ProN','Hiragino Sans','Meiryo',sans-serif;
+        }
+        #game-container {
+            width: 100%; height: 100%; display: flex; flex-direction: column;
+        }
+        .screen {
+            position: absolute; width: 100%; height: 100%; display: none; z-index: 1;
+        }
+        .screen.active {
+            display: flex;
+        }
+        #title-screen {
+            background: linear-gradient(135deg, #fffef0, #fef5e7);
+            justify-content: center; align-items: center; flex-direction: column;
+        }
+        #profile-screen {
+            background: linear-gradient(135deg, #fffef0, #fef5e7);
+            overflow-y: auto; padding: 2vmin;
+        }
+        #game-screen {
+            flex-direction: column;
+        }
+        #gcanvas {
+            flex: 1; min-height: 0; background: linear-gradient(180deg, #87ceeb, #e0f6ff);
+            display: block;
+        }
+        #bottom-ui {
+            flex-shrink: 0; background: #333; color: #fff; padding: 1vmin;
+            display: flex; justify-content: space-between; align-items: center; border-top: 2px solid #555;
+        }
+        .ui-info {
+            font-size: 1.5vmin; flex: 1; display: flex; gap: 1.5vmin;
+        }
+        .ui-buttons {
+            display: flex; gap: 0.5vmin;
+        }
+        .ui-btn {
+            background: #555; border: none; color: #fff; cursor: pointer;
+            padding: 0.8vmin 1.5vmin; border-radius: 0.4vmin; font-size: 1.8vmin;
+            transition: all 0.2s;
+        }
+        .ui-btn:active {
+            background: #777; transform: scale(0.95);
+        }
+        
+        .title-logo {
+            font-size: 5vmin; font-weight: bold; color: #d4791f;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1); animation: bounce 0.6s infinite; margin: 1vmin;
+        }
+        .title-subtitle {
+            font-size: 2.5vmin; color: #666; margin-bottom: 3vmin;
+        }
+        .title-btn {
+            background: linear-gradient(135deg, #ffd700, #ffed4e); border: 3px solid #d4791f;
+            color: #333; padding: 2vmin 4vmin; font-size: 2.5vmin; border-radius: 1vmin;
+            cursor: pointer; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+        .title-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .profile-container {
+            max-width: 50vmin; margin: 0 auto;
+            background: rgba(255,255,255,0.85); padding: 3vmin; border-radius: 1vmin;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .profile-title {
+            font-size: 3.5vmin; color: #d4791f; text-align: center; margin-bottom: 2vmin;
+        }
+        .form-group {
+            margin-bottom: 2vmin;
+        }
+        .form-label {
+            display: block; font-size: 2vmin; color: #333; margin-bottom: 0.5vmin; font-weight: bold;
+        }
+        .form-input, .form-select {
+            width: 100%; padding: 1vmin; font-size: 1.8vmin; border: 2px solid #d4791f;
+            border-radius: 0.5vmin;
+        }
+        .form-buttons {
+            display: flex; gap: 1vmin; margin-top: 2vmin;
+        }
+        .form-btn {
+            flex: 1; padding: 1.5vmin; font-size: 2vmin; border: none; border-radius: 0.5vmin;
+            cursor: pointer; transition: all 0.2s; font-weight: bold;
+        }
+        .form-btn-primary {
+            background: linear-gradient(135deg, #ffd700, #ffed4e); color: #333; border: 2px solid #d4791f;
+        }
+        .form-btn-secondary {
+            background: #ddd; color: #333;
+        }
+        .form-btn:active {
+            transform: scale(0.95);
+        }
+        .form-back-link {
+            text-align: center; margin-top: 1.5vmin; font-size: 1.8vmin; color: #d4791f;
+            cursor: pointer; text-decoration: underline;
+        }
+        
+        .overlay {
+            position: absolute; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.65); display: none;
+            flex-direction: column; justify-content: center; align-items: center; z-index: 200;
+        }
+        .overlay.active {
+            display: flex;
+        }
+        .overlay-content {
+            background: #fff; border-radius: 1.5vmin; padding: 3vmin;
+            max-width: 85vmin; max-height: 88vh; overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+        .overlay-title {
+            font-size: 3vmin; color: #d4791f; margin-bottom: 2vmin;
+            font-weight: bold; text-align: center;
+        }
+        .overlay-text {
+            font-size: 1.8vmin; color: #333; line-height: 1.8; margin-bottom: 1.5vmin;
+        }
+        .choice-buttons {
+            display: flex; flex-direction: column; gap: 1vmin;
+        }
+        .choice-btn {
+            background: #f0e68c; border: 2px solid #d4791f; color: #333;
+            padding: 1.5vmin; font-size: 1.8vmin; border-radius: 0.5vmin; cursor: pointer;
+            transition: all 0.2s; font-weight: bold; text-align: left;
+        }
+        .choice-btn:active {
+            background: #ffd700; transform: scale(0.98);
+        }
+        .close-overlay-btn {
+            background: #d4791f; color: #fff; border: none; padding: 1vmin 2vmin;
+            font-size: 1.8vmin; border-radius: 0.5vmin; cursor: pointer; margin-top: 2vmin;
+            align-self: center; transition: all 0.2s;
+        }
+        .close-overlay-btn:active {
+            background: #a85a00;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); } to { opacity: 1; }
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .result-fortune {
+            font-size: 2.8vmin; color: #d4791f; font-weight: bold; margin: 2vmin 0;
+            padding: 1.5vmin; background: #fff8dc; border-left: 4px solid #d4791f;
+            border-radius: 0.5vmin;
+        }
+        .result-section {
+            margin: 1.5vmin 0; padding: 1.5vmin; background: #f9f9f9; border-radius: 0.5vmin;
+        }
+        .result-section strong {
+            color: #d4791f;
+        }
+    </style>
 </head>
 <body>
-<div id="app">
-
-<!-- タイトル -->
-<div id="title-screen" class="screen active">
-<div class="title-stars" id="stars-ct"></div>
-<div class="title-logo">
-<span class="title-dog-emoji">🔮</span>
-<div class="title-text">柴犬うらないハウス</div>
-<div class="title-sub">占い村を冒険しよう</div>
-</div>
-<div class="title-desc"><p>6つの占いエリアを巡って<br>柴犬占い師たちから<br>運命を占ってもらおう！</p></div>
-<button class="btn-p" onclick="startGame()">はじめる</button>
-</div>
-
-<!-- プロフィール -->
-<div id="profile-screen" class="screen">
-<div class="p-header"><h2>プロフィール設定</h2><p>あなたの情報を教えてね</p></div>
-<div class="p-form">
-<div class="p-group">
-<label>お名前</label>
-<input type="text" id="inp-name" placeholder="例：さつき" maxlength="10">
-</div>
-<div class="p-group">
-<label>生年月日</label>
-<input type="date" id="inp-birthday">
-</div>
-<div class="p-group">
-<label>血液型</label>
-<div class="blood-btns">
-<button class="blood-btn" onclick="selBlood('A')">A型</button>
-<button class="blood-btn" onclick="selBlood('B')">B型</button>
-<button class="blood-btn" onclick="selBlood('O')">O型</button>
-<button class="blood-btn" onclick="selBlood('AB')">AB型</button>
-</div>
-</div>
-</div>
-<div class="p-acts">
-<button class="btn-p" style="width:100%;padding:15px;" onclick="saveProfile()">占いの旅へ出発！</button>
-<button class="btn-p" style="width:100%;padding:12px;background:linear-gradient(135deg,#BDBDBD,#9E9E9E);box-shadow:0 4px 12px rgba(0,0,0,.15);font-size:14px;" onclick="skipProfile()">スキップして始める</button>
-<button class="cb" style="border:none;color:#999;font-size:12px;" onclick="goTo('title')">戻る</button>
-</div>
-</div>
-
-<!-- ゲーム画面 -->
-<div id="game-screen" class="screen">
-<canvas id="gcanvas"></canvas>
-<div id="hud">
-<div class="hud-pill">📍 <b id="h-area">占い村</b></div>
-<div class="hud-pill">🔮 <b id="h-count">0</b>回占い</div>
-</div>
-<div id="bottom-ui">
-<div class="area-row">
-<span class="area-nm" id="area-nm2">占い村</span>
-<span class="area-prof" id="area-prof"></span>
-</div>
-<div class="s-bars">
-<div class="s-item"><div class="s-lr"><span class="s-l">🔮占い力</span><span class="s-v" id="sv-power">0</span></div><div class="s-bg"><div class="s-fill f-power" id="sb-power" style="width:0%"></div></div></div>
-<div class="s-item"><div class="s-lr"><span class="s-l">✨運気</span><span class="s-v" id="sv-luck">50</span></div><div class="s-bg"><div class="s-fill f-luck" id="sb-luck" style="width:50%"></div></div></div>
-</div>
-<div id="ctrl">
-<button class="cb" onclick="openAlbum()">📖図鑑</button>
-<button class="cb" onclick="openHistory()">🔮履歴</button>
-<button class="cb" onclick="showProfileEdit()">👤変更</button>
-<button class="cb" onclick="goTo('title')">🏠</button>
-</div>
-</div>
-</div>
-</div>
-
-<!-- モーダル -->
-<div id="modal"><div id="mbox"><h3 id="mt2"></h3><p id="mm2"></p><div id="m-btns"><button class="mbtn" id="m-fortune-btn">占ってもらう</button><button class="mbtn" style="background:#999;" onclick="closeM()">閉じる</button></div></div></div>
-
-<!-- 占い結果 -->
-<div id="fortune-overlay">
-<div id="fortune-box">
-<h2 id="f-name">占い</h2>
-<div class="ft-type" id="f-type-label"></div>
-<div class="ft-result">
-<div class="ft-level" id="f-level">大吉</div>
-<div class="ft-text" id="f-text">運が良い日です</div>
-</div>
-<div class="ft-detail" id="f-detail" style="display:none;"></div>
-<button class="fortune-close" id="f-close">閉じる</button>
-</div>
-</div>
-
-<!-- 図鑑 -->
-<div id="album-overlay">
-<div class="album-title">📖 占い図鑑</div>
-<div class="album-grid" id="album-grid"></div>
-<button class="album-close" onclick="closeAlbum()">とじる</button>
-</div>
-
-<!-- 履歴 -->
-<div id="history-overlay">
-<div class="album-title">🔮 占い履歴</div>
-<div class="hist-list" id="hist-list"></div>
-<button class="album-close" onclick="closeHistory()">とじる</button>
-</div>
-
-<!-- チュートリアル -->
-<div id="tutorial-overlay">
-<div class="tut-card" id="tut-card">
-<div class="tut-step" id="tut-dots"></div>
-<h3 id="tut-title"></h3>
-<p id="tut-text"></p>
-<button class="mbtn" onclick="nextTutorial()">つぎへ</button>
-</div>
-</div>
-
-<script>
-// ===================== エラーハンドラ =====================
-window.onerror=function(msg,src,line){
-  var d=document.createElement('div');
-  d.style.cssText='position:fixed;top:0;left:0;right:0;background:red;color:white;padding:8px;font-size:11px;z-index:99999;';
-  d.textContent='ERR:'+msg+' L:'+line;document.body.appendChild(d);d.onclick=function(){d.remove();};
-};
-
-// ===================== 定数 =====================
-function W(){return window.innerWidth;} function H(){return window.innerHeight;}
-let canvas,ctx,cW,cH;
-
-// エリア定義
-const areas=[
-  {id:'village',name:'占い村',sky:['#87CEEB','#B3E5FC','#E0F7FA'],ground:['#81C784','#66BB6A','#388E3C']},
-  {id:'tarot',name:'タロットの館',sky:['#2d1b69','#4a148c','#6a1b9a'],ground:['#311b92','#4527a0','#283593']},
-  {id:'shrine',name:'おみくじ神社',sky:['#FFE4B5','#FFDAB9','#FFD0B0'],ground:['#D2B48C','#DEB887','#C9A772']},
-  {id:'zodiac',name:'星読みの丘',sky:['#0d1b2a','#1b2838','#274060'],ground:['#2d5a2d','#3d7a3d','#1d4d1d']},
-  {id:'spring',name:'神秘の泉',sky:['#1a237e','#283593','#3949ab'],ground:['#1a5f3b','#2d7a4d','#0f4d2d']},
-  {id:'alley',name:'ふわふわ小路',sky:['#FFB3BA','#FFCCCB','#FFDAB9'],ground:['#FFE4B5','#FFDAB9','#FFCCCC']}
-];
-
-// NPC定義
-const npcData=[
-  // エリア0：占い村
-  {name:'コロ占い師',area:0,colorMain:'#C9A772',colorBelly:'#FFF8E1',type:'omikuji',greeting:'おみくじで運勢を見てあげるワン！',kind:'dog'},
-  {name:'数秘術博士犬',area:0,colorMain:'#388E3C',colorBelly:'#A5D6A7',type:'numerology',greeting:'あなたの運命の数字を教えよう',kind:'dog'},
-  {name:'占い入門犬',area:0,colorMain:'#8D6E63',colorBelly:'#D7CCC8',type:'omikuji',greeting:'初めての占い？任せてワン！',kind:'dog'},
-  {name:'植物プランクトン',area:0,colorMain:'#66BB6A',colorBelly:'#C8E6C9',type:'crystal',greeting:'ぷよぷよ…水晶が光る…',kind:'plankton',lines:['光合成中…まぶしい！','小さくても占えます','栄養塩ください〜']},
-  // エリア1：タロットの館
-  {name:'タロットマスター犬',area:1,colorMain:'#6A0DAD',colorBelly:'#C8A2D0',type:'tarot',greeting:'タロットの声が聞こえる…',kind:'dog'},
-  {name:'クリスタル占い犬',area:1,colorMain:'#7C4DFF',colorBelly:'#B39DDB',type:'crystal',greeting:'クリスタルボールを覗いてみましょう…',kind:'dog'},
-  {name:'魔法の書の犬',area:1,colorMain:'#311B92',colorBelly:'#D1C4E9',type:'tarot',greeting:'古い書物があなたを呼んでいる',kind:'dog'},
-  {name:'おみくじネコ',area:1,colorMain:'#FF9800',colorBelly:'#FFF3E0',type:'omikuji',greeting:'にゃあ〜おみくじ引きませんか？',kind:'cat'},
-  // エリア2：おみくじ神社
-  {name:'おみくじ番犬',area:2,colorMain:'#D32F2F',colorBelly:'#EF9A9A',type:'omikuji',greeting:'おみくじを引いてみませんか',kind:'dog'},
-  {name:'巫女シバ',area:2,colorMain:'#C62828',colorBelly:'#EF5350',type:'omikuji',greeting:'神様のお告げをお伝えします',kind:'dog'},
-  {name:'和装占い犬',area:2,colorMain:'#5D4037',colorBelly:'#D7CCC8',type:'zodiac',greeting:'星の配置を読み取ります',kind:'dog'},
-  {name:'カモシカ',area:2,colorMain:'#795548',colorBelly:'#BCAAA4',type:'zodiac',greeting:'メェ〜！山の知恵で占おう',kind:'serow',lines:['天然記念物なんだよ','崖を登るの得意！','この辺にいい草ある？']},
-  // エリア3：星読みの丘
-  {name:'星読みシバ',area:3,colorMain:'#1E88E5',colorBelly:'#90CAF9',type:'zodiac',greeting:'星があなたの運命を語る…',kind:'dog'},
-  {name:'月読みシバ',area:3,colorMain:'#BDBDBD',colorBelly:'#EEEEEE',type:'moon',greeting:'今夜の月は…あなたに何を語る？',kind:'dog'},
-  {name:'宇宙犬',area:3,colorMain:'#0D47A1',colorBelly:'#C5CAE9',type:'numerology',greeting:'宇宙規模で見ると…すごいよ',kind:'dog'},
-  {name:'動物プランクトン',area:3,colorMain:'#4FC3F7',colorBelly:'#B3E5FC',type:'crystal',greeting:'きょろきょろ…何か見えました…',kind:'plankton',lines:['プカプカ〜浮いてます','海流に乗って占い中〜','ミジンコって呼ばないで！']},
-  // エリア4：神秘の泉
-  {name:'泉のシャーマン犬',area:4,colorMain:'#00695C',colorBelly:'#80CBC4',type:'crystal',greeting:'古い泉の力であなたを見つめます',kind:'dog'},
-  {name:'血液型占い犬',area:4,colorMain:'#EC407A',colorBelly:'#F8BBD0',type:'blood',greeting:'血液型で性格がわかる…',kind:'dog'},
-  {name:'夢占い犬',area:4,colorMain:'#004D73',colorBelly:'#80DEEA',type:'dream',greeting:'夢の中に真実が隠れている…',kind:'dog'},
-  {name:'風水マスター犬',area:4,colorMain:'#00897B',colorBelly:'#4DB6AC',type:'crystal',greeting:'風と水が答えを教えてくれる',kind:'dog'},
-  // エリア5：ふわふわ小路
-  {name:'面白占い大先生',area:5,colorMain:'#FF6F00',colorBelly:'#FFB74D',type:'funny',greeting:'わっはっは！楽しい占いだ！',kind:'dog'},
-  {name:'フォーチュン犬',area:5,colorMain:'#F57C00',colorBelly:'#FFB74D',type:'funny',greeting:'えい、えい、ほい！',kind:'dog'},
-  {name:'お祭り占い犬',area:5,colorMain:'#E65100',colorBelly:'#FFCC80',type:'omikuji',greeting:'にぎやかに占いましょう！',kind:'dog'},
-  {name:'手相犬',area:5,colorMain:'#BF360C',colorBelly:'#FFAB91',type:'palm',greeting:'手のひらに運命が刻まれている…',kind:'dog'},
-  {name:'カラフルプランクトン',area:5,colorMain:'#E91E63',colorBelly:'#F8BBD0',type:'funny',greeting:'ぷよぷよ！楽しい占いぷよ！',kind:'plankton',lines:['ぷぷぷ！面白いの好き！','虹色に光ってるよ〜','ぷよぷよ〜♪']},
-];
-
-// 占いデータ
-const FD={
-  tarot:{
-    '魔術師':{up:['才能と力の時。新しい開始が訪れます。','あなたの潜在能力が開花する瞬間です。','創造性が高まり、夢実現へ向かう。'],rv:['準備不足。計画の見直しが必要です。','力を見つめ直す時です。','焦らず進みましょう。']},
-    '女教皇':{up:['直感を信じましょう。内なる声が響く。','秘密が明かされます。真実が現れる。','内なる叡智があなたを導く時。'],rv:['直感が曇っている状態です。','知識の欠如に注意が必要です。','焦りは禁物。静かに待ちましょう。']},
-    '女帝':{up:['豊かさと幸せが訪れます。','創造的な力が満ちています。','美と調和の素晴らしい時期です。'],rv:['豊かさが失われる可能性があります。','調和が乱れている状態です。','自分を大切にしてください。']},
-    '皇帝':{up:['権力と支配。リーダーシップが輝く時。','確実な勝利が訪れます。','あなたの判断力が冴えています。'],rv:['権力の喪失。弱さが目立ちます。','支配的になりすぎないよう注意。','柔軟さが必要です。']},
-    '教皇':{up:['伝統と知識。教えを求めましょう。','スピリチュアルな導きがあります。','信仰心が報われる時期です。'],rv:['独立心が必要です。','常識にとらわれないで。','新しい考え方を受け入れましょう。']},
-    '恋人':{up:['愛と調和。重要な選択の時です。','恋愛運が高まります。','心のつながりが深まる時期。'],rv:['選択肢に迷っている状態です。','関係が冷え込んでいます。','自分の気持ちに正直に。']},
-    '戦車':{up:['勝利と前進。強い意志があります。','困難を乗り越える力があります。','目標達成が近づいています。'],rv:['前に進めない状態が続く。','対立と衝突が起こります。','一歩引いて考えましょう。']},
-    '力':{up:['内なる力。自信と勇気があります。','困難に立ち向かう強さがある。','忍耐が報われます。'],rv:['弱さと無力感に襲われる。','本当の強さを忘れています。','自分を信じて。']},
-    '隠者':{up:['沈黙と瞑想。内面の探求が始まる。','静寂の中に答えが隠れている。','一人の時間が必要です。'],rv:['孤立しすぎています。','誰かと関わるべき時です。','光を求めて外に出ましょう。']},
-    '運命の輪':{up:['運命の転換。良い変化が訪れます。','サイクルが変わります。','チャンスを掴みましょう。'],rv:['悪い流れが続いています。','変化を受け入れましょう。','焦らず時を待って。']},
-    '正義':{up:['バランスと公正。真実が勝ちます。','あなたの行動が報われます。','因果応報の時期です。'],rv:['不公正に注意。','バランスが欠けています。','正直に向き合いましょう。']},
-    '吊られた男':{up:['新しい視点が得られる。','待つべき時期です。','別の角度から見ましょう。'],rv:['ついに動く時が来ました。','停滞から抜け出せます。','行動に移しましょう。']},
-    '死神':{up:['変化と終わり。新しい始まりへ。','リセットの時期です。','古いものを手放しましょう。'],rv:['停滞。変化を拒んでいます。','成長が止まっています。','前に進む勇気を持って。']},
-    '節制':{up:['バランスと調和。適度さが大切。','正しい道を歩んでいます。','自制心が報われます。'],rv:['バランスが崩れています。','過度な状態に注意。','穏やかさを取り戻して。']},
-    '悪魔':{up:['束縛に気づく時。自由を求めて。','誘惑に負けないで。','本当に大切なものを見極めて。'],rv:['解放と自由が訪れます。','支配から逃れられます。','新しい自由を楽しんで。']},
-    '塔':{up:['突然の変化。でも再建できます。','古い基盤が崩れ、新しい始まりへ。','試練を乗り越えた先に光がある。'],rv:['最悪の時期は過ぎました。','被害は最小限で済みます。','回復の兆しがあります。']},
-    '星':{up:['希望と導き。光が見えます。','夢が叶う時期が来ました。','正しい方向に進んでいます。'],rv:['希望を失っている状態です。','光を見失わないで。','信じる気持ちを取り戻して。']},
-    '月':{up:['直感と夢。潜在意識が活動中。','真実は見えにくい状態です。','内なる声に耳を傾けて。'],rv:['幻想の終わり。真実が見えます。','不安が消えていく時期。','明確な答えが得られます。']},
-    '太陽':{up:['成功と喜び。人生が輝いています。','素晴らしい時期が訪れます。','あなたは光そのものです。'],rv:['一時的な曇り。でも晴れます。','自分を信じて進みましょう。','光は必ず戻ってきます。']},
-    '審判':{up:['再生の時期が来ました。','過去が評価されます。','新しい段階へ進みます。'],rv:['自己評価を見直しましょう。','やり直すチャンスはあります。','過去に囚われないで。']},
-    '世界':{up:['完成と達成。すべてが完全になります。','目標に到達します。','統一と満足の時期です。'],rv:['まだ完成していません。','もう少しです。頑張って。','道半ば、諦めないで。']},
-    '愚者':{up:['無垢と新しい冒険の始まり。','自由な心で前に進みましょう。','直感を信じて飛び出して。'],rv:['無謀な行動に注意。','もう少し考えてから動いて。','リスクを計算しましょう。']}
-  },
-  omikuji:{
-    '大吉':['全てが上手くいく最高の日！願いが叶います。','何をしても成功する素晴らしい運気です。','最高の幸運が降りてきています。思い切って挑戦を！','今日は運命の日。大きなチャンスが訪れます。','奇跡が起こる予感。夢を追いかけましょう。'],
-    '中吉':['良いことが起こりそう。前向きに進みましょう。','運気が上昇中。チャンスを逃さないで。','努力が報われる時期です。自信を持って。','いい出来事が待っています。期待しましょう。','人間関係が良好。周囲の助けがあります。'],
-    '小吉':['まあまあの運気。コツコツ頑張りましょう。','小さな幸せがあります。感謝の気持ちを。','ゆっくり進むことが大切な時期。','着実に進めば吉。焦らないでね。','穏やかな日々が続きます。'],
-    '吉':['良い流れが来ています。前向きに。','希望に満ちた日。明るい展望です。','運が味方しています。信じて進みましょう。','新しい発見がありそう。目を開いて。','バランスが取れた良い日です。'],
-    '末吉':['今は耐える時。後に吉が来ます。','焦らず準備をしましょう。急がば回れ。','チャンスはすぐそこ。もう少し待って。','慎重さが求められる時期です。','内面の成長が大切な時期。'],
-    '凶':['注意が必要な日。慎重に行動を。','いつもより用心深くいましょう。','今日は大人しくしているのが吉。','トラブル回避が今日のテーマ。','困難があっても、乗り越えられます。'],
-    '大凶':['大きな試練。でも乗り越えた先に光がある。','今は何もしないことが吉。時を待って。','災いは幸運の前触れ。前向きに。','すべては次のステージのため。','リセットの好機。新しく始めましょう。']
-  },
-  zodiac:{
-    '牡羊座':{全体:'情熱が高まる時。新しい挑戦に向かう勇気が出ます。',恋愛:'積極的になれる時期。告白のチャンスが訪れます。',仕事:'リーダーシップが発揮できます。',金運:'思い切った投資が吉。',健康:'エネルギッシュ。運動で更にアップ。'},
-    '牡牛座':{全体:'安定と充実の時期。基盤が固まります。',恋愛:'穏やかな愛情が育まれます。信頼が深まる。',仕事:'着実な成果が出ます。地道な努力が報われる。',金運:'貯蓄が増える好機。',健康:'規則正しい生活が吉。'},
-    '双子座':{全体:'コミュニケーションが活発になります。',恋愛:'新しい出会いの予感があります。',仕事:'アイデアが次々と湧きます。',金運:'情報収集が利益に。',健康:'ストレス解消を心がけて。'},
-    '蟹座':{全体:'家族との絆が深まります。',恋愛:'深い愛情を求める時期。本気の感情。',仕事:'チームワークが大切。',金運:'家族関連の支出に注意。',健康:'心の栄養が大事。'},
-    '獅子座':{全体:'自信と輝きが戻ります。',恋愛:'モテ期が来ています。魅力が最高潮。',仕事:'注目を集める活躍ができます。',金運:'大きく動く時。',健康:'自信が活力の源。'},
-    '乙女座':{全体:'整理と改善の時期。スッキリしていく。',恋愛:'相手の良さが見えます。理解が深まる。',仕事:'細かな工夫が功を奏します。',金運:'計画的にいきましょう。',健康:'健康管理が上手くいく。'},
-    '天秤座':{全体:'バランスの取れた時期。調和が生まれる。',恋愛:'調和と美しさが輝きます。',仕事:'交渉が上手くいきます。',金運:'バランスよく使うのが吉。',健康:'リラックスを大切に。'},
-    '蠍座':{全体:'深い洞察力が働きます。本質が見える。',恋愛:'激しい愛情が芽生えます。情熱的。',仕事:'隠れた才能が開花します。',金運:'秘密の利益あり。',健康:'内面から強くなる。'},
-    '射手座':{全体:'自由と冒険を求める時期。',恋愛:'新しい世界が広がります。',仕事:'大きなチャレンジに成功。',金運:'思いがけない収入。',健康:'アクティブに過ごして。'},
-    '山羊座':{全体:'着実な成長の時期。確実に進む。',恋愛:'責任感ある関係が形成されます。',仕事:'キャリアアップの好機。',金運:'着実に増える。',健康:'忍耐力が大事。'},
-    '水瓶座':{全体:'革新的なアイデアが生まれます。',恋愛:'友情から愛への発展あり。',仕事:'独創性で成功。',金運:'予測不能な利益。',健康:'自分らしく過ごして。'},
-    '魚座':{全体:'直感と創造性が高まります。',恋愛:'ロマンティックな出来事が。',仕事:'感性を活かした成功。',金運:'流れに任せて吉。',健康:'心の安らぎが大切。'}
-  },
-  numerology:{
-    1:'リーダーシップと独立の数。自分の道を切り拓く時期。新しい始まりのエネルギーに満ちています。',
-    2:'バランスと協調の数。パートナーシップが鍵。二人で一つの力を発揮する時。',
-    3:'創造性と表現の数。アイデアが輝く時。アーティスティックな活動に最適。',
-    4:'安定と基盤の数。堅実に進みましょう。基礎を固める大切な時期。',
-    5:'変化と自由の数。新しい経験が訪れます。冒険心を発揮して。',
-    6:'調和と愛の数。家族と人間関係を大切に。周囲への思いやりが幸運を呼ぶ。',
-    7:'精神性と知識の数。内面の成長が重要。瞑想と学習に適した時期。',
-    8:'成功と豊かさの数。努力が報われます。金銭運が高い時期。',
-    9:'完成と宇宙の数。一つのサイクルが終わり新しい始まりへ。'
-  },
-  blood:{
-    A:{性格:'慎重で几帳面。計画的に行動するタイプ。',恋愛:'真摯な恋愛をします。一途で信頼を大切にする。',仕事:'完璧主義で細かい配慮ができる。協調性が高い。',相性:'O型との相性が最高！AB型とも好相性。',今日:'堅実に進む一日。計画通りにいきましょう。'},
-    B:{性格:'自由奔放でマイペース。ユニークで好奇心旺盛。',恋愛:'情熱的でサプライズ好き。自分らしい恋愛を。',仕事:'独創的で大胆。新しい企画が得意。',相性:'AB型との相性が最高！O型とも好相性。',今日:'ひらめきの一日。直感を信じて。'},
-    O:{性格:'社交的でおおらか。リーダー気質でフレンドリー。',恋愛:'大らかな愛情で包み込む。積極的なアプローチ。',仕事:'統率力があり、チームワーク重視。行動派。',相性:'A型との相性が最高！B型とも好相性。',今日:'社交運が高い一日。人との繋がりが吉。'},
-    AB:{性格:'神秘的で知的。個性的でミステリアスな魅力。',恋愛:'深い絆を求める。相手を選ぶが一度決めたら本気。',仕事:'才能が多面的。独特の視点で成功する。',相性:'B型との相性が最高！A型とも好相性。',今日:'才能が引き出される特別な一日。'}
-  },
-  moon:{
-    '新月':'新しいスタートの時。願いを立てましょう。種を蒔く絶好のタイミング。',
-    '三日月':'成長のエネルギーが高まる。小さな一歩を踏み出して。',
-    '上弦の月':'行動力がアップ。積極的に動くと吉。努力が実を結ぶ。',
-    '満月':'完成と達成の時。結果が出ます。感情も高まる。',
-    '下弦の月':'反省と浄化の時期。内面を見つめましょう。',
-    '月食':'大きな変化の前触れ。人生のターニングポイント。',
-    '日食':'神聖な力が働く。運命が大きく動く時。',
-    '十三夜':'秘密の力が働く。直感が冴える夜。'
-  },
-  crystal:['紫水晶が輝く。直感力が高まっています。信じる道を進みましょう。','バラ石英が光る。愛情エネルギーに満ちています。素敵な出会いが。','翡翠が深く輝く。調和と平和が訪れます。穏やかな日々を。','シトリンが金色に光る。豊かさが近づいています。金運上昇中。','アメジストが紫に煌く。霊感が冴える時期。直感に従って。','クリスタルが七色に輝く。あらゆる運が最高潮。奇跡の日。','タイガーアイが光る。ビジネスチャンス到来。行動あるのみ。','ムーンストーンが月光のように光る。神秘的な出来事が起こります。','ラピスラズリが紺色に光る。知識と智慧が開花する時。','ローズクォーツが淡く光る。愛される幸せが訪れます。'],
-  palm:['生命線が長くくっきり。長寿で活力に満ちた人生。健康運も最高です。','知能線がまっすぐ伸びている。明晰な判断力が武器。知的な活動で成功。','感情線が美しいカーブ。愛情豊かで人から慕われる。恋愛運が高い。','運命線がくっきり。目標に向かって一直線。キャリアアップ間近。','太陽線が現れている。成功と名声が近づいている。才能が認められる。','結婚線がしっかり。素敵なパートナーとの出会いが近い。','財運線が発達。お金に恵まれる相。投資にも好期。'],
-  dream:['犬の夢を見たあなたは「忠誠心」と「友情」の象徴。真の友人が現れる。','空を飛ぶ夢は「自由」と「解放」。束縛から解き放たれる時。','海の夢は「潜在意識」の深さ。自分自身と向き合うチャンス。','花の夢は「成長」と「美しさ」。新しい才能が芽吹く。','光の夢は「希望」と「導き」。正しい方向に進んでいます。','山の夢は「障害」と「達成」。困難を乗り越え頂上へ。','川の夢は「人生の流れ」。流れに身を任せると吉。','星の夢は「願い」が叶うサイン。願いを強く持ちましょう。','虹の夢は「幸運」の前兆。素晴らしいことが起こります。','月の夢は「女性性」と「直感」。感性を大切に。'],
-  funny:['あなたは来世で柴犬になります。間違いなく幸せです。','占い師が言うには…「頑張ってね」以上。','この占いの的中率は52%です。コインの裏表より若干上。','あなたの幸せ度は100%。だって今生きてるからね。','運勢を計算中…答え：「明日も頑張れ」','タロットカードが逃げました。それだけ運が強いのかも。','あなたのラッキーアイテムは「柴犬」です。当然ですよね。','今日のあなたは「今日のあなた」です。当たりました。','占いより直感を信じた方がいい。…あれ、占いの意味…','えっ、本気で信じてるんですか？ラッキーです。','お告げ：「おやつを食べなさい」','水晶に映ったもの：「あなたの顔」以上。','占い結果：運がいい日もあれば悪い日もある。名言。','ラッキーカラーは「透明」。何にでも合います。','あなたの前世は…柴犬だった可能性70%。','占い的には「ま、何とかなるんじゃない？」','今日の運勢は…とりあえず笑って過ごしましょう。','カードが示す未来：「ごはんがおいしい」素晴らしい。','運命の人は…あなたの近くにいます。多分。知らんけど。','あなたの隠れた才能：占い師。…え、それ私の仕事。']
-};
-
-// ===================== 状態 =====================
-const G={
-  screen:'title',profile:null,
-  areaIdx:0,px:0,py:0,dx:0,dy:0,tx:null,ty:null,
-  frame:0,gtime:0,loopRunning:false,lastTime:0,
-  npcs:[],bubbles:[],particles:[],
-  fortuneCount:0,fortunePower:0,luck:50,
-  fortuneHistory:[],collection:{},
-  selectedBlood:null,tutStep:0,tutDone:false,
-};
-
-// ===================== 初期化 =====================
-window.addEventListener('load',()=>{
-  createStars();
-  canvas=document.getElementById('gcanvas');
-  ctx=canvas.getContext('2d');
-  resizeCanvas();
-  window.addEventListener('resize',resizeCanvas);
-  canvas.addEventListener('touchstart',(e)=>{
-    e.preventDefault();
-    const t=e.touches[0];
-    spawnTapRipple(t.clientX,t.clientY);
-    playSE('tap');
-    const r=canvas.getBoundingClientRect();
-    const x=(t.clientX-r.left)*(canvas.width/r.width);
-    const y=(t.clientY-r.top)*(canvas.height/r.height);
-    handleTap(x,y);
-  },{passive:false});
-  canvas.addEventListener('click',(e)=>{
-    const r=canvas.getBoundingClientRect();
-    const x=(e.clientX-r.left)*(canvas.width/r.width);
-    const y=(e.clientY-r.top)*(canvas.height/r.height);
-    handleTap(x,y);
-  });
-  loadData();
-  initBGM();
-});
-
-function createStars(){
-  const c=document.getElementById('stars-ct');
-  for(let i=0;i<60;i++){
-    const s=document.createElement('div');s.className='star';
-    const sz=Math.random()*3+1;
-    s.style.cssText='width:'+sz+'px;height:'+sz+'px;top:'+(Math.random()*100)+'%;left:'+(Math.random()*100)+'%;animation-delay:'+(Math.random()*3)+'s;animation-duration:'+(1.5+Math.random()*2)+'s;';
-    c.appendChild(s);
-  }
-}
-
-function resizeCanvas(){
-  cW=W();
-  const bEl=document.getElementById('bottom-ui');
-  let bH=0;
-  if(bEl&&bEl.offsetHeight>0)bH=bEl.offsetHeight;
-  else bH=120;
-  cH=H()-bH;
-  if(cH<200)cH=H()*0.75;
-  canvas.width=cW;canvas.height=Math.max(cH,300);
-  canvas.style.height=canvas.height+'px';
-  canvas.style.maxHeight=canvas.height+'px';
-}
-
-function spawnTapRipple(x,y){
-  const r=document.createElement('div');r.className='tap-ripple';
-  r.style.left=(x-20)+'px';r.style.top=(y-20)+'px';
-  document.getElementById('app').appendChild(r);
-  setTimeout(()=>r.remove(),500);
-}
-
-// ===================== 画面遷移 =====================
-function goTo(n){
-  const cur=document.querySelector('.screen.active');
-  const next=document.getElementById(n+'-screen');
-  if(!next)return;
-  if(cur&&cur!==next){
-    cur.classList.add('fade-out');
-    setTimeout(()=>{
-      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active','fade-out'));
-      next.classList.add('active');
-      G.screen=n;
-      if(n==='game'){initGameScreen();}
-      else{stopLoop();stopBGM();}
-    },350);
-  }else{
-    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-    next.classList.add('active');
-    G.screen=n;
-    if(n==='game'){initGameScreen();}
-    else{stopLoop();stopBGM();}
-  }
-}
-
-function initGameScreen(){
-  requestAnimationFrame(()=>{
-    resizeCanvas();
-    if(!G.npcs.length||G.px===0){
-      G.px=cW/2;G.py=canvas.height*0.55;
-      G.dx=G.px-30;G.dy=G.py+15;
-      G.tx=null;G.ty=null;
-      spawnNPCs();
-    }
-    startLoop();
-    if(G.bgmOn!==false)playBGM();
-    if(!G.tutDone)showTutorial();
-    updateUI();
-    if(G.profile)document.getElementById('area-prof').textContent=G.profile.name+'さん';
-  });
-}
-
-// ===================== プロフィール =====================
-function selBlood(t){
-  G.selectedBlood=t;
-  document.querySelectorAll('.blood-btn').forEach(b=>b.classList.remove('sel'));
-  event.target.classList.add('sel');
-}
-
-function saveProfile(){
-  const name=document.getElementById('inp-name').value.trim();
-  const bday=document.getElementById('inp-birthday').value;
-  if(!name){alert('お名前を入力してください');return;}
-  if(!bday){alert('生年月日を選択してください');return;}
-  if(!G.selectedBlood){alert('血液型を選択してください');return;}
-  G.profile={name:name,birthday:bday,blood:G.selectedBlood,zodiac:getZodiac(bday)};
-  localStorage.setItem('shibaFortuneProfile',JSON.stringify(G.profile));
-  goTo('game');
-}
-
-function startGame(){
-  if(G.profile){goTo('game');}
-  else{goTo('profile');}
-}
-
-function skipProfile(){
-  if(!G.profile){
-    G.profile={name:'ゲスト',birthday:'2000-01-01',blood:'O',zodiac:'やぎ座'};
-  }
-  goTo('game');
-}
-
-function getZodiac(ds){
-  const d=new Date(ds),m=d.getMonth()+1,day=d.getDate();
-  const z=[['山羊座',12,22,1,19],['水瓶座',1,20,2,18],['魚座',2,19,3,20],['牡羊座',3,21,4,19],['牡牛座',4,20,5,20],['双子座',5,21,6,20],['蟹座',6,21,7,22],['獅子座',7,23,8,22],['乙女座',8,23,9,22],['天秤座',9,23,10,22],['蠍座',10,23,11,21],['射手座',11,22,12,21]];
-  for(const s of z){if((m===s[1]&&day>=s[2])||(m===s[3]&&day<=s[4]))return s[0];}
-  return '山羊座';
-}
-
-function showProfileEdit(){
-  if(G.profile){
-    document.getElementById('inp-name').value=G.profile.name;
-    document.getElementById('inp-birthday').value=G.profile.birthday;
-    G.selectedBlood=G.profile.blood;
-    document.querySelectorAll('.blood-btn').forEach(b=>{
-      b.classList.toggle('sel',b.textContent.replace('型','')===G.profile.blood);
-    });
-  }
-  goTo('profile');
-}
-
-function loadData(){
-  try{
-    const p=localStorage.getItem('shibaFortuneProfile');
-    if(p)G.profile=JSON.parse(p);
-    const c=localStorage.getItem('shibaFortuneCount');
-    if(c)G.fortuneCount=parseInt(c);
-    const h=localStorage.getItem('shibaFortuneHistory');
-    if(h)G.fortuneHistory=JSON.parse(h);
-    const col=localStorage.getItem('shibaFortuneCollection');
-    if(col)G.collection=JSON.parse(col);
-    const t=localStorage.getItem('shibaFortuneTutDone');
-    if(t)G.tutDone=true;
-  }catch(e){}
-  // プロフィールがあればゲーム画面へ
-  if(G.profile){
-    setTimeout(()=>goTo('game'),500);
-  }
-}
-
-function saveData(){
-  localStorage.setItem('shibaFortuneCount',G.fortuneCount);
-  localStorage.setItem('shibaFortuneHistory',JSON.stringify(G.fortuneHistory.slice(-50)));
-  localStorage.setItem('shibaFortuneCollection',JSON.stringify(G.collection));
-}
-
-// ===================== BGM =====================
-let audioCtx,bgmGain,bgmPlaying=false,bgmInterval;
-function initBGM(){
-  try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}
-}
-function playBGM(){
-  if(!audioCtx||bgmPlaying)return;bgmPlaying=true;
-  if(audioCtx.state==='suspended')audioCtx.resume();
-  const notes=[392,440,494,523,587,523,494,440,392,349,330,349,392,440,494,392];
-  let ni=0;
-  function playNote(){
-    if(!bgmPlaying)return;
-    const o=audioCtx.createOscillator();
-    o.type='sine';o.frequency.value=notes[ni%notes.length];
-    const g=audioCtx.createGain();g.gain.value=0.04;
-    g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.4);
-    o.connect(g);g.connect(audioCtx.destination);
-    o.start();o.stop(audioCtx.currentTime+0.42);
-    ni++;
-  }
-  playNote();bgmInterval=setInterval(playNote,450);
-}
-function stopBGM(){bgmPlaying=false;if(bgmInterval)clearInterval(bgmInterval);}
-function playSE(type){
-  if(!audioCtx)return;
-  if(audioCtx.state==='suspended')audioCtx.resume();
-  try{
-    const now=audioCtx.currentTime;
-    if(type==='tap'){
-      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
-      o.type='sine';o.frequency.setValueAtTime(1200,now);o.frequency.exponentialRampToValueAtTime(800,now+0.04);
-      g.gain.setValueAtTime(0.03,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.06);
-      o.connect(g);g.connect(audioCtx.destination);o.start(now);o.stop(now+0.06);
-    }else if(type==='fortune'){
-      [523,659,784,1047].forEach((f,i)=>{
-        const o=audioCtx.createOscillator(),g=audioCtx.createGain();
-        o.type='sine';o.frequency.value=f;
-        g.gain.setValueAtTime(0.04,now+i*0.1);g.gain.exponentialRampToValueAtTime(0.001,now+i*0.1+0.3);
-        o.connect(g);g.connect(audioCtx.destination);o.start(now+i*0.1);o.stop(now+i*0.1+0.3);
-      });
-    }else if(type==='area'){
-      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
-      o.type='triangle';o.frequency.value=660;
-      g.gain.setValueAtTime(0.05,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.15);
-      o.connect(g);g.connect(audioCtx.destination);o.start(now);o.stop(now+0.15);
-    }
-  }catch(e){}
-}
-
-// ===================== タップ処理 =====================
-function handleTap(x,y){
-  // NPC判定
-  for(const n of G.npcs){
-    if(Math.hypot(n.x-x,n.y-y)<40){talkNPC(n);return;}
-  }
-  // エリア移動
-  if(x<50){changeArea(-1);return;}
-  if(x>cW-50){changeArea(1);return;}
-  if(y<50){changeArea(-3);return;}
-  if(y>canvas.height-50){changeArea(3);return;}
-  // 移動
-  G.tx=x;G.ty=y;
-}
-
-function changeArea(dir){
-  const newIdx=G.areaIdx+dir;
-  if(newIdx<0||newIdx>=areas.length)return;
-  G.areaIdx=newIdx;
-  const a=areas[G.areaIdx];
-  document.getElementById('h-area').textContent=a.name;
-  document.getElementById('area-nm2').textContent=a.name;
-  G.px=cW/2;G.py=canvas.height*0.55;
-  G.dx=G.px-30;G.dy=G.py+15;
-  G.tx=null;G.ty=null;
-  addBubble(cW/2,canvas.height*0.4,a.name+'に到着！',60);
-  playSE('area');
-  spawnNPCs();
-}
-
-// ===================== NPC =====================
-function spawnNPCs(){
-  G.npcs=[];
-  for(const npc of npcData){
-    if(npc.area===G.areaIdx){
-      G.npcs.push({
-        ...npc,
-        x:60+Math.random()*(cW-120),
-        y:canvas.height*0.3+Math.random()*canvas.height*0.35,
-        vx:(Math.random()-.5)*0.6,vy:(Math.random()-.5)*0.3,
-        fr:Math.floor(Math.random()*100),
-      });
-    }
-  }
-}
-
-function talkNPC(n){
-  const modal=document.getElementById('modal');
-  document.getElementById('mt2').textContent=n.name;
-  document.getElementById('mm2').textContent=n.greeting;
-  const btn=document.getElementById('m-fortune-btn');
-  btn.textContent='占ってもらう';
-  btn.onclick=()=>{
-    closeM();
-    doFortune(n);
-  };
-  modal.classList.add('show');
-}
-function closeM(){document.getElementById('modal').classList.remove('show');}
-
-// ===================== 占い実行 =====================
-function doFortune(npc){
-  const type=npc.type;
-  let title='',level='',text='',detail='';
-
-  if(type==='tarot'){
-    const cards=Object.keys(FD.tarot);
-    const card=cards[Math.floor(Math.random()*cards.length)];
-    const up=Math.random()>0.4;
-    const readings=up?FD.tarot[card].up:FD.tarot[card].rv;
-    title='タロット占い';
-    level=card+(up?' 正位置':' 逆位置');
-    text=readings[Math.floor(Math.random()*readings.length)];
-    detail=up?'良い兆候が見えます':'注意して進みましょう';
-  }else if(type==='omikuji'){
-    const levels=['大吉','中吉','小吉','吉','末吉','凶','大凶'];
-    const weights=[10,20,25,20,15,8,2];
-    let total=weights.reduce((a,b)=>a+b,0),r=Math.random()*total;
-    let lv='吉';
-    for(let i=0;i<weights.length;i++){r-=weights[i];if(r<=0){lv=levels[i];break;}}
-    title='おみくじ';
-    level=lv;
-    const readings=FD.omikuji[lv];
-    text=readings[Math.floor(Math.random()*readings.length)];
-    const cats=['恋愛','仕事','健康','金運'];
-    detail=cats[Math.floor(Math.random()*cats.length)]+'運も良好です';
-  }else if(type==='zodiac'){
-    const sign=G.profile?G.profile.zodiac:'牡羊座';
-    const data=FD.zodiac[sign];
-    if(data){
-      const cats=Object.keys(data);
-      const cat=cats[Math.floor(Math.random()*cats.length)];
-      title='星座占い - '+sign;
-      level=cat;
-      text=data[cat];
-    }else{title='星座占い';level='不明';text='星座が確認できません';}
-  }else if(type==='numerology'){
-    const num=Math.ceil(Math.random()*9);
-    title='数秘術';
-    level='運命数 '+num;
-    text=FD.numerology[num];
-  }else if(type==='blood'){
-    const bt=G.profile?G.profile.blood:'A';
-    const data=FD.blood[bt];
-    if(data){
-      const cats=Object.keys(data);
-      const cat=cats[Math.floor(Math.random()*cats.length)];
-      title='血液型占い - '+bt+'型';
-      level=cat;
-      text=data[cat];
-    }else{title='血液型占い';level='不明';text='血液型が確認できません';}
-  }else if(type==='moon'){
-    const phases=Object.keys(FD.moon);
-    const phase=phases[Math.floor(Math.random()*phases.length)];
-    title='月占い';
-    level=phase;
-    text=FD.moon[phase];
-  }else if(type==='crystal'){
-    title='クリスタルボール';
-    level='水晶の導き';
-    text=FD.crystal[Math.floor(Math.random()*FD.crystal.length)];
-  }else if(type==='palm'){
-    title='手相占い';
-    level='手のひらの秘密';
-    text=FD.palm[Math.floor(Math.random()*FD.palm.length)];
-  }else if(type==='dream'){
-    title='夢占い';
-    level='夢のメッセージ';
-    text=FD.dream[Math.floor(Math.random()*FD.dream.length)];
-  }else if(type==='funny'){
-    title='面白占い';
-    level='わっはっは！';
-    text=FD.funny[Math.floor(Math.random()*FD.funny.length)];
-  }
-
-  // 結果表示
-  document.getElementById('f-name').textContent=npc.name+'の'+title;
-  document.getElementById('f-type-label').textContent=title;
-  document.getElementById('f-level').textContent=level;
-  document.getElementById('f-text').textContent=text;
-  if(detail){
-    document.getElementById('f-detail').textContent=detail;
-    document.getElementById('f-detail').style.display='block';
-  }else{
-    document.getElementById('f-detail').style.display='none';
-  }
-  document.getElementById('fortune-overlay').classList.add('show');
-  document.getElementById('f-close').onclick=()=>{
-    document.getElementById('fortune-overlay').classList.remove('show');
-  };
-
-  // 統計更新
-  G.fortuneCount++;
-  G.fortunePower=Math.min(100,G.fortunePower+5);
-  G.luck=Math.min(100,G.luck+3);
-  G.fortuneHistory.unshift({date:new Date().toLocaleDateString('ja-JP'),npc:npc.name,type:title,level:level,text:text});
-  const key=type+'_'+level;
-  G.collection[key]=(G.collection[key]||0)+1;
-  saveData();
-  updateUI();
-  playSE('fortune');
-
-  // バブル
-  addBubble(npc.x,npc.y-40,'占い完了！✨',50);
-}
-
-// ===================== UI更新 =====================
-function updateUI(){
-  document.getElementById('h-count').textContent=G.fortuneCount;
-  document.getElementById('sv-power').textContent=Math.floor(G.fortunePower);
-  document.getElementById('sb-power').style.width=G.fortunePower+'%';
-  document.getElementById('sv-luck').textContent=Math.floor(G.luck);
-  document.getElementById('sb-luck').style.width=G.luck+'%';
-}
-
-// ===================== 図鑑・履歴 =====================
-function openAlbum(){
-  const grid=document.getElementById('album-grid');
-  const types=['tarot','omikuji','zodiac','numerology','blood','moon','crystal','palm','dream','funny'];
-  const typeNames={tarot:'タロット',omikuji:'おみくじ',zodiac:'星座',numerology:'数秘術',blood:'血液型',moon:'月',crystal:'水晶',palm:'手相',dream:'夢',funny:'面白'};
-  let html='';
-  types.forEach(t=>{
-    let count=0;
-    Object.keys(G.collection).forEach(k=>{if(k.startsWith(t))count+=G.collection[k];});
-    html+='<div class="album-card"><div style="font-size:28px;margin-bottom:6px;">'+getTypeEmoji(t)+'</div><div class="ac-name">'+typeNames[t]+'占い</div><div class="ac-count">'+count+'回</div></div>';
-  });
-  grid.innerHTML=html;
-  document.getElementById('album-overlay').classList.add('show');
-}
-function closeAlbum(){document.getElementById('album-overlay').classList.remove('show');}
-function getTypeEmoji(t){return{tarot:'🃏',omikuji:'⛩️',zodiac:'⭐',numerology:'🔢',blood:'💉',moon:'🌙',crystal:'🔮',palm:'✋',dream:'💭',funny:'😂'}[t]||'🔮';}
-
-function openHistory(){
-  const list=document.getElementById('hist-list');
-  let html='';
-  G.fortuneHistory.slice(0,20).forEach(h=>{
-    html+='<div class="hist-item"><div class="hist-icon">🔮</div><div class="hist-info"><b>'+h.npc+'</b> '+h.type+'<br>'+h.level+' - '+h.text.substring(0,30)+'…<br><span style="color:#aaa;font-size:10px;">'+h.date+'</span></div></div>';
-  });
-  if(!html)html='<div style="text-align:center;color:#999;padding:40px;">まだ占い履歴がありません</div>';
-  list.innerHTML=html;
-  document.getElementById('history-overlay').classList.add('show');
-}
-function closeHistory(){document.getElementById('history-overlay').classList.remove('show');}
-
-// ===================== チュートリアル =====================
-const tutSteps=[
-  {title:'タップして移動',text:'画面をタップして移動できます。\n柴犬があなたについてきます！'},
-  {title:'占い師と話す',text:'柴犬やキャラクターをタップすると\n占いをしてもらえます！'},
-  {title:'エリアを探索',text:'画面の端をタップすると\n別のエリアに移動できます。\n6つのエリアを巡ろう！'}
-];
-function showTutorial(){
-  G.tutStep=0;
-  renderTutStep();
-  document.getElementById('tutorial-overlay').classList.add('show');
-}
-function renderTutStep(){
-  const s=tutSteps[G.tutStep];
-  document.getElementById('tut-title').textContent=s.title;
-  document.getElementById('tut-text').textContent=s.text;
-  let dots='';
-  for(let i=0;i<tutSteps.length;i++)dots+='<div class="tut-dot'+(i===G.tutStep?' active':'')+'"></div>';
-  document.getElementById('tut-dots').innerHTML=dots;
-}
-function nextTutorial(){
-  G.tutStep++;
-  if(G.tutStep>=tutSteps.length){
-    document.getElementById('tutorial-overlay').classList.remove('show');
-    G.tutDone=true;
-    localStorage.setItem('shibaFortuneTutDone','true');
-  }else{renderTutStep();}
-}
-
-// ===================== バブル・パーティクル =====================
-function addBubble(x,y,text,life){G.bubbles.push({x,y,text,life:life||40});}
-
-// ===================== ゲームループ =====================
-function startLoop(){if(G.loopRunning)return;G.loopRunning=true;G.lastTime=performance.now();requestAnimationFrame(gameFrame);}
-function stopLoop(){G.loopRunning=false;}
-function gameFrame(now){
-  if(!G.loopRunning)return;
-  const dt=now-G.lastTime;
-  if(dt>=16){G.lastTime=now;gameLoop();}
-  requestAnimationFrame(gameFrame);
-}
-
-function gameLoop(){
-  G.frame++;G.gtime++;
-
-  // プレイヤー移動
-  if(G.tx!==null){
-    const dx=G.tx-G.px,dy=G.ty-G.py,d=Math.hypot(dx,dy);
-    if(d>3){const ease=Math.min(0.12,4.0/d);G.px+=dx*ease;G.py+=dy*ease;}
-    else{G.tx=null;G.ty=null;}
-  }
-
-  // 犬追従
-  const tdx=G.px-30,tdy=G.py+15;
-  const ddx=tdx-G.dx,ddy=tdy-G.dy,dd=Math.hypot(ddx,ddy);
-  if(dd>5){const lerp=0.06+Math.min(1,2.2/dd*3)*0.08;G.dx+=ddx*lerp;G.dy+=ddy*lerp;}
-
-  // NPC移動
-  for(const n of G.npcs){
-    n.fr++;
-    n.x+=n.vx;n.y+=n.vy;
-    if(n.x<30||n.x>cW-30)n.vx*=-1;
-    if(n.y<canvas.height*0.25||n.y>canvas.height*0.8)n.vy*=-1;
-    if(Math.random()>0.98){n.vx=(Math.random()-.5)*0.6;n.vy=(Math.random()-.5)*0.3;}
-  }
-
-  // 境界
-  G.px=Math.max(25,Math.min(cW-25,G.px));
-  G.py=Math.max(canvas.height*0.25,Math.min(canvas.height*0.85,G.py));
-
-  // 運気ゆらぎ
-  if(G.gtime%300===0)G.luck=Math.max(20,Math.min(100,G.luck+(Math.random()-.5)*10));
-
-  // バブル更新
-  G.bubbles=G.bubbles.filter(b=>{b.life--;b.y-=0.5;return b.life>0;});
-
-  drawAll();
-}
-
-// ===================== 描画 =====================
-function drawAll(){
-  if(!ctx)return;
-  const w=canvas.width,h=canvas.height;
-  ctx.clearRect(0,0,w,h);
-  const a=areas[G.areaIdx];
-
-  // 空
-  const sky=ctx.createLinearGradient(0,0,0,h*0.45);
-  sky.addColorStop(0,a.sky[0]);sky.addColorStop(0.5,a.sky[1]);sky.addColorStop(1,a.sky[2]);
-  ctx.fillStyle=sky;ctx.fillRect(0,0,w,h*0.45);
-
-  // 太陽/月
-  if(G.areaIdx===3||G.areaIdx===4){
-    ctx.fillStyle='#FFFFCC';ctx.shadowColor='#FFFFCC';ctx.shadowBlur=20;
-    ctx.beginPath();ctx.arc(w*0.85,h*0.08,15,0,Math.PI*2);ctx.fill();
-    ctx.shadowBlur=0;
-    // 星
-    ctx.fillStyle='#FFD700';
-    for(let i=0;i<12;i++){
-      const sx=(G.frame*0.3+i*97)%w;
-      const sy=h*0.05+Math.sin(G.frame*0.02+i*1.3)*h*0.15;
-      ctx.beginPath();ctx.arc(sx,sy,1.5,0,Math.PI*2);ctx.fill();
-    }
-  }else{
-    ctx.fillStyle='#FFF9C4';ctx.shadowColor='#FFEE58';ctx.shadowBlur=25;
-    ctx.beginPath();ctx.arc(w*0.85,h*0.08,20,0,Math.PI*2);ctx.fill();
-    ctx.shadowBlur=0;
-  }
-
-  // 雲
-  drawCloud(w*0.2+Math.sin(G.frame*0.005)*20,h*0.06,1);
-  drawCloud(w*0.6,h*0.1+Math.cos(G.frame*0.006)*10,.7);
-  drawCloud(w*0.9,h*0.05,.5);
-
-  // 地面
-  const grd=ctx.createLinearGradient(0,h*0.45,0,h);
-  grd.addColorStop(0,a.ground[0]);grd.addColorStop(.4,a.ground[1]);grd.addColorStop(1,a.ground[2]);
-  ctx.fillStyle=grd;ctx.fillRect(0,h*0.45,w,h*0.55);
-
-  // エリア固有描画
-  drawAreaFeatures(a.id,w,h);
-
-  // 矢印ヒント
-  ctx.globalAlpha=0.3+Math.sin(G.frame/15)*0.15;
-  ctx.fillStyle='#FFB74D';ctx.font='bold 20px sans-serif';ctx.textAlign='center';
-  if(G.areaIdx>0)ctx.fillText('◀',18,h/2);
-  if(G.areaIdx<areas.length-1)ctx.fillText('▶',w-18,h/2);
-  ctx.globalAlpha=1;
-
-  // NPC描画
-  for(const n of G.npcs){
-    if(n.kind==='cat')drawCat(n.x,n.y,n.fr);
-    else if(n.kind==='plankton')drawPlankton(n.x,n.y,n.colorMain,n.fr);
-    else if(n.kind==='serow')drawSerow(n.x,n.y,n.fr);
-    else drawDog(n.x,n.y,n.colorMain,n.colorBelly,n.fr);
-    // 名前ラベル
-    ctx.fillStyle='rgba(0,0,0,.5)';ctx.font='bold 9px sans-serif';ctx.textAlign='center';
-    ctx.fillText(n.name,n.x,n.y+25);
-  }
-
-  // プレイヤー
-  drawOwner(G.px,G.py);
-
-  // プレイヤーの犬
-  drawDog(G.dx,G.dy,'#C9A772','#FFF8E1',G.frame);
-
-  // バブル
-  for(const b of G.bubbles){
-    ctx.globalAlpha=Math.min(1,b.life/20);
-    const tw=ctx.measureText(b.text).width;
-    ctx.fillStyle='rgba(0,0,0,.6)';
-    roundRect(ctx,b.x-tw/2-8,b.y-10,tw+16,22,8);ctx.fill();
-    ctx.fillStyle='#fff';ctx.font='bold 11px sans-serif';ctx.textAlign='center';
-    ctx.fillText(b.text,b.x,b.y+4);ctx.globalAlpha=1;
-  }
-
-  // ミニマップ
-  drawMinimap(w,h);
-
-  // パーティクル
-  ctx.fillStyle='rgba(255,183,77,.5)';
-  for(let i=0;i<5;i++){
-    const px=(G.frame*1.5+i*130)%w;
-    const py=h*0.15+Math.sin(G.frame*0.03+i*2)*h*0.1;
-    ctx.beginPath();ctx.arc(px,py,1.5+Math.sin(G.frame*0.1+i)*0.5,0,Math.PI*2);ctx.fill();
-  }
-}
-
-function roundRect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath();}
-
-// ===== 描画関数 =====
-function drawDog(x,y,cm,cb,fr){
-  ctx.save();
-  // 影
-  ctx.fillStyle='rgba(0,0,0,.1)';ctx.beginPath();ctx.ellipse(x,y+16,16,5,0,0,Math.PI*2);ctx.fill();
-  // 胴体
-  ctx.fillStyle=cm;ctx.beginPath();ctx.ellipse(x,y,24,18,0,0,Math.PI*2);ctx.fill();
-  // お腹
-  ctx.fillStyle=cb;ctx.beginPath();ctx.ellipse(x,y+6,14,12,0,0,Math.PI*2);ctx.fill();
-  // 頭
-  ctx.fillStyle=cm;ctx.beginPath();ctx.arc(x+22,y-12,13,0,Math.PI*2);ctx.fill();
-  // 耳
-  ctx.beginPath();ctx.moveTo(x+16,y-26);ctx.lineTo(x+12,y-36);ctx.lineTo(x+24,y-28);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.moveTo(x+28,y-26);ctx.lineTo(x+32,y-36);ctx.lineTo(x+36,y-28);ctx.closePath();ctx.fill();
-  // 目
-  ctx.fillStyle='#fff';ctx.beginPath();ctx.ellipse(x+18,y-15,4,5,0,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.ellipse(x+28,y-15,4,5,0,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#333';ctx.beginPath();ctx.arc(x+18,y-14,2,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(x+28,y-14,2,0,Math.PI*2);ctx.fill();
-  // 鼻
-  ctx.fillStyle='#333';ctx.beginPath();ctx.arc(x+23,y-8,2.5,0,Math.PI*2);ctx.fill();
-  // しっぽ
-  const tw=Math.sin(fr*0.08)*12;
-  ctx.strokeStyle=cm;ctx.lineWidth=4;ctx.lineCap='round';
-  ctx.beginPath();ctx.moveTo(x-24,y+6);ctx.quadraticCurveTo(x-38,y-4+tw,x-42,y-14+tw);ctx.stroke();
-  ctx.restore();
-}
-
-function drawCat(x,y,fr){
-  ctx.save();
-  ctx.fillStyle='#FF9800';ctx.beginPath();ctx.ellipse(x,y+5,12,16,0,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(x,y-8,10,0,Math.PI*2);ctx.fill();
-  // 尖った耳
-  ctx.beginPath();ctx.moveTo(x-8,y-16);ctx.lineTo(x-5,y-26);ctx.lineTo(x-2,y-16);ctx.fill();
-  ctx.beginPath();ctx.moveTo(x+2,y-16);ctx.lineTo(x+5,y-26);ctx.lineTo(x+8,y-16);ctx.fill();
-  // 目
-  ctx.fillStyle='#FFEB3B';ctx.beginPath();ctx.ellipse(x-4,y-10,2,3,0,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.ellipse(x+4,y-10,2,3,0,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#333';ctx.beginPath();ctx.arc(x-4,y-10,1,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(x+4,y-10,1,0,Math.PI*2);ctx.fill();
-  // 鼻
-  ctx.fillStyle='#FF69B4';ctx.beginPath();ctx.arc(x,y-5,1.5,0,Math.PI*2);ctx.fill();
-  // しっぽ
-  ctx.strokeStyle='#FF9800';ctx.lineWidth=3;ctx.beginPath();
-  ctx.moveTo(x+10,y+5);ctx.quadraticCurveTo(x+18,Math.sin(fr*0.12)*8+y,x+20,y-10);ctx.stroke();
-  ctx.restore();
-}
-
-function drawPlankton(x,y,col,fr){
-  ctx.save();
-  const bob=Math.sin(fr*0.06)*3;
-  ctx.globalAlpha=0.7+0.3*Math.sin(fr*0.05);
-  ctx.fillStyle=col;
-  for(let i=0;i<4;i++){
-    const a=(Math.PI*2/4)*i+fr*0.02;
-    const px=x+Math.cos(a)*5;const py=y+bob+Math.sin(a)*5;
-    ctx.beginPath();ctx.arc(px,py,2.5,0,Math.PI*2);ctx.fill();
-  }
-  ctx.beginPath();ctx.arc(x,y+bob,4,0,Math.PI*2);ctx.fill();
-  ctx.globalAlpha=1;
-  ctx.restore();
-}
-
-function drawSerow(x,y,fr){
-  ctx.save();
-  // 胴体
-  ctx.fillStyle='#795548';ctx.beginPath();ctx.ellipse(x,y,20,14,0,0,Math.PI*2);ctx.fill();
-  // 頭
-  ctx.beginPath();ctx.arc(x+20,y-4,11,0,Math.PI*2);ctx.fill();
-  // 角
-  ctx.strokeStyle='#555';ctx.lineWidth=2;
-  ctx.beginPath();ctx.moveTo(x+17,y-13);ctx.lineTo(x+15,y-22);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(x+23,y-13);ctx.lineTo(x+25,y-22);ctx.stroke();
-  // 目
-  ctx.fillStyle='#333';ctx.beginPath();ctx.arc(x+24,y-5,2,0,Math.PI*2);ctx.fill();
-  // 脚
-  ctx.strokeStyle='#795548';ctx.lineWidth=3;
-  for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(x-10+i*7,y+12);ctx.lineTo(x-10+i*7,y+22);ctx.stroke();}
-  ctx.restore();
-}
-
-function drawOwner(x,y){
-  ctx.save();
-  // 頭
-  ctx.fillStyle='#FFDBAC';ctx.beginPath();ctx.arc(x,y-16,8,0,Math.PI*2);ctx.fill();
-  // 髪
-  ctx.fillStyle='#5D4037';ctx.beginPath();ctx.arc(x,y-20,8,Math.PI,0);ctx.fill();
-  // 体
-  ctx.fillStyle='#FF7043';ctx.fillRect(x-7,y-6,14,16);
-  // 腕
-  ctx.fillStyle='#FFDBAC';ctx.fillRect(x-12,y-4,5,4);ctx.fillRect(x+7,y-4,5,4);
-  // 脚
-  ctx.fillStyle='#455A64';ctx.fillRect(x-5,y+10,4,8);ctx.fillRect(x+1,y+10,4,8);
-  ctx.restore();
-}
-
-function drawCloud(x,y,s){
-  ctx.save();ctx.translate(x,y);ctx.scale(s,s);
-  ctx.fillStyle='rgba(255,255,255,.7)';
-  ctx.beginPath();ctx.arc(-12,0,10,0,Math.PI*2);ctx.arc(0,-4,14,0,Math.PI*2);ctx.arc(12,0,10,0,Math.PI*2);ctx.fill();
-  ctx.restore();
-}
-
-function drawMinimap(w,h){
-  const mx=w-65,my=10,mw=55,mh=45;
-  ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(mx,my,mw,mh);
-  ctx.strokeStyle='#FFB74D';ctx.lineWidth=1;ctx.strokeRect(mx,my,mw,mh);
-  for(let i=0;i<6;i++){
-    const row=Math.floor(i/3),col=i%3;
-    const px=mx+5+col*17,py=my+5+row*18;
-    ctx.fillStyle=i===G.areaIdx?'#FFB74D':'#555';
-    ctx.beginPath();ctx.arc(px+6,py+6,5,0,Math.PI*2);ctx.fill();
-  }
-}
-
-function drawAreaFeatures(id,w,h){
-  if(id==='village'){
-    // 家
-    ctx.fillStyle='#CD853F';ctx.fillRect(w*0.12,h*0.33,65,55);
-    ctx.fillStyle='#FF6347';ctx.beginPath();ctx.moveTo(w*0.12,h*0.33);ctx.lineTo(w*0.12+32,h*0.22);ctx.lineTo(w*0.12+65,h*0.33);ctx.closePath();ctx.fill();
-    // 窓
-    ctx.fillStyle='#87CEEB';ctx.fillRect(w*0.12+15,h*0.33+12,12,12);ctx.fillRect(w*0.12+38,h*0.33+12,12,12);
-    // ドア
-    ctx.fillStyle='#8B4513';ctx.fillRect(w*0.12+24,h*0.33+30,18,25);
-    // 井戸
-    ctx.fillStyle='#808080';ctx.fillRect(w*0.7,h*0.45,30,25);
-    ctx.fillStyle='#666';ctx.fillRect(w*0.7-2,h*0.43,34,6);
-    // 花
-    const colors=['#FF69B4','#FFD700','#FF6347','#9370DB','#00CED1'];
-    for(let i=0;i<8;i++){
-      ctx.fillStyle=colors[i%colors.length];
-      ctx.beginPath();ctx.arc(w*0.3+i*25,h*0.48+Math.sin(i)*8,4,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#228B22';ctx.fillRect(w*0.3+i*25-1,h*0.48+Math.sin(i)*8+3,2,8);
-    }
-  }else if(id==='tarot'){
-    // ゴシック建物
-    ctx.fillStyle='#4A148C';ctx.fillRect(w*0.1,h*0.25,90,80);
-    ctx.fillStyle='#7B1FA2';ctx.beginPath();ctx.moveTo(w*0.1,h*0.25);ctx.lineTo(w*0.1+45,h*0.1);ctx.lineTo(w*0.1+90,h*0.25);ctx.closePath();ctx.fill();
-    // 窓（ステンドグラス風）
-    ctx.fillStyle='#CE93D8';ctx.beginPath();ctx.arc(w*0.1+45,h*0.32,12,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#E1BEE7';ctx.beginPath();ctx.arc(w*0.1+45,h*0.32,6,0,Math.PI*2);ctx.fill();
-    // クリスタルボール
-    const glow=0.5+0.3*Math.sin(G.frame*0.05);
-    ctx.fillStyle='rgba(186,85,211,'+glow+')';ctx.beginPath();ctx.arc(w*0.65,h*0.4,18,0,Math.PI*2);ctx.fill();
-    ctx.strokeStyle='#9C27B0';ctx.lineWidth=2;ctx.stroke();
-    // 魔法記号
-    ctx.fillStyle='rgba(206,147,216,.6)';ctx.font='18px sans-serif';
-    ctx.fillText('✦',w*0.8,h*0.2);ctx.fillText('✧',w*0.5,h*0.15);ctx.fillText('✦',w*0.85,h*0.35);
-  }else if(id==='shrine'){
-    // 鳥居
-    ctx.strokeStyle='#D32F2F';ctx.lineWidth=6;
-    ctx.beginPath();ctx.moveTo(w*0.2,h*0.5);ctx.lineTo(w*0.2,h*0.3);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(w*0.45,h*0.5);ctx.lineTo(w*0.45,h*0.3);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(w*0.17,h*0.3);ctx.lineTo(w*0.48,h*0.3);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(w*0.19,h*0.34);ctx.lineTo(w*0.46,h*0.34);ctx.stroke();
-    // 神社本殿
-    ctx.fillStyle='#8B4513';ctx.fillRect(w*0.55,h*0.35,70,55);
-    ctx.fillStyle='#D32F2F';ctx.beginPath();ctx.moveTo(w*0.53,h*0.35);ctx.lineTo(w*0.55+35,h*0.2);ctx.lineTo(w*0.55+72,h*0.35);ctx.closePath();ctx.fill();
-    // 石段
-    ctx.fillStyle='#999';
-    for(let i=0;i<3;i++)ctx.fillRect(w*0.3-i*5,h*0.5+i*8,w*0.1+i*10,5);
-  }else if(id==='zodiac'){
-    // 天文台ドーム
-    ctx.fillStyle='#37474F';ctx.beginPath();ctx.arc(w*0.7,h*0.35,35,Math.PI,0);ctx.fill();
-    ctx.fillRect(w*0.7-35,h*0.35,70,40);
-    // 望遠鏡
-    ctx.strokeStyle='#607D8B';ctx.lineWidth=4;
-    ctx.beginPath();ctx.moveTo(w*0.3,h*0.45);ctx.lineTo(w*0.2,h*0.3);ctx.stroke();
-    ctx.fillStyle='#78909C';ctx.beginPath();ctx.arc(w*0.2,h*0.3,8,0,Math.PI*2);ctx.fill();
-    // 星座ライン
-    ctx.strokeStyle='rgba(255,215,0,.4)';ctx.lineWidth=1;
-    const stars=[[w*0.4,h*0.1],[w*0.5,h*0.15],[w*0.55,h*0.08],[w*0.45,h*0.2],[w*0.35,h*0.18]];
-    ctx.beginPath();stars.forEach((s,i)=>{if(i===0)ctx.moveTo(s[0],s[1]);else ctx.lineTo(s[0],s[1]);});ctx.stroke();
-    ctx.fillStyle='#FFD700';stars.forEach(s=>{ctx.beginPath();ctx.arc(s[0],s[1],3,0,Math.PI*2);ctx.fill();});
-  }else if(id==='spring'){
-    // 泉
-    const shimmer=0.4+0.2*Math.sin(G.frame*0.03);
-    ctx.fillStyle='rgba(0,188,212,'+shimmer+')';ctx.beginPath();ctx.ellipse(w*0.4,h*0.45,50,30,0,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='rgba(77,208,225,.6)';ctx.beginPath();ctx.ellipse(w*0.4,h*0.45,30,18,0,0,Math.PI*2);ctx.fill();
-    // クリスタル
-    ctx.fillStyle='#9C27B0';
-    ctx.beginPath();ctx.moveTo(w*0.7,h*0.35);ctx.lineTo(w*0.73,h*0.25);ctx.lineTo(w*0.76,h*0.35);ctx.closePath();ctx.fill();
-    ctx.fillStyle='#AB47BC';
-    ctx.beginPath();ctx.moveTo(w*0.75,h*0.38);ctx.lineTo(w*0.77,h*0.3);ctx.lineTo(w*0.8,h*0.38);ctx.closePath();ctx.fill();
-    // 月光効果
-    ctx.fillStyle='rgba(255,255,200,.15)';ctx.beginPath();ctx.arc(w*0.4,h*0.2,60,0,Math.PI*2);ctx.fill();
-  }else if(id==='alley'){
-    // カラフルショップ
-    ctx.fillStyle='#FFCCFF';ctx.fillRect(w*0.08,h*0.35,50,45);
-    ctx.fillStyle='#FF69B4';ctx.beginPath();ctx.moveTo(w*0.08,h*0.35);ctx.lineTo(w*0.08+25,h*0.26);ctx.lineTo(w*0.08+50,h*0.35);ctx.closePath();ctx.fill();
-    ctx.fillStyle='#CCFFCC';ctx.fillRect(w*0.35,h*0.33,50,47);
-    ctx.fillStyle='#66BB6A';ctx.beginPath();ctx.moveTo(w*0.35,h*0.33);ctx.lineTo(w*0.35+25,h*0.24);ctx.lineTo(w*0.35+50,h*0.33);ctx.closePath();ctx.fill();
-    ctx.fillStyle='#CCCCFF';ctx.fillRect(w*0.62,h*0.35,50,45);
-    ctx.fillStyle='#7986CB';ctx.beginPath();ctx.moveTo(w*0.62,h*0.35);ctx.lineTo(w*0.62+25,h*0.26);ctx.lineTo(w*0.62+50,h*0.35);ctx.closePath();ctx.fill();
-    // ランタン
-    const lanternColors=['#FF6B6B','#FFD700','#FF69B4','#87CEEB'];
-    for(let i=0;i<4;i++){
-      ctx.fillStyle=lanternColors[i];
-      const lx=w*0.15+i*w*0.22;
-      const ly=h*0.22+Math.sin(G.frame*0.04+i)*3;
-      ctx.beginPath();ctx.arc(lx,ly,6,0,Math.PI*2);ctx.fill();
-      ctx.strokeStyle='#999';ctx.lineWidth=1;
-      ctx.beginPath();ctx.moveTo(lx,ly-6);ctx.lineTo(lx,ly-15);ctx.stroke();
-    }
-    // のぼり
-    ctx.fillStyle='rgba(255,183,77,.7)';ctx.fillRect(w*0.88,h*0.15,12,50);
-    ctx.fillStyle='#fff';ctx.font='bold 9px sans-serif';ctx.textAlign='center';
-    ctx.save();ctx.translate(w*0.88+6,h*0.2);
-    '占い'.split('').forEach((c,i)=>{ctx.fillText(c,0,i*12);});
-    ctx.restore();
-  }
-}
-</script>
+    <div id="game-container">
+        <div id="title-screen" class="screen active">
+            <div class="title-logo">🐕</div>
+            <div class="title-logo">柴犬うらないハウス</div>
+            <div class="title-subtitle">占い村を冒険しよう</div>
+            <button class="title-btn" onclick="G.startGame()">はじめる</button>
+        </div>
+
+        <div id="profile-screen" class="screen">
+            <div class="profile-container">
+                <div class="profile-title">プロフィール入力</div>
+                <div class="form-group">
+                    <label class="form-label">お名前</label>
+                    <input id="profile-name" class="form-input" type="text" placeholder="例: 太郎">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">生年月日</label>
+                    <input id="profile-birthdate" class="form-input" type="date">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">血液型</label>
+                    <select id="profile-blood" class="form-select">
+                        <option value="">選択してください</option>
+                        <option value="A">A型</option>
+                        <option value="B">B型</option>
+                        <option value="O">O型</option>
+                        <option value="AB">AB型</option>
+                    </select>
+                </div>
+                <div class="form-buttons">
+                    <button class="form-btn form-btn-primary" onclick="G.saveProfile()">占いの旅へ出発！</button>
+                    <button class="form-btn form-btn-secondary" onclick="G.skipProfile()">スキップ</button>
+                </div>
+                <div class="form-back-link" onclick="G.backToTitle()">← 戻る</div>
+            </div>
+        </div>
+
+        <div id="game-screen" class="screen">
+            <canvas id="gcanvas"></canvas>
+            <div id="bottom-ui">
+                <div class="ui-info">
+                    <span id="area-name">占い村</span>
+                    <span id="player-name">プレイヤー</span>
+                </div>
+                <div class="ui-buttons">
+                    <button class="ui-btn" onclick="G.showZukan()">📖図鑑</button>
+                    <button class="ui-btn" onclick="G.showHistory()">🔮履歴</button>
+                    <button class="ui-btn" onclick="G.changeProfile()">👤変更</button>
+                    <button class="ui-btn" onclick="G.backToTitle()">🏠タイトル</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="building-overlay" class="overlay">
+        <div class="overlay-content fade-in">
+            <div id="building-name" class="overlay-title"></div>
+            <div id="building-char" style="font-size: 6vmin; text-align: center; margin: 1vmin 0;"></div>
+            <div id="building-text" class="overlay-text"></div>
+            <button class="choice-btn" onclick="G.startFortune()" style="background: #ffd700; margin-top: 1.5vmin;">占ってもらう</button>
+            <button class="close-overlay-btn" onclick="G.closeBuildingOverlay()">戻る</button>
+        </div>
+    </div>
+
+    <div id="fortune-overlay" class="overlay">
+        <div class="overlay-content fade-in">
+            <div id="fortune-title" class="overlay-title"></div>
+            <div id="fortune-text" class="overlay-text"></div>
+            <div id="fortune-choices" class="choice-buttons"></div>
+        </div>
+    </div>
+
+    <div id="result-overlay" class="overlay">
+        <div class="overlay-content fade-in">
+            <div id="result-title" class="overlay-title"></div>
+            <div id="result-content"></div>
+            <button class="close-overlay-btn" onclick="G.closeResultOverlay()">閉じる</button>
+        </div>
+    </div>
+
+    <div id="collection-overlay" class="overlay">
+        <div class="overlay-content fade-in">
+            <div class="overlay-title">出会ったキャラクター図鑑</div>
+            <div id="collection-content" style="font-size: 1.8vmin; color: #333; columns: 2;"></div>
+            <button class="close-overlay-btn" onclick="G.closeCollectionOverlay()">閉じる</button>
+        </div>
+    </div>
+
+    <div id="history-overlay" class="overlay">
+        <div class="overlay-content fade-in">
+            <div class="overlay-title">占い履歴</div>
+            <div id="history-content" style="font-size: 1.8vmin; color: #333;"></div>
+            <button class="close-overlay-btn" onclick="G.closeHistoryOverlay()">閉じる</button>
+        </div>
+    </div>
+
+    <script>
+        // ===== CORE GAME OBJECT =====
+        const G = {
+            // State Management
+            currentScreen: 'title',
+            currentArea: 0,
+            gameRunning: false,
+            frame: 0,
+            canvasWidth: 0,
+            canvasHeight: 0,
+            
+            // Player State
+            playerName: 'プレイヤー',
+            playerX: 0.5,
+            playerY: 0.7,
+            playerTargetX: 0.5,
+            playerTargetY: 0.7,
+            playerRotation: 0,
+            
+            // Profile Data
+            profile: {
+                name: '',
+                birthdate: '',
+                blood: '',
+                zodiac: ''
+            },
+            
+            // Fortune System
+            currentFortune: null,
+            fortuneStep: 0,
+            fortuneHistory: [],
+            fortuneAnswers: {},
+            currentBuilding: null,
+            
+            // Visual Effects
+            particles: [],
+            meetCharacters: new Set(),
+            bubbles: [],
+            metChars: [],
+            bgmPlaying: false,
+            bgmInterval: null,
+            audioCtx: null,
+            
+            // Initialization
+            init() {
+                this.loadData();
+                this.setupCanvas();
+                this.setupEvents();
+                this.startGameLoop();
+                this.initAudio();
+            },
+            
+            loadData() {
+                const saved = localStorage.getItem('shibaFortuneProfile');
+                if (saved) {
+                    this.profile = JSON.parse(saved);
+                    this.playerName = this.profile.name || 'プレイヤー';
+                }
+                const history = localStorage.getItem('shibaFortuneHistory');
+                if (history) {
+                    this.fortuneHistory = JSON.parse(history);
+                }
+                const chars = localStorage.getItem('shibaFortuneChars');
+                if (chars) {
+                    this.meetCharacters = new Set(JSON.parse(chars));
+                }
+            },
+            
+            saveData() {
+                localStorage.setItem('shibaFortuneProfile', JSON.stringify(this.profile));
+                localStorage.setItem('shibaFortuneHistory', JSON.stringify(this.fortuneHistory));
+                localStorage.setItem('shibaFortuneChars', JSON.stringify(Array.from(this.meetCharacters)));
+            },
+            
+            setupCanvas() {
+                this.canvas = document.getElementById('gcanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.resizeCanvas();
+            },
+            
+            resizeCanvas() {
+                const gameScreen = document.getElementById('game-screen');
+                if (!gameScreen.offsetParent) return;
+                const bottomUI = document.getElementById('bottom-ui');
+                const cH = window.innerHeight - bottomUI.offsetHeight;
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = Math.max(cH, 300);
+                this.canvasWidth = this.canvas.width;
+                this.canvasHeight = this.canvas.height;
+            },
+            
+            setupEvents() {
+                window.addEventListener('resize', () => this.resizeCanvas());
+                document.addEventListener('click', (e) => this.handleClick(e));
+                document.addEventListener('touchstart', (e) => this.handleClick(e.touches[0]));
+            },
+            
+            handleClick(e) {
+                if (!this.gameRunning) return;
+                const rect = this.canvas.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width;
+                const y = (e.clientY - rect.top) / rect.height;
+                
+                if (x >= 0 && x <= 1 && y >= 0 && y <= 1) {
+                    this.playerTargetX = x;
+                    this.playerTargetY = y;
+                }
+                
+                const area = AREAS[this.currentArea];
+                for (let building of area.buildings) {
+                    const dist = Math.hypot(x - building.xr, y - building.yr);
+                    if (dist < 0.08) {
+                        this.enterBuilding(building);
+                        break;
+                    }
+                }
+                
+                // NPC tap check
+                const cw = this.canvasWidth;
+                const ch = this.canvasHeight;
+                const tx = x * cw;
+                const ty = y * ch;
+                for (let npc of area.npcs) {
+                    const nx = npc.x * cw;
+                    const ny = npc.y * ch;
+                    if (Math.hypot(tx - nx, ty - ny) < cw * 0.05) {
+                        this.showNPCBubble(npc);
+                        return;
+                    }
+                }
+                
+                if (x < 0.1 && this.currentArea > 0) {
+                    this.currentArea--;
+                    this.playerX = 0.9;
+                    this.playerY = 0.7;
+                    this.playerTargetX = 0.9;
+                    this.playerTargetY = 0.7;
+                }
+                if (x > 0.9 && this.currentArea < 5) {
+                    this.currentArea++;
+                    this.playerX = 0.1;
+                    this.playerY = 0.7;
+                    this.playerTargetX = 0.1;
+                    this.playerTargetY = 0.7;
+                }
+            },
+            
+            startGameLoop() {
+                const loop = () => {
+                    if (this.gameRunning) {
+                        this.update();
+                        this.draw();
+                    }
+                    requestAnimationFrame(loop);
+                };
+                requestAnimationFrame(loop);
+            },
+            
+            update() {
+                this.frame++;
+                
+                // Player movement with smooth easing
+                const dx = this.playerTargetX - this.playerX;
+                const dy = this.playerTargetY - this.playerY;
+                const distance = Math.hypot(dx, dy);
+                
+                if (distance > 0.01) {
+                    const ease = Math.min(0.12, 4.0 / distance);
+                    this.playerX += dx * ease;
+                    this.playerY += dy * ease;
+                    this.playerRotation = Math.atan2(dy, dx);
+                }
+                
+                // Update NPC positions with random walk
+                const area = AREAS[this.currentArea];
+                for (let npc of area.npcs) {
+                    if (npc.speed > 0) {
+                        // Random direction change
+                        if (Math.random() < 0.01) {
+                            const angle = Math.random() * Math.PI * 2;
+                            npc.dirX = Math.cos(angle) * npc.speed;
+                            npc.dirY = Math.sin(angle) * npc.speed;
+                        }
+                        npc.x += npc.dirX;
+                        npc.y += npc.dirY;
+                        // Boundary check
+                        if (npc.x < 0.05) { npc.x = 0.05; npc.dirX *= -1; }
+                        if (npc.x > 0.95) { npc.x = 0.95; npc.dirX *= -1; }
+                        if (npc.y < 0.55) { npc.y = 0.55; npc.dirY *= -1; }
+                        if (npc.y > 0.88) { npc.y = 0.88; npc.dirY *= -1; }
+                    }
+                    this.meetCharacters.add(npc.name);
+                }
+                
+                // Update particles
+                this.particles = this.particles.filter(p => {
+                    p.life--;
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    return p.life > 0;
+                });
+            },
+            
+            draw() {
+                const area = AREAS[this.currentArea];
+                const ctx = this.ctx;
+                const cw = this.canvasWidth;
+                const ch = this.canvasHeight;
+                
+                // Sky gradient
+                const gradient = ctx.createLinearGradient(0, 0, 0, ch * 0.6);
+                gradient.addColorStop(0, area.skyColor1);
+                gradient.addColorStop(1, area.skyColor2);
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, cw, ch * 0.6);
+                
+                // Ground
+                ctx.fillStyle = area.groundColor;
+                ctx.fillRect(0, ch * 0.6, cw, ch * 0.4);
+                
+                // Sun/Moon
+                const sunX = cw * 0.8;
+                const sunY = ch * 0.2;
+                ctx.fillStyle = area.sunColor;
+                ctx.beginPath();
+                ctx.arc(sunX, sunY, cw * 0.08, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Clouds
+                for (let i = 0; i < 3; i++) {
+                    const cx = (this.frame * 0.5 + i * cw / 3) % cw;
+                    const cy = ch * (0.15 + i * 0.08);
+                    drawCloud(ctx, cx, cy, cw * 0.12);
+                }
+                
+                // Buildings
+                for (let building of area.buildings) {
+                    const bx = building.xr * cw;
+                    const by = building.yr * ch;
+                    drawBuilding(ctx, bx, by, cw * 0.12, building.color, building.name);
+                }
+                
+                // Area navigation arrows
+                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.font = `${cw * 0.08}px Arial`;
+                ctx.textAlign = 'center';
+                if (this.currentArea > 0) {
+                    ctx.fillText('◀', cw * 0.05, ch * 0.5);
+                }
+                if (this.currentArea < 5) {
+                    ctx.fillText('▶', cw * 0.95, ch * 0.5);
+                }
+                
+                // NPCs with name labels
+                for (let npc of area.npcs) {
+                    const nx = npc.x * cw;
+                    const ny = npc.y * ch;
+                    drawCharacter(ctx, nx, ny, npc.species, npc.colors, this.frame, cw);
+                    
+                    ctx.fillStyle = '#000';
+                    ctx.font = `bold ${cw * 0.03}px Arial`;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(npc.name, nx, ny - cw * 0.08);
+                }
+                
+                // Player (Owner + Shiba dog)
+                const pX = this.playerX * cw;
+                const pY = this.playerY * ch;
+                drawOwner(ctx, pX, pY, this.frame, cw);
+                drawShiba(ctx, pX - cw * 0.05, pY + ch * 0.02, '#C4622D', '#FFF8DC', this.frame, cw);
+                
+                // Particles for visual effects
+                for (let p of this.particles) {
+                    ctx.fillStyle = p.color;
+                    ctx.globalAlpha = p.life / p.maxLife;
+                    ctx.beginPath();
+                    ctx.arc(p.x * cw, p.y * ch, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1;
+                
+                // Draw bubbles
+                for (let i = this.bubbles.length - 1; i >= 0; i--) {
+                    const b = this.bubbles[i];
+                    b.life--;
+                    if (b.life <= 0) { this.bubbles.splice(i, 1); continue; }
+                    const alpha = Math.min(1, b.life / 20);
+                    const bx = b.x * cw, by = b.y * ch;
+                    ctx.globalAlpha = alpha;
+                    ctx.font = 'bold ' + Math.max(10, cw * 0.012) + 'px sans-serif';
+                    const tw = ctx.measureText(b.text).width;
+                    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+                    ctx.beginPath();
+                    const rx = bx - tw/2 - 8, ry = by - 10, rw = tw + 16, rh = 22, rr = 8;
+                    ctx.moveTo(rx+rr,ry); ctx.lineTo(rx+rw-rr,ry); ctx.quadraticCurveTo(rx+rw,ry,rx+rw,ry+rr);
+                    ctx.lineTo(rx+rw,ry+rh-rr); ctx.quadraticCurveTo(rx+rw,ry+rh,rx+rw-rr,ry+rh);
+                    ctx.lineTo(rx+rr,ry+rh); ctx.quadraticCurveTo(rx,ry+rh,rx,ry+rh-rr);
+                    ctx.lineTo(rx,ry+rr); ctx.quadraticCurveTo(rx,ry,rx+rr,ry);
+                    ctx.closePath(); ctx.fill();
+                    ctx.fillStyle = '#333';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(b.text, bx, by + 4);
+                    ctx.globalAlpha = 1;
+                }
+                
+                // Update UI labels
+                document.getElementById('area-name').textContent = area.name;
+                document.getElementById('player-name').textContent = this.playerName;
+            },
+            
+            // Screen Navigation
+            startGame() {
+                const saved = localStorage.getItem('shibaFortuneProfile');
+                if (saved) {
+                    this.profile = JSON.parse(saved);
+                    this.playerName = this.profile.name || 'プレイヤー';
+                    this.switchScreen('game-screen');
+                } else {
+                    this.switchScreen('profile-screen');
+                }
+            },
+            
+            saveProfile() {
+                const name = document.getElementById('profile-name').value || 'プレイヤー';
+                const birthdate = document.getElementById('profile-birthdate').value;
+                const blood = document.getElementById('profile-blood').value || 'O';
+                
+                if (!birthdate) {
+                    alert('生年月日を入力してください');
+                    return;
+                }
+                
+                this.profile = {
+                    name,
+                    birthdate,
+                    blood,
+                    zodiac: this.getZodiac(birthdate)
+                };
+                this.playerName = name;
+                this.saveData();
+                this.switchScreen('game-screen');
+            },
+            
+            skipProfile() {
+                this.profile = {
+                    name: 'プレイヤー',
+                    birthdate: '',
+                    blood: 'O',
+                    zodiac: '牡羊座'
+                };
+                this.playerName = 'プレイヤー';
+                this.saveData();
+                this.switchScreen('game-screen');
+            },
+            
+            getZodiac(dateStr) {
+                const date = new Date(dateStr);
+                const month = date.getMonth() + 1;
+                const day = date.getDate();
+                
+                const zodiacs = [
+                    { name: '山羊座', start: [12, 22], end: [1, 19] },
+                    { name: '水瓶座', start: [1, 20], end: [2, 18] },
+                    { name: '魚座', start: [2, 19], end: [3, 20] },
+                    { name: '牡羊座', start: [3, 21], end: [4, 19] },
+                    { name: '牡牛座', start: [4, 20], end: [5, 20] },
+                    { name: '双子座', start: [5, 21], end: [6, 20] },
+                    { name: '蟹座', start: [6, 21], end: [7, 22] },
+                    { name: '獅子座', start: [7, 23], end: [8, 22] },
+                    { name: '乙女座', start: [8, 23], end: [9, 22] },
+                    { name: '天秤座', start: [9, 23], end: [10, 22] },
+                    { name: '蠍座', start: [10, 23], end: [11, 21] },
+                    { name: '射手座', start: [11, 22], end: [12, 21] }
+                ];
+                
+                for (let z of zodiacs) {
+                    const [sm, sd] = z.start;
+                    const [em, ed] = z.end;
+                    let inRange = false;
+                    if (sm === em) {
+                        inRange = month === sm && day >= sd && day <= ed;
+                    } else if (sm < em) {
+                        inRange = (month === sm && day >= sd) || (month === em && day <= ed);
+                    } else {
+                        inRange = (month === sm && day >= sd) || (month === em && day <= ed);
+                    }
+                    if (inRange) return z.name;
+                }
+                return '牡羊座';
+            },
+            
+            changeProfile() {
+                this.switchScreen('profile-screen');
+                document.getElementById('profile-name').value = this.profile.name || '';
+                document.getElementById('profile-birthdate').value = this.profile.birthdate || '';
+                document.getElementById('profile-blood').value = this.profile.blood || '';
+            },
+            
+            // Building System
+            enterBuilding(building) {
+                this.currentBuilding = building;
+                const char = CHARACTERS[building.characterType];
+                document.getElementById('building-name').textContent = building.name;
+                document.getElementById('building-char').textContent = char.emoji;
+                document.getElementById('building-text').textContent = char.intro;
+                document.getElementById('building-overlay').classList.add('active');
+            },
+            
+            closeBuildingOverlay() {
+                document.getElementById('building-overlay').classList.remove('active');
+            },
+            
+            // Fortune System
+            startFortune() {
+                this.closeBuildingOverlay();
+                this.fortuneStep = 0;
+                this.fortuneAnswers = {};
+                this.fortuneAnswers.building = this.currentBuilding.name;
+                this.fortuneAnswers.character = CHARACTERS[this.currentBuilding.characterType].name;
+                this.showFortuneDialog();
+            },
+            
+            showFortuneDialog() {
+                const steps = [
+                    {
+                        title: '何が気になりますか？',
+                        choices: ['恋愛', '仕事', '金運', '健康', '総合']
+                    },
+                    {
+                        title: '詳しくお聞きします',
+                        choices: []
+                    },
+                    {
+                        title: '今の気持ちに近いものは？',
+                        choices: ['前向き', '不安', '穏やか', '迷い中', 'ワクワク']
+                    }
+                ];
+                
+                const step = steps[this.fortuneStep];
+                document.getElementById('fortune-title').textContent = step.title;
+                document.getElementById('fortune-text').textContent = '';
+                
+                let choices = step.choices;
+                if (this.fortuneStep === 1) {
+                    const category = this.fortuneAnswers.category;
+                    choices = FORTUNE_DETAILS[category] || [];
+                }
+                
+                const choicesDiv = document.getElementById('fortune-choices');
+                choicesDiv.innerHTML = '';
+                for (let choice of choices) {
+                    const btn = document.createElement('button');
+                    btn.className = 'choice-btn';
+                    btn.textContent = choice;
+                    btn.onclick = () => this.selectFortuneChoice(choice, this.fortuneStep);
+                    choicesDiv.appendChild(btn);
+                }
+                
+                document.getElementById('fortune-overlay').classList.add('active');
+            },
+            
+            selectFortuneChoice(choice, step) {
+                if (step === 0) {
+                    this.fortuneAnswers.category = choice;
+                } else if (step === 1) {
+                    this.fortuneAnswers.detail = choice;
+                } else if (step === 2) {
+                    this.fortuneAnswers.feeling = choice;
+                }
+                
+                this.fortuneStep++;
+                
+                if (this.fortuneStep >= 3) {
+                    document.getElementById('fortune-overlay').classList.remove('active');
+                    this.showFortuneAnimation();
+                } else {
+                    this.showFortuneDialog();
+                }
+            },
+            
+            showFortuneAnimation() {
+                // Create magical particle effect
+                for (let i = 0; i < 40; i++) {
+                    this.particles.push({
+                        x: 0.5 + (Math.random() - 0.5) * 0.4,
+                        y: 0.5 + (Math.random() - 0.5) * 0.4,
+                        vx: (Math.random() - 0.5) * 0.04,
+                        vy: (Math.random() - 0.5) * 0.04 - 0.02,
+                        life: 120,
+                        maxLife: 120,
+                        size: Math.random() * 8 + 3,
+                        color: ['#FFD700', '#FFA500', '#FF69B4', '#87CEEB', '#32CD32'][Math.floor(Math.random() * 5)]
+                    });
+                }
+                
+                setTimeout(() => {
+                    this.showFortuneResult();
+                }, 3000);
+            },
+            
+            showFortuneResult() {
+                const result = this.generateFortuneResult();
+                this.fortuneHistory.push({
+                    date: new Date().toLocaleDateString('ja-JP'),
+                    building: this.fortuneAnswers.building,
+                    fortune: result.fortune,
+                    category: this.fortuneAnswers.category
+                });
+                this.saveData();
+                
+                const html = `
+                    <div style="font-size: 1.8vmin; color: #333; line-height: 1.9;">
+                        <div class="result-section">
+                            <p><strong>占い方法:</strong> ${result.type}</p>
+                            <p><strong>占い師:</strong> ${this.fortuneAnswers.character}</p>
+                        </div>
+                        <div class="result-fortune">${result.fortune}</div>
+                        <div class="result-section">
+                            <p><strong>メッセージ:</strong><br>${result.message}</p>
+                        </div>
+                        <div class="result-section">
+                            <p><strong>ジャンル別アドバイス (${this.fortuneAnswers.category}):</strong><br>${result.advice}</p>
+                        </div>
+                        <div class="result-section">
+                            <p><strong>ラッキーアイテム:</strong></p>
+                            <ul style="margin-left: 2vmin; margin-top: 0.8vmin;">
+                                <li>色: <strong>${result.lucky.color}</strong></li>
+                                <li>数字: <strong>${result.lucky.number}</strong></li>
+                                <li>方角: <strong>${result.lucky.direction}</strong></li>
+                                <li>食べ物: <strong>${result.lucky.food}</strong></li>
+                            </ul>
+                        </div>
+                        <div class="result-section">
+                            <p><strong>相性情報:</strong><br>
+                            相性の良い血液型: <strong>${result.compat.blood}</strong><br>
+                            相性の良い星座: <strong>${result.compat.zodiac}</strong></p>
+                        </div>
+                        <div class="result-section">
+                            <p><strong>スペシャルメッセージ:</strong><br>
+                            <em>"${result.special}"</em></p>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('result-content').innerHTML = html;
+                document.getElementById('result-title').textContent = '占い結果';
+                document.getElementById('result-overlay').classList.add('active');
+            },
+            
+            generateFortuneResult() {
+                const fortunes = ['大吉', '中吉', '小吉', '吉', '末吉', '凶'];
+                const fortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+                
+                const messages = {
+                    '大吉': '素晴らしい運気が流れています。このタイミングで行動することが大切です。',
+                    '中吉': '良い流れが来ています。前に進む勇気と自信を持ちましょう。',
+                    '小吉': 'チャンスが近づいています。周囲をよく観察して見つけましょう。',
+                    '吉': '道は開かれています。自分を信じて一歩を踏み出してください。',
+                    '末吉': 'じっくり準備する時期です。焦らず着実に進みましょう。',
+                    '凶': '謙虚さが大切です。内面を磨く時間にしましょう。'
+                };
+                
+                const advices = {
+                    '恋愛': 'あなたの素直な気持ちが相手を動かします。勇気を持ってアクションを起こしてください。',
+                    '仕事': 'チームワークが成功の鍵になります。周囲との協力を大切にしましょう。',
+                    '金運': 'コツコツとした積み重ねが報われる時期です。無駄を省いて大切にしましょう。',
+                    '健康': 'バランスの取れた生活が一番です。体と心の声に耳を傾けることが大切です。',
+                    '総合': 'あなたのペースを大切にしましょう。焦らず進むことが成功への近道です。'
+                };
+                
+                const category = this.fortuneAnswers.category || '総合';
+                const colors = ['赤', '黄', '青', '緑', '紫', 'ピンク', 'オレンジ', 'シルバー', 'ゴールド'];
+                const directions = ['東', '西', '南', '北', '北東', '北西', '南東', '南西', '中央', '上'];
+                const foods = ['りんご', 'パン', 'カレー', 'そば', '抹茶', 'みかん', 'ヨーグルト', '天ぷら', '寿司', 'ラーメン'];
+                const bloods = { 'A': 'O型', 'B': 'AB型', 'O': 'A型', 'AB': 'B型' };
+                
+                const nameInitial = this.profile.name ? this.profile.name.substring(0, 1) : 'あ';
+                const specials = [
+                    `${nameInitial}さんの${this.profile.blood || 'O'}型は、${this.profile.zodiac || '獅子座'}らしく前へ進む力を持っています。`,
+                    `${nameInitial}さんのこの時期は、新しいチャレンジに最適な時です。勇気を持って進みましょう。`,
+                    `${nameInitial}さんの持つ優しさと強さが、周囲を照らします。自分を信じてください。`,
+                    `${nameInitial}さんの運気は上昇しています。今月は特に大事な決断の時かもしれません。`,
+                    `${nameInitial}さんのペースを守ることが、一番の幸せへの道です。焦らずいきましょう。`,
+                    `${nameInitial}さんには隠れた才能があります。これからそれが開花する時期を迎えています。`,
+                    `${nameInitial}さんは周囲から信頼されています。その信頼を大切にしてください。`,
+                    `${nameInitial}さんの笑顔は周囲を幸せにします。もっと笑顔で過ごしてみてください。`
+                ];
+                
+                return {
+                    type: this.fortuneAnswers.building,
+                    fortune: fortune,
+                    message: messages[fortune] || messages['吉'],
+                    advice: advices[category] || advices['総合'],
+                    lucky: {
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        number: Math.floor(Math.random() * 10) + 1,
+                        direction: directions[Math.floor(Math.random() * directions.length)],
+                        food: foods[Math.floor(Math.random() * foods.length)]
+                    },
+                    compat: {
+                        blood: bloods[this.profile.blood] || 'A型',
+                        zodiac: this.profile.zodiac || '獅子座'
+                    },
+                    special: specials[Math.floor(Math.random() * specials.length)]
+                };
+            },
+            
+            closeResultOverlay() {
+                document.getElementById('result-overlay').classList.remove('active');
+            },
+            
+            // Collection & History
+            showZukan() {
+                let html = '<div style="line-height: 2.2;">';
+                if (this.meetCharacters.size === 0) {
+                    html += '<div style="color: #999; text-align: center; padding: 2vmin;">探索してキャラクターに出会おう!</div>';
+                } else {
+                    html += `<div style="color: #666; margin-bottom: 1.5vmin; font-weight: bold;">出会ったキャラクター: ${this.meetCharacters.size}体</div>`;
+                    Array.from(this.meetCharacters).sort().forEach(name => {
+                        html += `<div style="margin-bottom: 0.8vmin;">✓ ${name}</div>`;
+                    });
+                }
+                html += '</div>';
+                
+                document.getElementById('collection-content').innerHTML = html;
+                document.getElementById('collection-overlay').classList.add('active');
+            },
+            
+            closeCollectionOverlay() {
+                document.getElementById('collection-overlay').classList.remove('active');
+            },
+            
+            showHistory() {
+                let html = '<div>';
+                if (this.fortuneHistory.length === 0) {
+                    html += '<div style="color: #999; text-align: center; padding: 2vmin;">占いの履歴がまだありません</div>';
+                } else {
+                    html += `<div style="color: #666; margin-bottom: 1.5vmin; font-weight: bold;">累計占い数: ${this.fortuneHistory.length}回</div>`;
+                    html += '<div style="max-height: 60vh; overflow-y: auto;">';
+                    this.fortuneHistory.slice().reverse().slice(0, 30).forEach((entry, idx) => {
+                        html += `<div style="margin-bottom: 1.5vmin; padding: 1.5vmin; background: #f5f5f5; border-left: 4px solid #d4791f; border-radius: 0.5vmin;">
+                            <div style="font-weight: bold; color: #333;">${entry.date}</div>
+                            <div style="font-size: 1.6vmin; color: #666; margin-top: 0.5vmin;">
+                                ${entry.building} / ${entry.category} / <strong style="color: #d4791f;">${entry.fortune}</strong>
+                            </div>
+                        </div>`;
+                    });
+                    html += '</div>';
+                }
+                html += '</div>';
+                
+                document.getElementById('history-content').innerHTML = html;
+                document.getElementById('history-overlay').classList.add('active');
+            },
+            
+            closeHistoryOverlay() {
+                document.getElementById('history-overlay').classList.remove('active');
+            },
+            
+            backToTitle() {
+                this.switchScreen('title-screen');
+                this.gameRunning = false;
+            },
+            
+            switchScreen(screenId) {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById(screenId).classList.add('active');
+                
+                if (screenId === 'game-screen') {
+                    this.gameRunning = true;
+                    setTimeout(() => this.resizeCanvas(), 0);
+                    this.playBGM();
+                } else {
+                    this.gameRunning = false;
+                    this.stopBGM();
+                }
+            },
+            
+            showNPCBubble(npc) {
+                const greetings = [
+                    `こんにちは！${this.profile.name}さん`,
+                    'いい天気だね！',
+                    '占いに行った？面白いよ！',
+                    '今日もいい日になりそうだね',
+                    'あの建物に行ってみて！',
+                    '楽しんでいるかい？',
+                    `${this.profile.name}さん、運気上がってるね！`,
+                    'まだ行ってない館はある？',
+                    '占いの結果、どうだった？',
+                    'おさんぽ日和だね！'
+                ];
+                const msg = greetings[Math.floor(Math.random() * greetings.length)];
+                this.bubbles.push({
+                    text: npc.name + '「' + msg + '」',
+                    x: npc.x,
+                    y: npc.y - 0.08,
+                    life: 120
+                });
+                // Track in collection
+                if (!this.metChars.includes(npc.name)) {
+                    this.metChars.push(npc.name);
+                    this.saveData();
+                }
+            },
+
+            playSound(type) {
+                // Sound implementation placeholder
+            },
+            
+            initAudio() {
+                try {
+                    this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                } catch(e) {}
+            },
+            playBGM() {
+                if (!this.audioCtx || this.bgmPlaying) return;
+                this.bgmPlaying = true;
+                if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+                const notes = [392,440,494,523,587,523,494,440,392,349,330,349,392,440,494,392];
+                let ni = 0;
+                const playNote = () => {
+                    if (!this.bgmPlaying) return;
+                    const o = this.audioCtx.createOscillator();
+                    o.type = 'sine';
+                    o.frequency.value = notes[ni % notes.length];
+                    const g = this.audioCtx.createGain();
+                    g.gain.value = 0.03;
+                    g.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.4);
+                    o.connect(g); g.connect(this.audioCtx.destination);
+                    o.start(); o.stop(this.audioCtx.currentTime + 0.42);
+                    ni++;
+                };
+                playNote();
+                this.bgmInterval = setInterval(playNote, 450);
+            },
+            stopBGM() {
+                this.bgmPlaying = false;
+                if (this.bgmInterval) clearInterval(this.bgmInterval);
+            }
+        };
+
+        // ===== CHARACTER DRAWING FUNCTIONS =====
+        function drawCharacter(ctx, x, y, type, colors, frame, cw) {
+            const scale = (cw || 800) * 0.025;
+            switch(type) {
+                case 'shiba':
+                    drawShiba(ctx, x, y, colors[0], colors[1] || '#FFF8DC', frame, cw);
+                    break;
+                case 'cat':
+                    drawCat(ctx, x, y, colors[0], frame, cw);
+                    break;
+                case 'owl':
+                    drawOwl(ctx, x, y, frame, cw);
+                    break;
+                case 'frog':
+                    drawFrog(ctx, x, y, frame, cw);
+                    break;
+                case 'rabbit':
+                    drawRabbit(ctx, x, y, frame, cw);
+                    break;
+                case 'tanuki':
+                    drawTanuki(ctx, x, y, frame, cw);
+                    break;
+                case 'fox':
+                    drawFox(ctx, x, y, frame, cw);
+                    break;
+                default:
+                    drawShiba(ctx, x, y, '#C4622D', '#FFF8DC', frame, cw);
+            }
+        }
+
+        function drawShiba(ctx, x, y, mainColor, bellyColor, frame, cw) {
+            const s = (cw || 800) * 0.025;
+            ctx.fillStyle = 'rgba(0,0,0,0.1)';
+            ctx.beginPath();
+            ctx.ellipse(x, y + s * 1.3, s * 0.9, s * 0.35, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = mainColor;
+            ctx.beginPath();
+            ctx.ellipse(x, y, s * 1.1, s * 0.8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = bellyColor;
+            ctx.beginPath();
+            ctx.ellipse(x, y + s * 0.25, s * 0.65, s * 0.45, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = mainColor;
+            ctx.beginPath();
+            ctx.arc(x, y - s * 0.9, s * 0.65, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Ears
+            ctx.beginPath();
+            ctx.moveTo(x - s * 0.5, y - s * 1.3);
+            ctx.lineTo(x - s * 0.25, y - s * 1.8);
+            ctx.lineTo(x - s * 0.15, y - s * 1.25);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(x + s * 0.5, y - s * 1.3);
+            ctx.lineTo(x + s * 0.25, y - s * 1.8);
+            ctx.lineTo(x + s * 0.15, y - s * 1.25);
+            ctx.fill();
+            
+            // Eyes
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(x - s * 0.25, y - s * 1, s * 0.12, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + s * 0.25, y - s * 1, s * 0.12, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Tail with animation
+            ctx.strokeStyle = mainColor;
+            ctx.lineWidth = s * 0.35;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            const tailX = x + s * 0.7 + Math.sin(frame * 0.12) * s * 0.35;
+            const tailY = y + s * 0.5;
+            ctx.quadraticCurveTo(tailX, tailY - s * 0.6, tailX + s * 0.25, tailY - s * 0.95);
+            ctx.stroke();
+        }
+
+        function drawCat(ctx, x, y, color, frame, cw) {
+            const s = (cw || 800) * 0.025;
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.ellipse(x, y, s * 1, s * 0.8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(x, y - s * 0.85, s * 0.55, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Ears
+            ctx.beginPath();
+            ctx.moveTo(x - s * 0.35, y - s * 1.3);
+            ctx.lineTo(x - s * 0.1, y - s * 1.75);
+            ctx.lineTo(x - s * 0.05, y - s * 1.25);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(x + s * 0.35, y - s * 1.3);
+            ctx.lineTo(x + s * 0.1, y - s * 1.75);
+            ctx.lineTo(x + s * 0.05, y - s * 1.25);
+            ctx.fill();
+            
+            // Eyes
+            ctx.fillStyle = '#32CD32';
+            ctx.beginPath();
+            ctx.arc(x - s * 0.2, y - s * 0.95, s * 0.1, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + s * 0.2, y - s * 0.95, s * 0.1, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Pupils
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(x - s * 0.2, y - s * 0.95, s * 0.04, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + s * 0.2, y - s * 0.95, s * 0.04, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Tail
+            ctx.strokeStyle = color;
+            ctx.lineWidth = s * 0.3;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            const tailX = x + s * 0.7;
+            const tailY = y - s * 0.2 + Math.sin(frame * 0.15) * s * 0.3;
+            ctx.quadraticCurveTo(tailX + s * 0.2, tailY - s * 0.4, tailX + s * 0.1, tailY - s * 1.2);
+            ctx.stroke();
+        }
+
+        function drawOwl(ctx, x, y, frame, cw) {
+            const s = (cw || 800) * 0.025;
+            ctx.fillStyle = '#654321';
+            ctx.beginPath();
+            ctx.ellipse(x, y, s * 0.8, s * 1.1, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#8B4513';
+            ctx.beginPath();
+            ctx.arc(x, y - s * 0.9, s * 0.7, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Eyes
+            ctx.fillStyle = '#FFF';
+            ctx.beginPath();
+            ctx.arc(x - s * 0.25, y - s * 1, s * 0.25, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + s * 0.25, y - s * 1, s * 0.25, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(x - s * 0.25, y - s * 1, s * 0.15, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + s * 0.25, y - s * 1, s * 0.15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(x - s * 0.25, y - s * 1, s * 0.06, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + s * 0.25, y - s * 1, s * 0.06, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Wings
+            ctx.fillStyle = '#8B4513';
+            ctx.beginPath();
+            ctx.ellipse(x - s * 0.5, y, s * 0.25, s * 0.7, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(x + s * 0.5, y, s * 0.25, s * 0.7, 0, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawFrog(ctx, x, y, frame, cw) {
+            const s = (cw || 800) * 0.025;
+            ctx.fillStyle = '#32CD32';
+            ctx.beginPath();
+            ctx.ellipse(x, y, s * 1.05, s * 0.9, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(x, y - s * 0.7, s * 0.55, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Eyes
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(x - s * 0.2, y - s * 0.9, s * 0.15, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + s * 0.2, y - s * 0.9, s * 0.15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(x - s * 0.2, y - s * 0.9, s * 0.06, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + s * 0.2, y - s * 0.9, s * 0.06, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawRabbit(ctx, x, y, frame, cw) {
+            const s = (cw || 800) * 0.025;
+            ctx.fillStyle = '#FFFACD';
+            ctx.beginPath();
+            ctx.ellipse(x, y, s * 0.9, s * 1.05, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(x, y - s * 0.8, s * 0.55, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Long ears
+            ctx.beginPath();
+            ctx.ellipse(x - s * 0.2, y - s * 1.5, s * 0.18, s * 0.65, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(x + s * 0.2, y - s * 1.5, s * 0.18, s * 0.65, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Ear inner
+            ctx.fillStyle = '#FFB6C1';
+            ctx.beginPath();
+            ctx.ellipse(x - s * 0.2, y - s * 1.5, s * 0.1, s * 0.4, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(x + s * 0.2, y - s * 1.5, s * 0.1, s * 0.4, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Eyes
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(x - s * 0.15, y - s * 0.95, s * 0.09, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + s * 0.15, y - s * 0.95, s * 0.09, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawTanuki(ctx, x, y, frame, cw) {
+            const s = (cw || 800) * 0.025;
+            ctx.fillStyle = '#D2B48C';
+            ctx.beginPath();
+            ctx.ellipse(x, y, s * 1.1, s * 0.85, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(x, y - s * 0.85, s * 0.65, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Striped tail
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = s * 0.2;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.quadraticCurveTo(x + s * 0.6, y + s * 0.25, x + s * 0.7, y + s * 0.75);
+            ctx.stroke();
+            
+            // Eyes
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(x - s * 0.25, y - s * 1, s * 0.11, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + s * 0.25, y - s * 1, s * 0.11, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawFox(ctx, x, y, frame, cw) {
+            const s = (cw || 800) * 0.025;
+            ctx.fillStyle = '#FF8C00';
+            ctx.beginPath();
+            ctx.ellipse(x, y, s * 1.05, s * 0.8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(x, y - s * 0.9, s * 0.65, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Large fluffy tail
+            ctx.strokeStyle = '#FF8C00';
+            ctx.lineWidth = s * 0.45;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            const tailX = x + s * 0.7 + Math.sin(frame * 0.18) * s * 0.25;
+            ctx.quadraticCurveTo(tailX + s * 0.15, y - s * 0.3, tailX - s * 0.1, y - s * 1.15);
+            ctx.stroke();
+            
+            // Eyes
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(x - s * 0.25, y - s * 1, s * 0.11, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + s * 0.25, y - s * 1, s * 0.11, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawOwner(ctx, x, y, frame, cw) {
+            const s = (cw || 800) * 0.025;
+            
+            // Head
+            ctx.fillStyle = '#FFD9B3';
+            ctx.beginPath();
+            ctx.arc(x, y - s * 1, s * 0.45, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Body
+            ctx.fillStyle = '#4169E1';
+            ctx.beginPath();
+            ctx.ellipse(x, y, s * 0.7, s * 0.9, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Arms
+            ctx.strokeStyle = '#FFD9B3';
+            ctx.lineWidth = s * 0.25;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(x - s * 0.7, y - s * 0.2);
+            ctx.lineTo(x - s * 1.3, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x + s * 0.7, y - s * 0.2);
+            ctx.lineTo(x + s * 1.3, y);
+            ctx.stroke();
+            
+            // Eyes
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(x - s * 0.2, y - s * 1.15, s * 0.09, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + s * 0.2, y - s * 1.15, s * 0.09, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawBuilding(ctx, x, y, size, color, name) {
+            // Main building
+            ctx.fillStyle = color;
+            ctx.fillRect(x - size * 0.5, y - size * 0.65, size, size * 0.65);
+            
+            // Roof
+            ctx.beginPath();
+            ctx.moveTo(x - size * 0.5, y - size * 0.65);
+            ctx.lineTo(x, y - size * 1.05);
+            ctx.lineTo(x + size * 0.5, y - size * 0.65);
+            ctx.fill();
+            
+            // Door
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(x - size * 0.15, y - size * 0.3, size * 0.3, size * 0.3);
+            
+            // Door knob
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(x + size * 0.1, y - size * 0.15, size * 0.06, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Windows
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(x - size * 0.35, y - size * 0.45, size * 0.15, size * 0.15);
+            ctx.fillRect(x + size * 0.2, y - size * 0.45, size * 0.15, size * 0.15);
+            
+            // Window frames
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x - size * 0.35, y - size * 0.45, size * 0.15, size * 0.15);
+            ctx.strokeRect(x + size * 0.2, y - size * 0.45, size * 0.15, size * 0.15);
+            
+            // Sign
+            ctx.fillStyle = '#D2B48C';
+            ctx.fillRect(x - size * 0.45, y - size * 0.75, size * 0.3, size * 0.15);
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x - size * 0.45, y - size * 0.75, size * 0.3, size * 0.15);
+            
+            // Sign text
+            ctx.fillStyle = '#333';
+            ctx.font = `bold ${Math.max(8, size * 0.1)}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.fillText(name.substring(0, 4), x - size * 0.3, y - size * 0.63);
+        }
+
+        function drawCloud(ctx, x, y, size) {
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.beginPath();
+            ctx.arc(x, y, size * 0.5, 0, Math.PI * 2);
+            ctx.arc(x + size * 0.55, y, size * 0.45, 0, Math.PI * 2);
+            ctx.arc(x + size * 1.1, y, size * 0.5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // ===== GAME DATA CONSTANTS =====
+        const CHARACTERS = {
+            'tarot': { name: 'タロット占い師', emoji: '🧙', intro: 'タロットカードであなたの運命を読み解きます。' },
+            'omikuji': { name: 'おみくじ係', emoji: '🎋', intro: 'おみくじで今日の運気を占います。' },
+            'star': { name: '星読み師', emoji: '⭐', intro: '星々があなたの道を照らします。' },
+            'crystal': { name: 'クリスタル占い師', emoji: '🔮', intro: 'クリスタルの輝きからあなたの未来が見えます。' },
+            'fun': { name: '楽しい占い師', emoji: '🎪', intro: 'ユニークな占いであなたを笑顔に！' },
+            'dream': { name: '夢占い師', emoji: '🛌', intro: 'あなたの夢の意味を解き明かします。' },
+            'plankton': { name: 'ミジンコ博士', emoji: '🦠', intro: 'ミジンコの知恵で不思議を解き明かします。' }
+        };
+
+        const FORTUNE_DETAILS = {
+            '恋愛': ['気になる人がいる', 'パートナーがいる', '出会いを求めている', '片思い中', '関係を深めたい'],
+            '仕事': ['転職を考えている', '人間関係', 'キャリアアップ', '新しい挑戦', '成果を出したい'],
+            '金運': ['収入アップ', '投資', '貯蓄', '無駄遣い', '臨時収入'],
+            '健康': ['体調管理', 'メンタル', 'ダイエット', '睡眠', '運動'],
+            '総合': ['前向きに進みたい', '変化が欲しい', '安定したい', '迷っている', '目標達成']
+        };
+
+        const AREAS = [
+            {
+                name: '占い村',
+                skyColor1: '#87CEEB',
+                skyColor2: '#E0F6FF',
+                groundColor: '#D2B48C',
+                sunColor: '#FFD700',
+                buildings: [
+                    { name: '占いの館', xr: 0.2, yr: 0.45, color: '#D4A574', characterType: 'tarot' },
+                    { name: '相性の家', xr: 0.5, yr: 0.45, color: '#E6B8A2', characterType: 'tarot' },
+                    { name: 'パワー石屋', xr: 0.8, yr: 0.45, color: '#CD853F', characterType: 'crystal' }
+                ],
+                npcs: [
+                    { name: '村長ポチ', species: 'shiba', colors: ['#C4622D', '#FFF8DC'], x: 0.15, y: 0.65, dirX: 0, dirY: 0, speed: 0 },
+                    { name: 'ミミ', species: 'rabbit', colors: ['#FFF8DC'], x: 0.35, y: 0.7, dirX: 0, dirY: 0, speed: 0 },
+                    { name: 'クマゴロウ', species: 'tanuki', colors: ['#D2B48C'], x: 0.65, y: 0.72, dirX: 0, dirY: 0, speed: 0 },
+                    { name: 'キツネ', species: 'fox', colors: ['#FF8C00'], x: 0.85, y: 0.68, dirX: 0, dirY: 0, speed: 0 },
+                    { name: 'フクロウ', species: 'owl', colors: ['#8B4513'], x: 0.3, y: 0.62, dirX: 0, dirY: 0, speed: 0 },
+                    { name: 'パン屋の柴太郎', species: 'shiba', colors: ['#D2691E', '#FFF8DC'], x: 0.25, y: 0.75, dirX: 0, dirY: 0, speed: 0.003 },
+                    { name: '郵便屋タマ', species: 'cat', colors: ['#FF6347'], x: 0.45, y: 0.68, dirX: 0, dirY: 0, speed: 0.003 },
+                    { name: 'カエル仙人', species: 'frog', colors: ['#228B22'], x: 0.55, y: 0.76, dirX: 0, dirY: 0, speed: 0.002 },
+                    { name: '番犬ゴン太', species: 'shiba', colors: ['#333', '#FFF8DC'], x: 0.75, y: 0.72, dirX: 0, dirY: 0, speed: 0.003 },
+                    { name: 'ハリネズミのハリー', species: 'tanuki', colors: ['#8B7355'], x: 0.08, y: 0.74, dirX: 0, dirY: 0, speed: 0.002 },
+                    { name: '旅猫ミケ', species: 'cat', colors: ['#FF8C00'], x: 0.92, y: 0.75, dirX: 0, dirY: 0, speed: 0.004 },
+                    { name: 'リスのチビ', species: 'fox', colors: ['#CD853F'], x: 0.38, y: 0.8, dirX: 0, dirY: 0, speed: 0.002 }
+                ]
+            },
+            {
+                name: 'タロットの館',
+                skyColor1: '#9370DB',
+                skyColor2: '#E6D9F5',
+                groundColor: '#8B7355',
+                sunColor: '#8A2BE2',
+                buildings: [
+                    { name: 'タロット間', xr: 0.3, yr: 0.45, color: '#6A5ACD', characterType: 'tarot' },
+                    { name: '魔法図書館', xr: 0.7, yr: 0.45, color: '#483D8B', characterType: 'tarot' }
+                ],
+                npcs: [
+                    { name: 'タロット師ルナ', species: 'cat', colors: ['#1C1C1C'], x: 0.25, y: 0.7, dirX: 0, dirY: 0, speed: 0 },
+                    { name: 'スターライト', species: 'owl', colors: ['#663399'], x: 0.75, y: 0.65, dirX: 0, dirY: 0, speed: 0 },
+                    { name: '魔法使いの犬', species: 'shiba', colors: ['#6A5ACD', '#FFF8DC'], x: 0.15, y: 0.72, dirX: 0, dirY: 0, speed: 0.003 },
+                    { name: 'カード猫ルーナ', species: 'cat', colors: ['#9370DB'], x: 0.35, y: 0.75, dirX: 0, dirY: 0, speed: 0.002 },
+                    { name: '見習いフクロウ', species: 'owl', colors: ['#483D8B'], x: 0.55, y: 0.7, dirX: 0, dirY: 0, speed: 0.003 },
+                    { name: '占い猫ミスティ', species: 'cat', colors: ['#800080'], x: 0.65, y: 0.78, dirX: 0, dirY: 0, speed: 0.002 },
+                    { name: 'タロット犬アルカナ', species: 'shiba', colors: ['#4B0082', '#FFF8DC'], x: 0.45, y: 0.68, dirX: 0, dirY: 0, speed: 0.004 },
+                    { name: '月兎セレーネ', species: 'rabbit', colors: ['#D8BFD8'], x: 0.85, y: 0.76, dirX: 0, dirY: 0, speed: 0.002 },
+                    { name: '魔法カエル', species: 'frog', colors: ['#9370DB'], x: 0.08, y: 0.73, dirX: 0, dirY: 0, speed: 0.003 },
+                    { name: '紫キツネ', species: 'fox', colors: ['#6A5ACD'], x: 0.92, y: 0.74, dirX: 0, dirY: 0, speed: 0.002 }
+                ]
+            },
+            {
+                name: 'おみくじ神社',
+                skyColor1: '#87CEEB',
+                skyColor2: '#FFE4B5',
+                groundColor: '#CD853F',
+                sunColor: '#FF6347',
+                buildings: [
+                    { name: '本殿', xr: 0.35, yr: 0.45, color: '#8B0000', characterType: 'omikuji' },
+                    { name: '社務所', xr: 0.65, yr: 0.45, color: '#A0522D', characterType: 'omikuji' }
+                ],
+                npcs: [
+                    { name: 'おみくじ係', species: 'shiba', colors: ['#8B4513', '#FFF8DC'], x: 0.4, y: 0.68, dirX: 0, dirY: 0, speed: 0 },
+                    { name: 'カエル仙人', species: 'frog', colors: ['#228B22'], x: 0.6, y: 0.7, dirX: 0, dirY: 0, speed: 0 },
+                    { name: '巫女犬サクラ', species: 'shiba', colors: ['#FF69B4', '#FFF8DC'], x: 0.25, y: 0.75, dirX: 0, dirY: 0, speed: 0.003 },
+                    { name: '神社猫タマ', species: 'cat', colors: ['#FFA07A'], x: 0.55, y: 0.72, dirX: 0, dirY: 0, speed: 0.002 },
+                    { name: 'お稲荷キツネ', species: 'fox', colors: ['#FF4500'], x: 0.75, y: 0.76, dirX: 0, dirY: 0, speed: 0.003 },
+                    { name: '狛犬ゴマ', species: 'shiba', colors: ['#696969', '#FFF8DC'], x: 0.15, y: 0.7, dirX: 0, dirY: 0, speed: 0.002 },
+                    { name: '参拝ウサギ', species: 'rabbit', colors: ['#FFF0F5'], x: 0.85, y: 0.78, dirX: 0, dirY: 0, speed: 0.004 },
+                    { name: 'お守り屋フクロウ', species: 'owl', colors: ['#8B4513'], x: 0.35, y: 0.68, dirX: 0, dirY: 0, speed: 0.002 },
+                    { name: 'おみくじタヌキ', species: 'tanuki', colors: ['#CD853F'], x: 0.68, y: 0.8, dirX: 0, dirY: 0, speed: 0.003 },
+                    { name: '鶴の使い', species: 'rabbit', colors: ['#FFD700'], x: 0.08, y: 0.73, dirX: 0, dirY: 0, speed: 0.002 }
+                ]
+            },
+            {
+                name: '星読みの丘',
+                skyColor1: '#191970',
+                skyColor2: '#2F4F4F',
+                groundColor: '#36454F',
+                sunColor: '#FFD700',
+                buildings: [
+                    { name: '天文台', xr: 0.3, yr: 0.45, color: '#2F4F4F', characterType: 'star' },
+                    { name: '星の書斎', xr: 0.7, yr: 0.45, color: '#1C1C1C', characterType: 'star' }
+                ],
+                npcs: [
+                    { name: '星読み師', species: 'owl', colors: ['#696969'], x: 0.35, y: 0.65, dirX: 0, dirY: 0, speed: 0 },
+                    { name: 'ハリネズミ', species: 'shiba', colors: ['#A9A9A9', '#D3D3D3'], x: 0.65, y: 0.7, dirX: 0, dirY: 0, speed: 0 },
+                    { name: '望遠鏡犬テレス', species: 'shiba', colors: ['#2F4F4F', '#FFF8DC'], x: 0.15, y: 0.72, dirX: 0, dirY: 0, speed: 0.003 },
+                    { name: '星猫ステラ', species: 'cat', colors: ['#FFD700'], x: 0.45, y: 0.75, dirX: 0, dirY: 0, speed: 0.002 },
+                    { name: '夜行フクロウ', species: 'owl', colors: ['#191970'], x: 0.75, y: 0.68, dirX: 0, dirY: 0, speed: 0.003 },
+                    { name: '月兎ツキ', species: 'rabbit', colors: ['#C0C0C0'], x: 0.25, y: 0.78, dirX: 0, dirY: 0, speed: 0.002 },
+                    { name: '彗星キツネ', species: 'fox', colors: ['#FFA500'], x: 0.85, y: 0.76, dirX: 0, dirY: 0, speed: 0.004 },
+                    { name: '星座タヌキ', species: 'tanuki', colors: ['#4169E1'], x: 0.55, y: 0.8, dirX: 0, dirY: 0, speed: 0.002 },
+                    { name: '流れ星カエル', species: 'frog', colors: ['#00CED1'], x: 0.08, y: 0.74, dirX: 0, dirY: 0, speed: 0.003 },
+                    { name: '北極星犬ポラリス', species: 'shiba', colors: ['#E0E0E0', '#FFF8DC'], x: 0.92, y: 0.73, dirX: 0, dirY: 0, speed: 0.002 }
+                ]
+            },
+            {
+                name: '水晶の泉',
+                skyColor1: '#00CED1',
+                skyColor2: '#B0E0E6',
+                groundColor: '#4A708B',
+                sunColor: '#00BFFF',
+                buildings: [
+                    { name: '水晶洞窟', xr: 0.3, yr: 0.45, color: '#4169E1', characterType: 'crystal' },
+                    { name: '泉の祠', xr: 0.7, yr: 0.45, color: '#1E90FF', characterType: 'crystal' }
+                ],
+                npcs: [
+                    { name: 'クリスタル姫', species: 'rabbit', colors: ['#B0E0E6'], x: 0.35, y: 0.68, dirX: 0, dirY: 0, speed: 0 },
+                    { name: 'カワウソ', species: 'tanuki', colors: ['#8FBC8F'], x: 0.65, y: 0.7, dirX: 0, dirY: 0, speed: 0 },
+                    { name: '泉の番犬アクア', species: 'shiba', colors: ['#00BFFF', '#FFF8DC'], x: 0.15, y: 0.75, dirX: 0, dirY: 0, speed: 0.003 },
+                    { name: '水猫マリン', species: 'cat', colors: ['#1E90FF'], x: 0.45, y: 0.72, dirX: 0, dirY: 0, speed: 0.002 },
+                    { name: '水辺のカエル', species: 'frog', colors: ['#20B2AA'], x: 0.75, y: 0.76, dirX: 0, dirY: 0, speed: 0.003 },
+                    { name: '蓮ウサギ', species: 'rabbit', colors: ['#98FB98'], x: 0.25, y: 0.78, dirX: 0, dirY: 0, speed: 0.002 },
+                    { name: '貝殻タヌキ', species: 'tanuki', colors: ['#5F9EA0'], x: 0.55, y: 0.8, dirX: 0, dirY: 0, speed: 0.004 },
+                    { name: '水の精フクロウ', species: 'owl', colors: ['#4682B4'], x: 0.85, y: 0.73, dirX: 0, dirY: 0, speed: 0.002 },
+                    { name: '川の主キツネ', species: 'fox', colors: ['#00CED1'], x: 0.08, y: 0.74, dirX: 0, dirY: 0, speed: 0.003 },
+                    { name: '珊瑚犬コーラル', species: 'shiba', colors: ['#FF6347', '#FFF8DC'], x: 0.92, y: 0.75, dirX: 0, dirY: 0, speed: 0.002 }
+                ]
+            },
+            {
+                name: 'ふしぎ小路',
+                skyColor1: '#FFB6C1',
+                skyColor2: '#FFC0CB',
+                groundColor: '#F0E68C',
+                sunColor: '#FF69B4',
+                buildings: [
+                    { name: 'おもしろハウス', xr: 0.2, yr: 0.45, color: '#FFB347', characterType: 'fun' },
+                    { name: '夢占いの部屋', xr: 0.5, yr: 0.45, color: '#DDA0DD', characterType: 'dream' },
+                    { name: 'ミジンコ研究所', xr: 0.8, yr: 0.45, color: '#98FB98', characterType: 'plankton' }
+                ],
+                npcs: [
+                    { name: 'ペンギン博士', species: 'rabbit', colors: ['#000080'], x: 0.15, y: 0.7, dirX: 0, dirY: 0, speed: 0 },
+                    { name: '夢占い師ノア', species: 'cat', colors: ['#800080'], x: 0.5, y: 0.68, dirX: 0, dirY: 0, speed: 0 },
+                    { name: 'ミジンコ博士', species: 'frog', colors: ['#00FF7F'], x: 0.8, y: 0.72, dirX: 0, dirY: 0, speed: 0 },
+                    { name: 'お笑い犬コント', species: 'shiba', colors: ['#FFD700', '#FFF8DC'], x: 0.25, y: 0.75, dirX: 0, dirY: 0, speed: 0.003 },
+                    { name: 'カラフル猫レインボー', species: 'cat', colors: ['#FF69B4'], x: 0.35, y: 0.78, dirX: 0, dirY: 0, speed: 0.002 },
+                    { name: 'ぬいぐるみウサギ', species: 'rabbit', colors: ['#FFB6C1'], x: 0.55, y: 0.76, dirX: 0, dirY: 0, speed: 0.003 },
+                    { name: 'パーティタヌキ', species: 'tanuki', colors: ['#FFA500'], x: 0.65, y: 0.8, dirX: 0, dirY: 0, speed: 0.002 },
+                    { name: '手品キツネ', species: 'fox', colors: ['#FF6347'], x: 0.75, y: 0.73, dirX: 0, dirY: 0, speed: 0.004 },
+                    { name: '虹のフクロウ', species: 'owl', colors: ['#DA70D6'], x: 0.08, y: 0.74, dirX: 0, dirY: 0, speed: 0.002 },
+                    { name: 'バブルカエル', species: 'frog', colors: ['#98FB98'], x: 0.45, y: 0.82, dirX: 0, dirY: 0, speed: 0.003 },
+                    { name: 'おもちゃ犬チョコ', species: 'shiba', colors: ['#8B4513', '#FFF8DC'], x: 0.85, y: 0.77, dirX: 0, dirY: 0, speed: 0.002 },
+                    { name: '綿あめ猫', species: 'cat', colors: ['#FFC0CB'], x: 0.92, y: 0.75, dirX: 0, dirY: 0, speed: 0.003 }
+                ]
+            }
+        ];
+
+        // Initialize game
+        window.addEventListener('load', () => {
+            G.init();
+        });
+    </script>
 </body>
 </html>
