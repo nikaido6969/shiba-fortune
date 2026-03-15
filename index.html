@@ -15,1342 +15,1883 @@
         }
         #game-container {
             width: 100%; height: 100%; display: flex; flex-direction: column;
+            background: #f5f5f0;
         }
         .screen {
             position: absolute; width: 100%; height: 100%; display: none; z-index: 1;
+            opacity: 0; transition: opacity 0.4s ease;
         }
         .screen.active {
-            display: flex;
+            display: flex; opacity: 1;
         }
         #title-screen {
-            background: linear-gradient(135deg, #fffef0, #fef5e7);
+            background: linear-gradient(135deg, #fffef0 0%, #fef5e7 100%);
             justify-content: center; align-items: center; flex-direction: column;
         }
         #profile-screen {
-            background: linear-gradient(135deg, #fffef0, #fef5e7);
+            background: linear-gradient(135deg, #fffef0 0%, #fef5e7 100%);
             overflow-y: auto; padding: 2vmin;
+            flex-direction: column; align-items: center;
         }
         #game-screen {
-            flex-direction: column;
+            flex-direction: column; background: #f5f5f0;
         }
         #gcanvas {
-            flex: 1; min-height: 0; background: linear-gradient(180deg, #87ceeb, #e0f6ff);
-            display: block; cursor: pointer;
+            flex: 1; min-height: 0; display: block; cursor: pointer;
+            background: linear-gradient(180deg, #d4e8f0 0%, #e8f4f8 50%, #c9dfe8 100%);
         }
         #bottom-ui {
-            flex-shrink: 0; background: linear-gradient(180deg, #f5f5f5, #eeeeee); color: #333; padding: 1vmin;
-            display: flex; justify-content: space-between; align-items: center; border-top: 2px solid #d4a574;
-            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+            flex-shrink: 0; background: linear-gradient(180deg, #f5deb3 0%, #f0daa5 100%);
+            color: #333; padding: 1.2vmin 1.5vmin;
+            display: flex; justify-content: space-between; align-items: center;
+            border-top: 3px solid #d4791f;
+            box-shadow: 0 -3px 10px rgba(0,0,0,0.1);
         }
         .ui-info {
-            font-size: 1.5vmin; flex: 1; display: flex; gap: 1.5vmin; align-items: center;
+            font-size: 1.5vmin; flex: 1; display: flex; gap: 2vmin; align-items: center;
         }
         .area-nav {
             display: flex; gap: 1vmin; align-items: center; margin: 0 2vmin;
         }
         .area-nav-btn {
-            background: #d4a574; color: #fff; border: none; padding: 0.6vmin 1.2vmin;
-            font-size: 2vmin; cursor: pointer; border-radius: 0.3vmin; transition: all 0.2s;
+            background: #d4791f; color: #fff; border: none; padding: 0.7vmin 1.3vmin;
+            font-size: 2.2vmin; cursor: pointer; border-radius: 0.4vmin;
+            transition: all 0.2s; font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
         }
         .area-nav-btn:active {
-            background: #a87d4f; transform: scale(0.95);
+            background: #a85f15; transform: scale(0.95);
         }
         .area-name-display {
-            font-weight: bold; color: #d4791f; font-size: 1.8vmin; min-width: 12vmin;
-            text-align: center;
+            font-weight: bold; color: #d4791f; font-size: 1.8vmin; min-width: 14vmin;
+            text-align: center; text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
         }
         .ui-buttons {
-            display: flex; gap: 0.5vmin;
+            display: flex; gap: 0.8vmin;
         }
         .ui-btn {
-            background: #d4a574; border: none; color: #fff; cursor: pointer;
-            padding: 0.8vmin 1.5vmin; border-radius: 0.4vmin; font-size: 1.8vmin;
+            background: #d4791f; border: none; color: #fff; cursor: pointer;
+            padding: 0.8vmin 1.6vmin; border-radius: 0.4vmin; font-size: 1.8vmin;
             transition: all 0.2s; font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
         }
         .ui-btn:active {
-            background: #a87d4f; transform: scale(0.95);
+            background: #a85f15; transform: scale(0.95);
         }
         
         .title-logo {
-            font-size: 5vmin; font-weight: bold; color: #d4791f;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1); animation: bounce 0.6s infinite; margin: 1vmin;
+            font-size: 5.5vmin; font-weight: bold; color: #d4791f;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.15); animation: bounce 0.6s infinite;
+            margin: 1vmin;
         }
         .title-subtitle {
-            font-size: 2.5vmin; color: #666; margin-bottom: 3vmin;
+            font-size: 2.2vmin; color: #8b6f47; margin-bottom: 2vmin; letter-spacing: 0.1em;
         }
         .title-btn {
-            background: linear-gradient(135deg, #ffd700, #ffed4e); border: 3px solid #d4791f;
-            color: #333; padding: 2vmin 4vmin; font-size: 2.5vmin; border-radius: 1vmin;
-            cursor: pointer; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            border: 3px solid #d4791f;
+            color: #333; padding: 2vmin 4.5vmin; font-size: 2.5vmin;
+            border-radius: 1vmin; cursor: pointer; font-weight: bold;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
             transition: all 0.3s;
         }
         .title-btn:active {
-            transform: scale(0.95);
+            transform: scale(0.95); box-shadow: 0 3px 6px rgba(0,0,0,0.2);
         }
         
         .profile-container {
-            max-width: 50vmin; margin: 0 auto;
-            background: rgba(255,255,255,0.9); padding: 3vmin; border-radius: 1vmin;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 55vmin; width: 100%;
+            background: rgba(255,255,255,0.95); padding: 3vmin; border-radius: 1.2vmin;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
         }
         .profile-title {
-            font-size: 3.5vmin; color: #d4791f; text-align: center; margin-bottom: 2vmin;
+            font-size: 3.5vmin; color: #d4791f; text-align: center; margin-bottom: 2.5vmin;
+            font-weight: bold;
         }
         .form-group {
-            margin-bottom: 2vmin;
+            margin-bottom: 2.5vmin;
         }
-        .form-label {
-            display: block; font-size: 2vmin; color: #333; margin-bottom: 0.5vmin; font-weight: bold;
+        .form-group label {
+            display: block; font-size: 1.8vmin; color: #333; font-weight: 600;
+            margin-bottom: 0.8vmin;
         }
-        .form-input, .form-select {
-            width: 100%; padding: 1vmin; font-size: 1.8vmin; border: 2px solid #d4791f;
-            border-radius: 0.5vmin; background: #fafafa;
+        .form-group input,
+        .form-group select {
+            width: 100%; padding: 1.2vmin; font-size: 1.8vmin; border: 2px solid #e0e0e0;
+            border-radius: 0.6vmin; font-family: inherit;
+            transition: border-color 0.3s;
         }
-        .form-buttons {
-            display: flex; gap: 1vmin; margin-top: 2vmin;
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none; border-color: #d4791f;
         }
-        .form-btn {
-            flex: 1; padding: 1.5vmin; font-size: 2vmin; border: none; border-radius: 0.5vmin;
-            cursor: pointer; transition: all 0.2s; font-weight: bold;
+        .profile-start-btn {
+            width: 100%; padding: 1.8vmin; font-size: 2.2vmin; background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333; border: 2px solid #d4791f; border-radius: 0.8vmin;
+            cursor: pointer; font-weight: bold; transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-        .form-btn-primary {
-            background: linear-gradient(135deg, #ffd700, #ffed4e); color: #333; border: 2px solid #d4791f;
-        }
-        .form-btn-secondary {
-            background: #ddd; color: #333;
-        }
-        .form-btn:active {
-            transform: scale(0.95);
-        }
-        .form-back-link {
-            text-align: center; margin-top: 1.5vmin; font-size: 1.8vmin; color: #d4791f;
-            cursor: pointer; text-decoration: underline;
+        .profile-start-btn:active {
+            transform: scale(0.97); box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.65); display: none;
-            flex-direction: column; justify-content: center; align-items: center; z-index: 200;
+            background: rgba(0,0,0,0.5); z-index: 100; display: none;
+            justify-content: center; align-items: center; opacity: 0;
+            transition: opacity 0.3s ease;
         }
         .overlay.active {
-            display: flex;
+            display: flex; opacity: 1;
         }
         .overlay-content {
-            background: #fff; border-radius: 1.5vmin; padding: 3vmin;
-            max-width: 85vmin; max-height: 88vh; overflow-y: auto;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            background: linear-gradient(135deg, #fffef0 0%, #fef5e7 100%);
+            border-radius: 1.2vmin; padding: 2.5vmin; max-height: 80vh;
+            overflow-y: auto; max-width: 70vmin; width: 90vmin;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transform: scale(0.9); transition: transform 0.3s ease;
+        }
+        .overlay.active .overlay-content {
+            transform: scale(1);
         }
         .overlay-title {
-            font-size: 3vmin; color: #d4791f; margin-bottom: 2vmin;
-            font-weight: bold; text-align: center;
+            font-size: 2.8vmin; font-weight: bold; color: #d4791f; margin-bottom: 1.5vmin;
         }
-        .overlay-text {
-            font-size: 1.8vmin; color: #333; line-height: 1.8; margin-bottom: 1.5vmin;
+        .overlay-close-btn {
+            position: absolute; top: 1.5vmin; right: 1.5vmin; background: #d4791f;
+            color: #fff; border: none; width: 4vmin; height: 4vmin;
+            border-radius: 50%; font-size: 2.5vmin; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
         }
-        .choice-buttons {
-            display: flex; flex-direction: column; gap: 1vmin;
+        .overlay-close-btn:active {
+            background: #a85f15; transform: scale(0.9);
         }
-        .choice-btn {
-            background: #f0e68c; border: 2px solid #d4791f; color: #333;
-            padding: 1.5vmin; font-size: 1.8vmin; border-radius: 0.5vmin; cursor: pointer;
-            transition: all 0.2s; font-weight: bold; text-align: left;
+        
+        .fortune-step {
+            margin-bottom: 2.5vmin; opacity: 0; animation: fadeIn 0.5s ease forwards;
         }
-        .choice-btn:active {
-            background: #ffd700; transform: scale(0.98);
+        .fortune-step:nth-child(1) { animation-delay: 0s; }
+        .fortune-step:nth-child(2) { animation-delay: 0.2s; }
+        .fortune-step:nth-child(3) { animation-delay: 0.4s; }
+        .fortune-step:nth-child(4) { animation-delay: 0.6s; }
+        .fortune-step:nth-child(5) { animation-delay: 0.8s; }
+        
+        .step-question {
+            font-size: 1.8vmin; font-weight: 600; color: #333; margin-bottom: 1vmin;
         }
-        .color-choice-btn {
-            width: 100%; padding: 2vmin; font-size: 1.8vmin; border: 3px solid #d4791f;
-            border-radius: 0.5vmin; cursor: pointer; transition: all 0.2s; font-weight: bold;
-            color: #fff; margin: 0.5vmin 0;
+        .step-options {
+            display: flex; gap: 0.8vmin; flex-wrap: wrap;
         }
-        .color-choice-btn:active {
-            transform: scale(0.98);
+        .step-option {
+            flex: 1; min-width: 18vmin; padding: 1.2vmin; background: #fff;
+            border: 2px solid #e0e0e0; border-radius: 0.6vmin;
+            cursor: pointer; text-align: center; font-size: 1.6vmin;
+            transition: all 0.3s;
         }
-        .close-overlay-btn {
-            background: #d4791f; color: #fff; border: none; padding: 1vmin 2vmin;
-            font-size: 1.8vmin; border-radius: 0.5vmin; cursor: pointer; margin-top: 2vmin;
-            align-self: center; transition: all 0.2s; font-weight: bold;
+        .step-option:active {
+            transform: scale(0.95);
         }
-        .close-overlay-btn:active {
-            background: #a85a00;
+        .step-option.selected {
+            background: #ffd700; border-color: #d4791f; font-weight: bold;
+        }
+        
+        .result-section {
+            background: rgba(255,255,255,0.8); padding: 1.8vmin; border-radius: 0.8vmin;
+            margin-bottom: 1.8vmin; border-left: 4px solid #ffd700;
+        }
+        .result-section-title {
+            font-size: 1.8vmin; font-weight: bold; color: #d4791f; margin-bottom: 0.8vmin;
+        }
+        .result-content {
+            font-size: 1.6vmin; color: #333; line-height: 1.6;
+        }
+        .lucky-item {
+            display: inline-block; background: #f5deb3; padding: 0.6vmin 1vmin;
+            border-radius: 0.4vmin; margin: 0.4vmin 0.4vmin 0.4vmin 0;
+            font-size: 1.5vmin;
+        }
+        .compat-item {
+            display: inline-block; background: #ffe8d0; padding: 0.6vmin 1vmin;
+            border-radius: 0.4vmin; margin: 0.4vmin 0.4vmin 0.4vmin 0;
+            font-size: 1.5vmin;
+        }
+        
+        .building-canvas-container {
+            text-align: center; margin-bottom: 2vmin;
+        }
+        #building-char-canvas {
+            max-width: 100%; height: auto; border-radius: 1vmin;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         
         @keyframes bounce {
-            0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); }
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-1.5vmin); }
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); } to { opacity: 1; }
+            from { opacity: 0; transform: translateY(0.5vmin); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes slideInDown {
-            from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; }
-        }
-        .fade-in {
-            animation: fadeIn 0.3s ease-out;
-        }
-        
-        .result-fortune {
-            font-size: 2.8vmin; color: #d4791f; font-weight: bold; margin: 2vmin 0;
-            padding: 1.5vmin; background: #fff8dc; border-left: 4px solid #d4791f;
-            border-radius: 0.5vmin;
-        }
-        .result-section {
-            margin: 1.5vmin 0; padding: 1.5vmin; background: #f9f9f9; border-radius: 0.5vmin;
-        }
-        .result-section strong {
-            color: #d4791f;
-        }
-        
-        #building-interior {
-            display: none; width: 100%; height: 100%;
-            position: absolute; top: 0; left: 0;
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
         }
     </style>
 </head>
 <body>
     <div id="game-container">
+        <!-- Title Screen -->
         <div id="title-screen" class="screen active">
-            <div class="title-logo">🐕</div>
-            <div class="title-logo">柴犬うらないハウス</div>
-            <div class="title-subtitle">占い村を冒険しよう</div>
-            <button class="title-btn" onclick="G.startGame()">はじめる</button>
+            <div class="title-logo">柴犬うらない</div>
+            <div class="title-subtitle">ハウス</div>
+            <button class="title-btn" onclick="goToProfile()">はじめる</button>
         </div>
-
+        
+        <!-- Profile Screen -->
         <div id="profile-screen" class="screen">
             <div class="profile-container">
-                <div class="profile-title">プロフィール入力</div>
+                <div class="profile-title">あなたのプロフィール</div>
+                
                 <div class="form-group">
-                    <label class="form-label">お名前</label>
-                    <input id="profile-name" class="form-input" type="text" placeholder="例: 太郎">
+                    <label>お名前</label>
+                    <input type="text" id="userName" placeholder="例：タロウ" maxlength="20">
                 </div>
+                
                 <div class="form-group">
-                    <label class="form-label">生年月日</label>
-                    <input id="profile-birthdate" class="form-input" type="date">
+                    <label>性別</label>
+                    <select id="userGender">
+                        <option value="">選択してください</option>
+                        <option value="male">男性</option>
+                        <option value="female">女性</option>
+                        <option value="other">その他</option>
+                    </select>
                 </div>
+                
                 <div class="form-group">
-                    <label class="form-label">血液型</label>
-                    <select id="profile-blood" class="form-select">
+                    <label>生年月日</label>
+                    <input type="date" id="userBirthday">
+                </div>
+                
+                <div class="form-group">
+                    <label>血液型</label>
+                    <select id="userBloodType">
                         <option value="">選択してください</option>
                         <option value="A">A型</option>
                         <option value="B">B型</option>
-                        <option value="O">O型</option>
                         <option value="AB">AB型</option>
+                        <option value="O">O型</option>
                     </select>
                 </div>
-                <div class="form-buttons">
-                    <button class="form-btn form-btn-primary" onclick="G.saveProfile()">占いの旅へ出発！</button>
-                    <button class="form-btn form-btn-secondary" onclick="G.skipProfile()">スキップ</button>
+                
+                <div class="form-group">
+                    <label>星座</label>
+                    <select id="userZodiac">
+                        <option value="">選択してください</option>
+                        <option value="牡羊座">牡羊座</option>
+                        <option value="牡牛座">牡牛座</option>
+                        <option value="双子座">双子座</option>
+                        <option value="蟹座">蟹座</option>
+                        <option value="獅子座">獅子座</option>
+                        <option value="乙女座">乙女座</option>
+                        <option value="天秤座">天秤座</option>
+                        <option value="蠍座">蠍座</option>
+                        <option value="射手座">射手座</option>
+                        <option value="山羊座">山羊座</option>
+                        <option value="水瓶座">水瓶座</option>
+                        <option value="魚座">魚座</option>
+                    </select>
                 </div>
-                <div class="form-back-link" onclick="G.backToTitle()">← 戻る</div>
+                
+                <button class="profile-start-btn" onclick="startGame()">あそぶ</button>
             </div>
         </div>
-
+        
+        <!-- Game Screen -->
         <div id="game-screen" class="screen">
             <canvas id="gcanvas"></canvas>
-            <canvas id="building-interior"></canvas>
             <div id="bottom-ui">
                 <div class="ui-info">
-                    <span id="player-name">プレイヤー</span>
+                    <span id="player-name">-</span>
+                    <span id="player-blood">-</span>
                 </div>
                 <div class="area-nav">
-                    <button class="area-nav-btn" onclick="G.prevArea()">◀</button>
-                    <div class="area-name-display" id="area-name">占い村</div>
-                    <button class="area-nav-btn" onclick="G.nextArea()">▶</button>
+                    <button class="area-nav-btn" onclick="changeArea(-1)">◀</button>
+                    <div class="area-name-display" id="area-name">エリア</div>
+                    <button class="area-nav-btn" onclick="changeArea(1)">▶</button>
                 </div>
                 <div class="ui-buttons">
-                    <button class="ui-btn" onclick="G.showZukan()">📖図鑑</button>
-                    <button class="ui-btn" onclick="G.showHistory()">🔮履歴</button>
-                    <button class="ui-btn" onclick="G.changeProfile()">👤変更</button>
-                    <button class="ui-btn" onclick="G.backToTitle()">🏠タイトル</button>
+                    <button class="ui-btn" onclick="toggleMenu('history')">履歴</button>
+                    <button class="ui-btn" onclick="toggleMenu('collection')">図鑑</button>
+                    <button class="ui-btn" onclick="goToTitle()">終了</button>
                 </div>
             </div>
         </div>
     </div>
-
-    <div id="building-overlay" class="overlay">
-        <div class="overlay-content fade-in">
-            <div id="building-name" class="overlay-title"></div>
-            <canvas id="building-char-canvas" style="width: 100%; height: 20vmin; background: #f5f5f5; border-radius: 1vmin; margin-bottom: 1vmin;"></canvas>
-            <div id="building-text" class="overlay-text"></div>
-            <button class="choice-btn" onclick="G.startFortune()" style="background: #ffd700; margin-top: 1.5vmin;">占ってもらう</button>
-            <button class="close-overlay-btn" onclick="G.closeBuildingOverlay()">戻る</button>
-        </div>
-    </div>
-
-    <div id="fortune-overlay" class="overlay">
-        <div class="overlay-content fade-in">
-            <div id="fortune-title" class="overlay-title"></div>
-            <div id="fortune-text" class="overlay-text"></div>
-            <div id="fortune-choices" class="choice-buttons"></div>
-        </div>
-    </div>
-
-    <div id="result-overlay" class="overlay">
-        <div class="overlay-content fade-in">
-            <div id="result-title" class="overlay-title"></div>
-            <div id="result-content"></div>
-            <button class="close-overlay-btn" onclick="G.closeResultOverlay()">閉じる</button>
-        </div>
-    </div>
-
-    <div id="collection-overlay" class="overlay">
-        <div class="overlay-content fade-in">
-            <div class="overlay-title">出会ったキャラクター図鑑</div>
-            <div id="collection-content" style="font-size: 1.8vmin; color: #333; columns: 2;"></div>
-            <button class="close-overlay-btn" onclick="G.closeCollectionOverlay()">閉じる</button>
-        </div>
-    </div>
-
-    <div id="history-overlay" class="overlay">
-        <div class="overlay-content fade-in">
+    
+    <!-- History Overlay -->
+    <div id="history-overlay" class="overlay" onclick="if(event.target===this) toggleMenu('history')">
+        <div class="overlay-content">
+            <button class="overlay-close-btn" onclick="toggleMenu('history')">×</button>
             <div class="overlay-title">占い履歴</div>
-            <div id="history-content" style="font-size: 1.8vmin; color: #333;"></div>
-            <button class="close-overlay-btn" onclick="G.closeHistoryOverlay()">閉じる</button>
+            <div id="history-list"></div>
+        </div>
+    </div>
+    
+    <!-- Collection Overlay -->
+    <div id="collection-overlay" class="overlay" onclick="if(event.target===this) toggleMenu('collection')">
+        <div class="overlay-content">
+            <button class="overlay-close-btn" onclick="toggleMenu('collection')">×</button>
+            <div class="overlay-title">NPCきろく</div>
+            <div id="collection-list"></div>
+        </div>
+    </div>
+    
+    <!-- Building Overlay -->
+    <div id="building-overlay" class="overlay" onclick="if(event.target===this) closeBuildingOverlay()">
+        <div class="overlay-content">
+            <button class="overlay-close-btn" onclick="closeBuildingOverlay()">×</button>
+            <div class="building-canvas-container">
+                <canvas id="building-char-canvas" width="200" height="200"></canvas>
+            </div>
+            <div id="building-info"></div>
+            <div id="building-npc-list"></div>
+        </div>
+    </div>
+    
+    <!-- Fortune Overlay -->
+    <div id="fortune-overlay" class="overlay" onclick="if(event.target===this) closeFortune()">
+        <div class="overlay-content">
+            <button class="overlay-close-btn" onclick="closeFortune()">×</button>
+            <div id="fortune-steps"></div>
+        </div>
+    </div>
+    
+    <!-- Fortune Result Overlay -->
+    <div id="result-overlay" class="overlay" onclick="if(event.target===this) closeResult()">
+        <div class="overlay-content">
+            <button class="overlay-close-btn" onclick="closeResult()">×</button>
+            <div class="overlay-title" id="result-fortune-level"></div>
+            <div id="result-content"></div>
+            <button class="profile-start-btn" style="margin-top: 1.5vmin;" onclick="closeResult()">とじる</button>
         </div>
     </div>
 
     <script>
-        // ===== FORTUNE SYSTEM DATA =====
-        const FORTUNE_LEVELS = ['大吉', '中吉', '小吉', '吉', '末吉', '凶'];
-
-        const FORTUNE_CATEGORIES = {
-            love: '恋愛',
-            work: '仕事',
-            money: '金運',
-            health: '健康',
-            overall: '総合運'
+        // Game State
+        const state = {
+            currentScreen: 'title',
+            currentAreaIndex: 0,
+            playerName: '',
+            playerGender: '',
+            playerBirthday: '',
+            playerBloodType: '',
+            playerZodiac: '',
+            playerX: 0,
+            playerY: 0,
+            playerTargetX: 0,
+            playerTargetY: 0,
+            playerWalking: false,
+            playerLegState: 0,
+            playerTailWag: 0,
+            fortuneAnswers: [],
+            selectedNPC: null,
+            selectedBuilding: null,
+            history: [],
+            collection: new Set(),
+            time: 0
         };
 
-        const FORTUNE_DETAILS = {
-            love: ['恋人がいますか？', 'パートナーとの関係は？', '新しい出会いを求めていますか？'],
-            work: ['仕事は順調ですか？', 'やりがいを感じていますか？', 'キャリアアップを目指していますか？'],
-            money: ['収支は安定していますか？', '貯蓄は足りていますか？', 'お金を活かせていますか？'],
-            health: ['最近体調は良いですか？', 'ストレスはありますか？', 'つらい症状はありますか？'],
-            overall: ['人生は充実していますか？', '自分に満足していますか？', 'これからの人生は楽しみですか？']
-        };
-
-        const RECENT_EVENTS = {
-            love: ['素敵な人に出会った', '恋人と喧嘩した', '告白された', 'デートが楽しかった', '恋の悩みがある'],
-            work: ['仕事で成功した', 'ミスを犯した', '新しいプロジェクトが始まった', '上司に褒められた', '人間関係に悩んでいる'],
-            money: ['給料が増えた', '思わぬ出費があった', '貯蓄が増えた', '欲しい物がある', '金銭的な不安がある'],
-            health: ['疲れが取れた', '病気になった', 'スポーツをした', '運動不足を感じている', '健康診断が心配'],
-            overall: ['人生が変わる出来事があった', '新しい挑戦を始めた', '大切な人と時間を過ごした', '悩みが増えた', 'リセットしたい気分']
-        };
-
-        const FEELINGS = ['前向き💛', 'ワクワク😄', '穏やか🌸', '不安😔', '迷い中🌀'];
-
-        const COLOR_CHOICES = [
-            { name: '赤', color: '#ff6b6b', symbol: '🔴' },
-            { name: '青', color: '#4ecdc4', symbol: '🔵' },
-            { name: '黄', color: '#ffe66d', symbol: '🟡' },
-            { name: '紫', color: '#b19cd9', symbol: '🟣' }
-        ];
-
-        // ===== AREA & CHARACTER DATA =====
-        const AREAS = [
-            {
-                name: '占い村',
-                skyGradient: ['#87ceeb', '#e0f6ff'],
-                buildings: [
-                    { name: '占い師の館', xr: 0.2, yr: 0.3, emoji: '🏠', description: 'ここは占い村の中心。様々な占いが受けられます。' },
-                    { name: 'つくし茶屋', xr: 0.8, yr: 0.5, emoji: '☕', description: '占いの相談ができるカフェ。くつろいだ雰囲気です。' }
-                ],
-                npcs: [
-                    { name: 'マロ', x: 0.3, y: 0.5, emoji: '🐕', type: '柴犬', dirX: 0.001374, dirY: 0.002942, speed: 0.002117 },
-                    { name: 'ハナ', x: 0.6, y: 0.4, emoji: '🐈', type: '猫', dirX: -0.002155, dirY: 0.002121, speed: 0.002684 },
-                    { name: 'タロ', x: 0.4, y: 0.7, emoji: '🐇', type: 'ウサギ', dirX: 0.00192, dirY: 0.000409, speed: 0.001896 },
-                    { name: 'モモ', x: 0.7, y: 0.6, emoji: '🦊', type: 'キツネ', dirX: -0.00083, dirY: 0.000962, speed: 0.001702 },
-                    { name: 'チビ', x: 0.5, y: 0.8, emoji: '🐿️', type: 'リス', dirX: 0.000343, dirY: 0.001123, speed: 0.002699 },
-                    { name: 'ユキ', x: 0.2, y: 0.6, emoji: '🐭', type: 'ネズミ', dirX: 0.000164, dirY: -0.002663, speed: 0.002439 },
-                    { name: 'ナツ', x: 0.85, y: 0.7, emoji: '🦝', type: 'アライグマ', dirX: -0.000399, dirY: 0.002404, speed: 0.001572 },
-                    { name: 'フユ', x: 0.15, y: 0.4, emoji: '🦌', type: 'シカ', dirX: 0.001078, dirY: 8.4e-05, speed: 0.00232 },
-                    { name: 'カナ', x: 0.65, y: 0.8, emoji: '🐦', type: '野鳥', dirX: -0.000743, dirY: 0.001662, speed: 0.001482 },
-                    { name: 'サク', x: 0.45, y: 0.3, emoji: '🦗', type: '虫', dirX: 0.0029, dirY: -0.000141, speed: 0.001824 },
-                    { name: 'イロ', x: 0.75, y: 0.3, emoji: '🦋', type: 'チョウ', dirX: -0.000868, dirY: 0.001229, speed: 0.002827 },
-                    { name: 'ミズ', x: 0.3, y: 0.75, emoji: '🐟', type: '魚', dirX: 0.002346, dirY: -0.001533, speed: 0.001718 }
-                ],
-                decorations: [
-                    { x: 0.1, y: 0.1, type: 'lantern' },
-                    { x: 0.15, y: 0.2, type: 'tree' },
-                    { x: 0.9, y: 0.15, type: 'tree' },
-                    { x: 0.25, y: 0.9, type: 'fence' }
-                ]
-            },
-            {
-                name: 'タロットの館',
-                skyGradient: ['#6b4fa0', '#8b5ba0'],
-                buildings: [
-                    { name: 'タロット占い所', xr: 0.2, yr: 0.3, emoji: '🎴', description: 'タロットカードで運命を占います。' },
-                    { name: 'クリスタルショップ', xr: 0.8, yr: 0.5, emoji: '💎', description: '神秘的なクリスタルが並んでいます。' }
-                ],
-                npcs: [
-                    { name: 'アメ', x: 0.3, y: 0.5, emoji: '🐳', type: 'クジラ', dirX: -0.002395, dirY: 0.001204, speed: 0.003316 },
-                    { name: 'イオ', x: 0.6, y: 0.4, emoji: '🐙', type: 'タコ', dirX: 0.001301, dirY: -0.000218, speed: 0.002116 },
-                    { name: 'ウミ', x: 0.4, y: 0.7, emoji: '🦑', type: 'イカ', dirX: 0.002713, dirY: 0.000983, speed: 0.002911 },
-                    { name: 'ナギ', x: 0.7, y: 0.6, emoji: '🐚', type: '貝', dirX: 0.002695, dirY: -0.001983, speed: 0.002553 },
-                    { name: 'シオ', x: 0.5, y: 0.8, emoji: '🦀', type: 'カニ', dirX: -0.001803, dirY: 0.002212, speed: 0.00159 },
-                    { name: 'コハ', x: 0.2, y: 0.6, emoji: '🦐', type: 'エビ', dirX: 0.001985, dirY: -0.001605, speed: 0.002131 },
-                    { name: 'ウラ', x: 0.85, y: 0.7, emoji: '⭐', type: '星', dirX: 0.002094, dirY: 2.7e-05, speed: 0.001285 },
-                    { name: 'マジ', x: 0.15, y: 0.4, emoji: '✨', type: '魔法', dirX: -0.001954, dirY: 0.001372, speed: 0.003398 },
-                    { name: 'ハラ', x: 0.65, y: 0.8, emoji: '🌙', type: '月', dirX: 0.001123, dirY: -0.000528, speed: 0.003471 },
-                    { name: 'カク', x: 0.45, y: 0.3, emoji: '🎭', type: '劇場', dirX: -0.002879, dirY: 0.000502, speed: 0.00266 },
-                    { name: 'ナゾ', x: 0.75, y: 0.3, emoji: '🔮', type: '水晶玉', dirX: 0.002864, dirY: 0.001271, speed: 0.002834 },
-                    { name: 'シン', x: 0.3, y: 0.75, emoji: '📿', type: '数珠', dirX: 0.00048, dirY: 0.000496, speed: 0.002064 }
-                ],
-                decorations: [
-                    { x: 0.1, y: 0.1, type: 'crystal' },
-                    { x: 0.15, y: 0.2, type: 'card' },
-                    { x: 0.9, y: 0.15, type: 'mist' },
-                    { x: 0.25, y: 0.9, type: 'lamp' }
-                ]
-            },
-            {
-                name: 'おみくじ神社',
-                skyGradient: ['#ff9a56', '#ffb366'],
-                buildings: [
-                    { name: '神社本殿', xr: 0.2, yr: 0.3, emoji: '⛩️', description: '古くからの歴史を持つ神社。おみくじが引けます。' },
-                    { name: 'おぜん処', xr: 0.8, yr: 0.5, emoji: '🍜', description: '神社参拝後のお食事処です。' }
-                ],
-                npcs: [
-                    { name: 'トリ', x: 0.3, y: 0.5, emoji: '🦅', type: 'ワシ', dirX: 0.002457, dirY: -0.000859, speed: 0.001388 },
-                    { name: 'カラス', x: 0.6, y: 0.4, emoji: '🐦‍⬛', type: 'カラス', dirX: 0.001319, dirY: 0.000405, speed: 0.002324 },
-                    { name: 'スズ', x: 0.4, y: 0.7, emoji: '🦜', type: 'インコ', dirX: 0.000457, dirY: -0.002594, speed: 0.001509 },
-                    { name: 'ウグ', x: 0.7, y: 0.6, emoji: '🕊️', type: 'ハト', dirX: 0.002463, dirY: 0.000418, speed: 0.002385 },
-                    { name: 'フクロ', x: 0.5, y: 0.8, emoji: '🦉', type: 'フクロウ', dirX: -0.002224, dirY: 0.001235, speed: 0.002912 },
-                    { name: 'ハト', x: 0.2, y: 0.6, emoji: '🦆', type: 'アヒル', dirX: -0.001044, dirY: 1.3e-05, speed: 0.001998 },
-                    { name: 'ニワ', x: 0.85, y: 0.7, emoji: '🐔', type: 'ニワトリ', dirX: -0.002866, dirY: 0.00023, speed: 0.002815 },
-                    { name: 'クジャク', x: 0.15, y: 0.4, emoji: '🦚', type: 'クジャク', dirX: 0.002535, dirY: 0.000565, speed: 0.001902 },
-                    { name: 'キツ', x: 0.65, y: 0.8, emoji: '🦝', type: 'アライグマ', dirX: 0.000756, dirY: -0.001183, speed: 0.0025 },
-                    { name: 'マント', x: 0.45, y: 0.3, emoji: '🦇', type: 'コウモリ', dirX: -0.001238, dirY: -0.001376, speed: 0.00159 },
-                    { name: 'クマ', x: 0.75, y: 0.3, emoji: '🐻', type: 'クマ', dirX: 0.00144, dirY: 0.001335, speed: 0.001522 },
-                    { name: 'リンゴ', x: 0.3, y: 0.75, emoji: '🦌', type: 'シカ', dirX: 0.001209, dirY: 0.001314, speed: 0.002445 }
-                ],
-                decorations: [
-                    { x: 0.1, y: 0.1, type: 'torii' },
-                    { x: 0.15, y: 0.2, type: 'maple' },
-                    { x: 0.9, y: 0.15, type: 'lantern' },
-                    { x: 0.25, y: 0.9, type: 'stone' }
-                ]
-            },
+        // Areas with unique attributes
+        const areas = [
             {
                 name: '星読みの丘',
-                skyGradient: ['#1a1a2e', '#16213e'],
                 buildings: [
-                    { name: '天文台', xr: 0.2, yr: 0.3, emoji: '🔭', description: '星の導きで運命を読み解く場所です。' },
-                    { name: '星の宿', xr: 0.8, yr: 0.5, emoji: '⛺', description: '星を眺めながら宿泊できます。' }
-                ],
-                npcs: [
-                    { name: 'ヒカル', x: 0.3, y: 0.5, emoji: '🐨', type: 'コアラ', dirX: -0.002959, dirY: 0.001088, speed: 0.001646 },
-                    { name: 'ツキ', x: 0.6, y: 0.4, emoji: '🦘', type: 'カンガルー', dirX: -0.002904, dirY: 0.002869, speed: 0.00216 },
-                    { name: 'コスモ', x: 0.4, y: 0.7, emoji: '🦎', type: 'トカゲ', dirX: 0.001992, dirY: -0.002129, speed: 0.002825 },
-                    { name: 'セイ', x: 0.7, y: 0.6, emoji: '🐢', type: 'カメ', dirX: -0.000198, dirY: -0.002218, speed: 0.001762 },
-                    { name: 'ハナ', x: 0.5, y: 0.8, emoji: '🦗', type: '虫', dirX: 0.001579, dirY: -0.00184, speed: 0.002885 },
-                    { name: 'アスター', x: 0.2, y: 0.6, emoji: '🦗', type: '虫', dirX: 0.002433, dirY: 0.002154, speed: 0.003272 },
-                    { name: 'ノック', x: 0.85, y: 0.7, emoji: '🦊', type: 'キツネ', dirX: 0.002909, dirY: 0.002524, speed: 0.002624 },
-                    { name: 'スター', x: 0.15, y: 0.4, emoji: '✨', type: '光', dirX: -0.002693, dirY: 0.002642, speed: 0.003115 },
-                    { name: 'ムーン', x: 0.65, y: 0.8, emoji: '🌙', type: '月', dirX: 0.001764, dirY: -0.001546, speed: 0.002042 },
-                    { name: 'サン', x: 0.45, y: 0.3, emoji: '☀️', type: '太陽', dirX: -0.002754, dirY: -0.001625, speed: 0.001722 },
-                    { name: 'コメット', x: 0.75, y: 0.3, emoji: '☄️', type: '彗星', dirX: -0.000571, dirY: 0.0025, speed: 0.002982 },
-                    { name: 'ノバ', x: 0.3, y: 0.75, emoji: '🌟', type: '星', dirX: 0.000841, dirY: 0.001171, speed: 0.001782 }
-                ],
-                decorations: [
-                    { x: 0.1, y: 0.1, type: 'star' },
-                    { x: 0.15, y: 0.2, type: 'telescope' },
-                    { x: 0.9, y: 0.15, type: 'moon' },
-                    { x: 0.25, y: 0.9, type: 'grass' }
+                    { id: 'shrine', name: 'おみくじ神社', x: 150, y: 150, npcSpawns: ['shiba1', 'rabbit'] },
+                    { id: 'crystal', name: '水晶の泉', x: 450, y: 150, npcSpawns: ['cat1', 'fox'] },
+                    { id: 'fortune', name: '運命の館', x: 300, y: 350, npcSpawns: ['owl', 'shiba2'] }
                 ]
             },
             {
-                name: '水晶の泉',
-                skyGradient: ['#3d5a80', '#6b8fb5'],
+                name: '占い村',
                 buildings: [
-                    { name: '水晶宮殿', xr: 0.2, yr: 0.3, emoji: '💠', description: '水の精が宿る水晶の宮殿です。' },
-                    { name: 'スパ施設', xr: 0.8, yr: 0.5, emoji: '♨️', description: '温泉で心と体をリラックス。' }
-                ],
-                npcs: [
-                    { name: 'アメフラシ', x: 0.3, y: 0.5, emoji: '🐢', type: 'カメ', dirX: 0.0019, dirY: 0.002144, speed: 0.002961 },
-                    { name: 'ヒトデ', x: 0.6, y: 0.4, emoji: '⭐', type: 'ヒトデ', dirX: -0.000886, dirY: -0.001028, speed: 0.001459 },
-                    { name: 'クラゲ', x: 0.4, y: 0.7, emoji: '🪼', type: 'クラゲ', dirX: -0.00081, dirY: 0.002062, speed: 0.002409 },
-                    { name: 'イソギン', x: 0.7, y: 0.6, emoji: '🌸', type: 'イソギンチャク', dirX: -0.001403, dirY: 0.001705, speed: 0.002351 },
-                    { name: 'カワニナ', x: 0.5, y: 0.8, emoji: '🐚', type: '貝', dirX: -0.002042, dirY: -0.00242, speed: 0.001946 },
-                    { name: 'ニジマス', x: 0.2, y: 0.6, emoji: '🐟', type: 'マス', dirX: -0.002253, dirY: 0.000238, speed: 0.003494 },
-                    { name: 'コイ', x: 0.85, y: 0.7, emoji: '🐠', type: 'コイ', dirX: 0.001961, dirY: -0.001515, speed: 0.002116 },
-                    { name: 'フナ', x: 0.15, y: 0.4, emoji: '🐟', type: 'フナ', dirX: 0.001581, dirY: 0.000792, speed: 0.002806 },
-                    { name: 'メダカ', x: 0.65, y: 0.8, emoji: '🐟', type: 'メダカ', dirX: 0.000778, dirY: 0.000247, speed: 0.001794 },
-                    { name: 'ザリガニ', x: 0.45, y: 0.3, emoji: '🦞', type: 'ザリガニ', dirX: 0.001718, dirY: -4.4e-05, speed: 0.002978 },
-                    { name: 'トンボ', x: 0.75, y: 0.3, emoji: '🪰', type: 'トンボ', dirX: 0.000503, dirY: 0.000858, speed: 0.001419 },
-                    { name: 'アメンボ', x: 0.3, y: 0.75, emoji: '🐛', type: '水中虫', dirX: 0.002396, dirY: 0.000837, speed: 0.002131 }
-                ],
-                decorations: [
-                    { x: 0.1, y: 0.1, type: 'lily' },
-                    { x: 0.15, y: 0.2, type: 'water' },
-                    { x: 0.9, y: 0.15, type: 'waterfall' },
-                    { x: 0.25, y: 0.9, type: 'lily' }
+                    { id: 'teashop', name: 'お茶の館', x: 150, y: 150, npcSpawns: ['cat2', 'rabbit'] },
+                    { id: 'mysteryroad', name: 'ふしぎ小路', x: 450, y: 150, npcSpawns: ['fox', 'shiba1'] },
+                    { id: 'temple', name: '古い神社', x: 300, y: 350, npcSpawns: ['owl', 'frog'] }
                 ]
             },
             {
-                name: 'ふしぎ小路',
-                skyGradient: ['#ffb3d9', '#ff99cc'],
+                name: '海辺の砂浜',
                 buildings: [
-                    { name: 'お菓子屋さん', xr: 0.2, yr: 0.3, emoji: '🍭', description: 'ふしぎなお菓子がたくさん。食べると運気UP！' },
-                    { name: 'おもちゃ屋', xr: 0.8, yr: 0.5, emoji: '🎡', description: 'カラフルな遊び心がいっぱいです。' }
-                ],
-                npcs: [
-                    { name: 'メロン', x: 0.3, y: 0.5, emoji: '🐛', type: '虫', dirX: -0.00072, dirY: -0.002324, speed: 0.003067 },
-                    { name: 'サクラ', x: 0.6, y: 0.4, emoji: '🦂', type: 'サソリ', dirX: -0.002997, dirY: -0.002944, speed: 0.001468 },
-                    { name: 'ユメ', x: 0.4, y: 0.7, emoji: '🦗', type: '虫', dirX: 0.000631, dirY: -0.001119, speed: 0.001219 },
-                    { name: 'フリル', x: 0.7, y: 0.6, emoji: '🦋', type: 'チョウ', dirX: 0.002787, dirY: 0.000978, speed: 0.002565 },
-                    { name: 'ポップ', x: 0.5, y: 0.8, emoji: '🐝', type: 'ハチ', dirX: -0.002608, dirY: 0.001202, speed: 0.002583 },
-                    { name: 'ラッパ', x: 0.2, y: 0.6, emoji: '🐉', type: 'ドラゴン', dirX: -0.002295, dirY: 0.001778, speed: 0.003357 },
-                    { name: 'パステル', x: 0.85, y: 0.7, emoji: '🦄', type: 'ユニコーン', dirX: -0.002883, dirY: 0.001075, speed: 0.002566 },
-                    { name: 'キラキラ', x: 0.15, y: 0.4, emoji: '👑', type: '王冠', dirX: 0.001944, dirY: -0.002531, speed: 0.003497 },
-                    { name: 'レインボー', x: 0.65, y: 0.8, emoji: '🌈', type: '虹', dirX: 0.001134, dirY: -0.001454, speed: 0.002286 },
-                    { name: 'バブル', x: 0.45, y: 0.3, emoji: '🫧', type: 'しゃぼん玉', dirX: -0.001846, dirY: -0.000827, speed: 0.001917 },
-                    { name: 'スター', x: 0.75, y: 0.3, emoji: '⭐', type: '星', dirX: 0.000354, dirY: 0.000698, speed: 0.001675 },
-                    { name: 'スウィート', x: 0.3, y: 0.75, emoji: '🍬', type: 'キャンディ', dirX: 0.000328, dirY: 0.000765, speed: 0.00153 }
-                ],
-                decorations: [
-                    { x: 0.1, y: 0.1, type: 'rainbow' },
-                    { x: 0.15, y: 0.2, type: 'bubble' },
-                    { x: 0.9, y: 0.15, type: 'candy' },
-                    { x: 0.25, y: 0.9, type: 'flower' }
+                    { id: 'lighthouse', name: '灯台の家', x: 150, y: 150, npcSpawns: ['cat1', 'shiba2'] },
+                    { id: 'seashell', name: '貝殻の館', x: 450, y: 150, npcSpawns: ['rabbit', 'fox'] },
+                    { id: 'seagrotto', name: '海の洞窟', x: 300, y: 350, npcSpawns: ['owl', 'shiba1'] }
+                ]
+            },
+            {
+                name: '魔法の森',
+                buildings: [
+                    { id: 'treehouse', name: '樹の家', x: 150, y: 150, npcSpawns: ['squirrel', 'rabbit'] },
+                    { id: 'mushroom', name: 'きのこ館', x: 450, y: 150, npcSpawns: ['fox', 'shiba2'] },
+                    { id: 'magicwell', name: '魔法の井戸', x: 300, y: 350, npcSpawns: ['owl', 'cat1'] }
+                ]
+            },
+            {
+                name: '花咲く庭園',
+                buildings: [
+                    { id: 'pavilion', name: '四阿', x: 150, y: 150, npcSpawns: ['butterfly', 'rabbit'] },
+                    { id: 'gallery', name: 'アート館', x: 450, y: 150, npcSpawns: ['cat2', 'fox'] },
+                    { id: 'fountain', name: '噴水広場', x: 300, y: 350, npcSpawns: ['shiba1', 'owl'] }
+                ]
+            },
+            {
+                name: '雲の上の城',
+                buildings: [
+                    { id: 'castle', name: '白い城', x: 150, y: 150, npcSpawns: ['shiba2', 'cat1'] },
+                    { id: 'skypalace', name: '空の宮殿', x: 450, y: 150, npcSpawns: ['rabbit', 'fox'] },
+                    { id: 'cloudtemple', name: '雲の寺院', x: 300, y: 350, npcSpawns: ['owl', 'shiba1'] }
                 ]
             }
         ];
 
-        // ===== CORE GAME OBJECT =====
-        const G = {
-            currentScreen: 'title',
-            currentArea: 0,
-            gameRunning: false,
-            frame: 0,
-            canvasWidth: 0,
-            canvasHeight: 0,
-            touchPrevented: false,
-            
-            playerName: 'プレイヤー',
-            playerX: 0.5,
-            playerY: 0.7,
-            playerTargetX: 0.5,
-            playerTargetY: 0.7,
-            playerRotation: 0,
-            playerIdleFrame: 0,
-            
-            profile: {
-                name: '',
-                birthdate: '',
-                blood: '',
-                zodiac: ''
-            },
-            
-            currentFortune: null,
-            fortuneStep: 0,
-            fortuneHistory: [],
-            fortuneAnswers: {},
-            currentBuilding: null,
-            
-            particles: [],
-            meetCharacters: new Set(),
-            metChars: [],
-            bgmPlaying: false,
-            bgmInterval: null,
-            audioCtx: null,
-            
-            init() {
-                this.loadData();
-                this.setupCanvas();
-                this.setupEvents();
-                this.startGameLoop();
-                this.initAudio();
-            },
-            
-            loadData() {
-                const saved = localStorage.getItem('shibaFortuneProfile');
-                if (saved) {
-                    this.profile = JSON.parse(saved);
-                    this.playerName = this.profile.name || 'プレイヤー';
-                }
-                const history = localStorage.getItem('shibaFortuneHistory');
-                if (history) {
-                    this.fortuneHistory = JSON.parse(history);
-                }
-                const chars = localStorage.getItem('shibaFortuneChars');
-                if (chars) {
-                    this.meetCharacters = new Set(JSON.parse(chars));
-                }
-            },
-            
-            saveData() {
-                localStorage.setItem('shibaFortuneProfile', JSON.stringify(this.profile));
-                localStorage.setItem('shibaFortuneHistory', JSON.stringify(this.fortuneHistory));
-                localStorage.setItem('shibaFortuneChars', JSON.stringify(Array.from(this.meetCharacters)));
-            },
-            
-            setupCanvas() {
-                this.canvas = document.getElementById('gcanvas');
-                this.ctx = this.canvas.getContext('2d');
-                this.buildingCanvas = document.getElementById('building-interior');
-                this.resizeCanvas();
-            },
-
-            resizeCanvas() {
-                const gameScreen = document.getElementById('game-screen');
-                if (!gameScreen.offsetParent) return;
-                const bottomUI = document.getElementById('bottom-ui');
-                const cH = window.innerHeight - bottomUI.offsetHeight;
-                this.canvas.width = window.innerWidth;
-                this.canvas.height = Math.max(cH, 300);
-                if (this.buildingCanvas) {
-                    this.buildingCanvas.width = window.innerWidth;
-                    this.buildingCanvas.height = Math.max(cH, 300);
-                }
-                this.canvasWidth = this.canvas.width;
-                this.canvasHeight = this.canvas.height;
-            },
-            
-            setupEvents() {
-                window.addEventListener('resize', () => this.resizeCanvas());
-                this.canvas.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    this.handleCanvasClick(e.touches[0]);
-                }, { passive: false });
-                this.canvas.addEventListener('click', (e) => {
-                    this.handleCanvasClick(e);
-                });
-            },
-            
-            handleCanvasClick(e) {
-                if (!this.gameRunning || this.isAnyOverlayActive()) return;
-                
-                const rect = this.canvas.getBoundingClientRect();
-                const x = (e.clientX - rect.left) / rect.width;
-                const y = (e.clientY - rect.top) / rect.height;
-                
-                if (x < 0 || x > 1 || y < 0 || y > 1) return;
-                
-                const area = AREAS[this.currentArea];
-                
-                // Check buildings first
-                for (let building of area.buildings) {
-                    const dist = Math.hypot(x - building.xr, y - building.yr);
-                    if (dist < 0.12) {
-                        this.enterBuilding(building);
-                        return;
-                    }
-                }
-                
-                // Check NPCs
-                for (let npc of area.npcs) {
-                    const dist = Math.hypot(x - npc.x, y - npc.y);
-                    if (dist < 0.055) {
-                        this.talkToNPC(npc);
-                        return;
-                    }
-                }
-                
-                // Move player if no interaction
-                this.playerTargetX = x;
-                this.playerTargetY = y;
-            },
-            
-            isAnyOverlayActive() {
-                return document.getElementById('building-overlay').classList.contains('active') ||
-                       document.getElementById('fortune-overlay').classList.contains('active') ||
-                       document.getElementById('result-overlay').classList.contains('active') ||
-                       document.getElementById('collection-overlay').classList.contains('active') ||
-                       document.getElementById('history-overlay').classList.contains('active');
-            },
-            
-            startGame() {
-                document.getElementById('title-screen').classList.remove('active');
-                document.getElementById('profile-screen').classList.add('active');
-                document.getElementById('profile-name').value = this.profile.name || '';
-                document.getElementById('profile-birthdate').value = this.profile.birthdate || '';
-                document.getElementById('profile-blood').value = this.profile.blood || '';
-            },
-            
-            saveProfile() {
-                this.profile.name = document.getElementById('profile-name').value.trim() || 'プレイヤー';
-                this.profile.birthdate = document.getElementById('profile-birthdate').value;
-                this.profile.blood = document.getElementById('profile-blood').value;
-                if (this.profile.birthdate) {
-                    this.profile.zodiac = this.getZodiacSign(this.profile.birthdate);
-                }
-                this.playerName = this.profile.name;
-                this.saveData();
-                this.enterGame();
-            },
-            
-            skipProfile() {
-                this.profile.name = 'プレイヤー';
-                this.playerName = 'プレイヤー';
-                this.enterGame();
-            },
-            
-            enterGame() {
-                document.getElementById('profile-screen').classList.remove('active');
-                document.getElementById('game-screen').classList.add('active');
-                document.getElementById('player-name').textContent = this.playerName;
-                this.currentScreen = 'game';
-                this.gameRunning = true;
-                this.resizeCanvas();
-                this.updateAreaName();
-                this.playBGM();
-            },
-            
-            getZodiacSign(dateStr) {
-                const [year, month, day] = dateStr.split('-').map(Number);
-                const signs = ['♑', '♒', '♓', '♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐'];
-                const dates = [[1,20], [2,19], [3,21], [4,20], [5,21], [6,21], [7,23], [8,23], [9,23], [10,23], [11,22], [12,22]];
-                let sign = signs[0];
-                for (let i = 0; i < dates.length; i++) {
-                    if ((month === dates[i][0] && day >= dates[i][1]) || (month === dates[(i+1)%12][0] && day < dates[(i+1)%12][1])) {
-                        sign = signs[i];
-                        break;
-                    }
-                }
-                return sign;
-            },
-            
-            startGameLoop() {
-                setInterval(() => this.gameLoop(), 1000 / 60);
-            },
-            
-            gameLoop() {
-                if (!this.gameRunning) return;
-                this.frame++;
-                this.playerIdleFrame++;
-
-                // Update NPC positions
-                const area = AREAS[this.currentArea];
-                area.npcs.forEach(npc => {
-                    // Update position
-                    npc.x += npc.dirX * npc.speed;
-                    npc.y += npc.dirY * npc.speed;
-
-                    // Bounce off boundaries (0.05 to 0.95 for x, 0.25 to 0.9 for y)
-                    if (npc.x < 0.05 || npc.x > 0.95) npc.dirX *= -1;
-                    if (npc.y < 0.25 || npc.y > 0.9) npc.dirY *= -1;
-
-                    // Random direction change (1% chance per frame)
-                    if (Math.random() < 0.01) {
-                        npc.dirX = (Math.random() - 0.5) * 0.006;
-                        npc.dirY = (Math.random() - 0.5) * 0.006;
-                    }
-                });
-
-                // Player movement
-                const dist = Math.hypot(this.playerTargetX - this.playerX, this.playerTargetY - this.playerY);
-                if (dist > 0.01) {
-                    this.playerX += (this.playerTargetX - this.playerX) * 0.08;
-                    this.playerY += (this.playerTargetY - this.playerY) * 0.08;
-                }
-                
-                // Particle updates
-                this.particles = this.particles.filter(p => p.life > 0);
-                this.particles.forEach(p => {
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.life -= 0.02;
-                    p.vy += 0.001;
-                });
-                
-                this.draw();
-            },
-            
-            draw() {
-                const ctx = this.ctx;
-                const area = AREAS[this.currentArea];
-                const gradient = ctx.createLinearGradient(0, 0, 0, this.canvasHeight);
-                gradient.addColorStop(0, area.skyGradient[0]);
-                gradient.addColorStop(1, area.skyGradient[1]);
-                ctx.fillStyle = gradient;
-                ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
-                
-                // Draw decorations
-                this.drawAreaDecorations(ctx, area);
-                
-                // Draw NPCs
-                area.npcs.forEach(npc => {
-                    this.drawNPC(ctx, npc);
-                });
-                
-                // Draw buildings
-                area.buildings.forEach(b => {
-                    this.drawBuilding(ctx, b);
-                });
-                
-                // Draw player
-                this.drawPlayer(ctx);
-                
-                // Draw particles
-                this.particles.forEach(p => {
-                    ctx.fillStyle = `rgba(255, 200, 100, ${p.life})`;
-                    ctx.fillRect(p.x * this.canvasWidth, p.y * this.canvasHeight, 4, 4);
-                });
-            },
-            
-            drawAreaDecorations(ctx, area) {
-                area.decorations.forEach(dec => {
-                    const x = dec.x * this.canvasWidth;
-                    const y = dec.y * this.canvasHeight;
-                    switch (dec.type) {
-                        case 'tree':
-                            ctx.fillStyle = '#4a7c59';
-                            ctx.fillRect(x - 5, y - 20, 10, 25);
-                            ctx.fillStyle = '#7cb342';
-                            ctx.beginPath();
-                            ctx.arc(x, y - 15, 15, 0, Math.PI * 2);
-                            ctx.fill();
-                            break;
-                        case 'lantern':
-                            ctx.fillStyle = '#d4791f';
-                            ctx.fillRect(x - 8, y - 15, 16, 25);
-                            ctx.fillStyle = '#ff9800';
-                            ctx.fillRect(x - 6, y - 12, 12, 8);
-                            break;
-                        case 'fence':
-                            ctx.strokeStyle = '#8b7355';
-                            ctx.lineWidth = 3;
-                            for (let i = 0; i < 4; i++) {
-                                ctx.beginPath();
-                                ctx.moveTo(x + i * 10 - 15, y);
-                                ctx.lineTo(x + i * 10 - 15, y - 10);
-                                ctx.stroke();
-                            }
-                            ctx.beginPath();
-                            ctx.moveTo(x - 15, y - 5);
-                            ctx.lineTo(x + 25, y - 5);
-                            ctx.stroke();
-                            break;
-                        case 'crystal':
-                            ctx.fillStyle = '#b19cd9';
-                            ctx.beginPath();
-                            ctx.moveTo(x, y - 20);
-                            ctx.lineTo(x + 10, y);
-                            ctx.lineTo(x, y + 20);
-                            ctx.lineTo(x - 10, y);
-                            ctx.closePath();
-                            ctx.fill();
-                            break;
-                        case 'card':
-                            ctx.fillStyle = '#fff8dc';
-                            ctx.fillRect(x - 8, y - 12, 16, 24);
-                            ctx.strokeStyle = '#d4791f';
-                            ctx.lineWidth = 2;
-                            ctx.strokeRect(x - 8, y - 12, 16, 24);
-                            break;
-                        case 'mist':
-                            ctx.fillStyle = `rgba(150, 100, 180, ${0.3 + 0.2 * Math.sin(this.frame * 0.05)})`;
-                            ctx.fillRect(x - 30, y - 20, 60, 40);
-                            break;
-                        case 'lamp':
-                            ctx.fillStyle = '#ffe66d';
-                            ctx.beginPath();
-                            ctx.arc(x, y - 10, 8, 0, Math.PI * 2);
-                            ctx.fill();
-                            ctx.strokeStyle = '#d4791f';
-                            ctx.lineWidth = 2;
-                            ctx.strokeRect(x - 6, y + 5, 12, 10);
-                            break;
-                        case 'torii':
-                            ctx.strokeStyle = '#d4791f';
-                            ctx.lineWidth = 4;
-                            ctx.beginPath();
-                            ctx.moveTo(x - 15, y - 15);
-                            ctx.lineTo(x - 15, y + 15);
-                            ctx.stroke();
-                            ctx.beginPath();
-                            ctx.moveTo(x + 15, y - 15);
-                            ctx.lineTo(x + 15, y + 15);
-                            ctx.stroke();
-                            ctx.beginPath();
-                            ctx.moveTo(x - 20, y - 15);
-                            ctx.lineTo(x + 20, y - 15);
-                            ctx.stroke();
-                            break;
-                        case 'maple':
-                            ctx.fillStyle = '#ff6b35';
-                            for (let i = 0; i < 5; i++) {
-                                ctx.beginPath();
-                                ctx.moveTo(x, y);
-                                ctx.lineTo(x + 8 * Math.cos(i * Math.PI * 2 / 5), y + 8 * Math.sin(i * Math.PI * 2 / 5));
-                                ctx.stroke();
-                            }
-                            break;
-                        case 'star':
-                            ctx.fillStyle = '#ffe66d';
-                            this.drawStar(ctx, x, y, 5, 8, 4);
-                            break;
-                        case 'telescope':
-                            ctx.strokeStyle = '#555';
-                            ctx.lineWidth = 3;
-                            ctx.beginPath();
-                            ctx.arc(x, y - 5, 6, 0, Math.PI * 2);
-                            ctx.stroke();
-                            ctx.beginPath();
-                            ctx.moveTo(x - 6, y - 5);
-                            ctx.lineTo(x - 15, y + 15);
-                            ctx.stroke();
-                            break;
-                        case 'moon':
-                            ctx.fillStyle = '#fff8dc';
-                            ctx.beginPath();
-                            ctx.arc(x, y, 12, 0, Math.PI * 2);
-                            ctx.fill();
-                            ctx.fillStyle = area.skyGradient[0];
-                            ctx.beginPath();
-                            ctx.arc(x + 4, y - 2, 12, 0, Math.PI * 2);
-                            ctx.fill();
-                            break;
-                        case 'grass':
-                            ctx.strokeStyle = '#7cb342';
-                            ctx.lineWidth = 2;
-                            for (let i = 0; i < 3; i++) {
-                                ctx.beginPath();
-                                ctx.moveTo(x + i * 8 - 8, y);
-                                ctx.quadraticCurveTo(x + i * 8 - 6, y - 15, x + i * 8 - 4, y - 20);
-                                ctx.stroke();
-                            }
-                            break;
-                        case 'lily':
-                            ctx.fillStyle = '#7cb342';
-                            ctx.beginPath();
-                            ctx.arc(x, y, 8, 0, Math.PI * 2);
-                            ctx.fill();
-                            ctx.fillStyle = '#ff69b4';
-                            ctx.beginPath();
-                            ctx.arc(x, y - 2, 4, 0, Math.PI * 2);
-                            ctx.fill();
-                            break;
-                        case 'water':
-                            ctx.strokeStyle = `rgba(100, 150, 200, ${0.5 + 0.3 * Math.sin(this.frame * 0.03)})`;
-                            ctx.lineWidth = 1;
-                            for (let i = 0; i < 3; i++) {
-                                ctx.beginPath();
-                                ctx.arc(x + (i - 1) * 10, y, 5, 0, Math.PI * 2);
-                                ctx.stroke();
-                            }
-                            break;
-                        case 'waterfall':
-                            ctx.fillStyle = 'rgba(150, 200, 255, 0.6)';
-                            ctx.fillRect(x - 10, y - 30, 20, 50);
-                            break;
-                        case 'rainbow':
-                            ctx.strokeStyle = '#ff6b6b';
-                            ctx.lineWidth = 3;
-                            ctx.beginPath();
-                            ctx.arc(x, y + 20, 20, Math.PI, 0);
-                            ctx.stroke();
-                            ctx.strokeStyle = '#4ecdc4';
-                            ctx.beginPath();
-                            ctx.arc(x, y + 20, 15, Math.PI, 0);
-                            ctx.stroke();
-                            break;
-                        case 'bubble':
-                            ctx.strokeStyle = '#4ecdc4';
-                            ctx.lineWidth = 2;
-                            ctx.beginPath();
-                            ctx.arc(x, y, 6, 0, Math.PI * 2);
-                            ctx.stroke();
-                            break;
-                        case 'candy':
-                            ctx.fillStyle = '#ff6b6b';
-                            ctx.fillRect(x - 6, y - 6, 12, 12);
-                            ctx.fillStyle = '#ffd700';
-                            ctx.fillRect(x - 4, y - 4, 8, 8);
-                            break;
-                        case 'flower':
-                            for (let i = 0; i < 5; i++) {
-                                ctx.fillStyle = '#ff69b4';
-                                ctx.beginPath();
-                                ctx.arc(x + 6 * Math.cos(i * Math.PI * 2 / 5), y + 6 * Math.sin(i * Math.PI * 2 / 5), 3, 0, Math.PI * 2);
-                                ctx.fill();
-                            }
-                            ctx.fillStyle = '#ffd700';
-                            ctx.beginPath();
-                            ctx.arc(x, y, 2, 0, Math.PI * 2);
-                            ctx.fill();
-                            break;
-                    }
-                });
-            },
-            
-            drawStar(ctx, x, y, points, outerRadius, innerRadius) {
-                let step = Math.PI / points;
-                ctx.beginPath();
-                ctx.moveTo(x, y - outerRadius);
-                for (let i = 0; i < points * 2; i++) {
-                    let r = i % 2 === 0 ? outerRadius : innerRadius;
-                    ctx.lineTo(x + r * Math.sin(i * step), y - r * Math.cos(i * step));
-                }
-                ctx.closePath();
-                ctx.fill();
-            },
-            
-            drawBuilding(ctx, b) {
-                const x = b.xr * this.canvasWidth;
-                const y = b.yr * this.canvasHeight;
-
-                // Building body
-                ctx.fillStyle = '#f5deb3';
-                ctx.fillRect(x - 30, y - 10, 60, 50);
-                ctx.strokeStyle = '#8b4513';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(x - 30, y - 10, 60, 50);
-
-                // Door
-                ctx.fillStyle = '#333';
-                ctx.fillRect(x - 12, y + 10, 24, 20);
-                ctx.fillStyle = '#87ceeb';
-                ctx.fillRect(x - 10, y + 12, 20, 16);
-
-                // Roof
-                ctx.fillStyle = '#ff8c00';
-                ctx.beginPath();
-                ctx.moveTo(x, y - 45);
-                ctx.lineTo(x - 35, y - 10);
-                ctx.lineTo(x + 35, y - 10);
-                ctx.closePath();
-                ctx.fill();
-
-                // Building name text
-                ctx.fillStyle = '#333';
-                ctx.font = 'bold 1.5vmin sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'top';
-                ctx.fillText(b.name, x, y + 35);
-
-                // Building emoji
-                ctx.font = 'bold 4vmin sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(b.emoji, x, y + 5);
-            },
-            
-            drawNPC(ctx, npc) {
-                const x = npc.x * this.canvasWidth;
-                const y = npc.y * this.canvasHeight;
-                ctx.font = 'bold 6vmin sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                const bobbing = Math.sin(this.frame * 0.05) * 3;
-                ctx.fillText(npc.emoji, x, y + bobbing);
-                ctx.fillStyle = '#333';
-                ctx.font = '1.8vmin sans-serif';
-                ctx.fillText(npc.name, x, y + 25);
-            },
-            
-            drawPlayer(ctx) {
-                const x = this.playerX * this.canvasWidth;
-                const y = this.playerY * this.canvasHeight;
-                const bobbing = Math.sin(this.playerIdleFrame * 0.03) * 2;
-                ctx.font = 'bold 7vmin sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('🐕', x, y + bobbing);
-            },
-            
-            enterBuilding(building) {
-                this.currentBuilding = building;
-                this.drawBuildingInterior();
-                document.getElementById('building-name').textContent = building.name;
-                document.getElementById('building-text').innerHTML = building.description;
-                document.getElementById('building-overlay').classList.add('active');
-            },
-            
-            drawBuildingInterior() {
-                const charCanvas = document.getElementById('building-char-canvas');
-                const charCtx = charCanvas.getContext('2d');
-
-                charCtx.fillStyle = '#f5f5f5';
-                charCtx.fillRect(0, 0, charCanvas.width, charCanvas.height);
-
-                charCtx.fillStyle = '#d4791f';
-                charCtx.font = 'bold 8vmin sans-serif';
-                charCtx.textAlign = 'center';
-                charCtx.textBaseline = 'middle';
-                charCtx.fillText('🔮', charCanvas.width / 2, charCanvas.height / 2);
-            },
-            
-            closeBuildingOverlay() {
-                document.getElementById('building-overlay').classList.remove('active');
-                this.currentBuilding = null;
-            },
-            
-            talkToNPC(npc) {
-                this.meetCharacters.add(npc.name);
-                this.saveData();
-                this.currentBuilding = { name: npc.name + 'の占い', xr: npc.x, yr: npc.y, emoji: npc.emoji, description: npc.name + '「占いをしてあげるよ！何でも聞いてね」' };
-                document.getElementById('building-name').textContent = npc.name;
-                document.getElementById('building-text').innerHTML = npc.name + '「占いをしてあげるよ！何でも聞いてね」';
-                this.drawBuildingInterior();
-                document.getElementById('building-overlay').classList.add('active');
-            },
-            
-            startFortune() {
-                this.closeBuildingOverlay();
-                this.fortuneStep = 0;
-                this.fortuneAnswers = {};
-                this.showFortuneStep();
-            },
-            
-            showFortuneStep() {
-                const overlayEl = document.getElementById('fortune-overlay');
-                const titleEl = document.getElementById('fortune-title');
-                const textEl = document.getElementById('fortune-text');
-                const choicesEl = document.getElementById('fortune-choices');
-                overlayEl.classList.add('active');
-                
-                if (this.fortuneStep === 0) {
-                    titleEl.textContent = '何が気になりますか？';
-                    textEl.innerHTML = '';
-                    choicesEl.innerHTML = '';
-                    for (const [key, label] of Object.entries(FORTUNE_CATEGORIES)) {
-                        const btn = document.createElement('button');
-                        btn.className = 'choice-btn';
-                        btn.textContent = label;
-                        btn.onclick = () => this.selectFortuneCategory(key);
-                        choicesEl.appendChild(btn);
-                    }
-                    this.fortuneStep = 1;
-                } else if (this.fortuneStep === 1) {
-                    const category = Object.keys(FORTUNE_CATEGORIES)[Object.values(FORTUNE_CATEGORIES).indexOf(this.fortuneAnswers.category)];
-                    titleEl.textContent = this.fortuneAnswers.category + 'について';
-                    textEl.textContent = FORTUNE_DETAILS[category][0] || 'お答えください';
-                    choicesEl.innerHTML = '';
-                    ['はい', 'いいえ', 'わかりません'].forEach(ans => {
-                        const btn = document.createElement('button');
-                        btn.className = 'choice-btn';
-                        btn.textContent = ans;
-                        btn.onclick = () => {
-                            this.fortuneAnswers.q1 = ans;
-                            this.fortuneStep = 2;
-                            this.showFortuneStep();
-                        };
-                        choicesEl.appendChild(btn);
-                    });
-                } else if (this.fortuneStep === 2) {
-                    const category = Object.keys(FORTUNE_CATEGORIES)[Object.values(FORTUNE_CATEGORIES).indexOf(this.fortuneAnswers.category)];
-                    titleEl.textContent = '最近あったことで一番印象に残っていることは？';
-                    textEl.innerHTML = '';
-                    choicesEl.innerHTML = '';
-                    RECENT_EVENTS[category].forEach(evt => {
-                        const btn = document.createElement('button');
-                        btn.className = 'choice-btn';
-                        btn.textContent = evt;
-                        btn.onclick = () => {
-                            this.fortuneAnswers.recentEvent = evt;
-                            this.fortuneStep = 3;
-                            this.showFortuneStep();
-                        };
-                        choicesEl.appendChild(btn);
-                    });
-                } else if (this.fortuneStep === 3) {
-                    titleEl.textContent = '今の気持ちに近いものは？';
-                    textEl.innerHTML = '';
-                    choicesEl.innerHTML = '';
-                    FEELINGS.forEach(feeling => {
-                        const btn = document.createElement('button');
-                        btn.className = 'choice-btn';
-                        btn.textContent = feeling;
-                        btn.onclick = () => {
-                            this.fortuneAnswers.feeling = feeling;
-                            this.fortuneStep = 4;
-                            this.showFortuneStep();
-                        };
-                        choicesEl.appendChild(btn);
-                    });
-                } else if (this.fortuneStep === 4) {
-                    titleEl.textContent = '直感で選んでください';
-                    textEl.textContent = 'あなたを引き寄せる色は？';
-                    choicesEl.innerHTML = '';
-                    COLOR_CHOICES.forEach(choice => {
-                        const btn = document.createElement('button');
-                        btn.className = 'color-choice-btn';
-                        btn.style.background = choice.color;
-                        btn.textContent = choice.name;
-                        btn.onclick = () => {
-                            this.fortuneAnswers.color = choice.name;
-                            this.fortuneStep = 5;
-                            this.showFortuneAnimation();
-                        };
-                        choicesEl.appendChild(btn);
-                    });
-                }
-            },
-            
-            selectFortuneCategory(key) {
-                this.fortuneAnswers.category = FORTUNE_CATEGORIES[key];
-                this.fortuneStep = 1;
-                this.showFortuneStep();
-            },
-            
-            showFortuneAnimation() {
-                document.getElementById('fortune-overlay').classList.remove('active');
-                for (let i = 0; i < 50; i++) {
-                    this.particles.push({
-                        x: 0.5 + (Math.random() - 0.5) * 0.2,
-                        y: 0.5 + (Math.random() - 0.5) * 0.2,
-                        vx: (Math.random() - 0.5) * 0.02,
-                        vy: (Math.random() - 0.5) * 0.02,
-                        life: 1
-                    });
-                }
-                setTimeout(() => this.generateFortuneResult(), 3000);
-            },
-            
-            generateFortuneResult() {
-                const category = this.fortuneAnswers.category;
-                const feeling = this.fortuneAnswers.feeling;
-                const color = this.fortuneAnswers.color;
-                const q1 = this.fortuneAnswers.q1;
-                const evt = this.fortuneAnswers.recentEvent;
-                
-                const baseTexts = {
-                    love: [
-                        '恋愛運は上昇中です。',
-                        'あなたの魅力が輝いています。',
-                        'パートナーとの絆が深まります。'
-                    ],
-                    work: [
-                        'あなたの才能は必ず認められます。',
-                        '新しいチャンスが訪れるでしょう。',
-                        'チームとの協力がカギです。'
-                    ],
-                    money: [
-                        '金運は着実に上昇しています。',
-                        'やりくり上手の時期に入ります。',
-                        'お金の流れが良い方向へ動きます。'
-                    ],
-                    health: [
-                        '心身のバランスが整う時期です。',
-                        'エネルギーが満ちてきています。',
-                        '健康運は良好です。'
-                    ],
-                    overall: [
-                        'あなたの人生は輝きを増します。',
-                        'すべてが好転する予感です。',
-                        '次のステップへの準備ができています。'
-                    ]
-                };
-                
-                const categoryKey = Object.keys(FORTUNE_CATEGORIES).find(k => FORTUNE_CATEGORIES[k] === category);
-                const resultText = baseTexts[categoryKey][Math.floor(Math.random() * 3)];
-                const fortuneLevel = FORTUNE_LEVELS[Math.floor(Math.random() * FORTUNE_LEVELS.length)];
-
-                let fullResult = `<div class="result-fortune">${fortuneLevel}</div>`;
-                fullResult += `<div class="result-fortune">${resultText}</div>`;
-                
-                fullResult += `<div class="result-section">`;
-                fullResult += `<strong>占い対象:</strong> ${category}<br>`;
-                fullResult += `<strong>あなたの色:</strong> ${color}<br>`;
-                fullResult += `<strong>現在の気持ち:</strong> ${feeling}<br>`;
-                fullResult += `<strong>最近の出来事:</strong> ${evt}`;
-                fullResult += `</div>`;
-                
-                if (this.profile.name) {
-                    fullResult += `<div class="result-section">`;
-                    fullResult += `<strong>${this.profile.name}さんへのメッセージ:</strong><br>`;
-                    fullResult += `あなたの${category}に関する運勢は、${feeling}という気持ちと${evt}という経験を通じて、`;
-                    fullResult += `より一層輝きを増すでしょう。${color}というあなたの色が、`;
-                    fullResult += `これからの道を照らしていきます。`;
-                    fullResult += `</div>`;
-                }
-                
-                const historyEntry = {
-                    date: new Date().toLocaleDateString('ja-JP'),
-                    category: category,
-                    result: resultText,
-                    level: fortuneLevel
-                };
-                this.fortuneHistory.push(historyEntry);
-                this.saveData();
-                
-                document.getElementById('result-title').textContent = '占いの結果';
-                document.getElementById('result-content').innerHTML = fullResult;
-                document.getElementById('result-overlay').classList.add('active');
-            },
-            
-            closeResultOverlay() {
-                document.getElementById('result-overlay').classList.remove('active');
-            },
-            
-            showZukan() {
-                const content = Array.from(this.meetCharacters).map(name => `<div>✓ ${name}</div>`).join('');
-                const total = AREAS.reduce((sum, area) => sum + area.npcs.length, 0);
-                document.getElementById('collection-content').innerHTML = `<div style="margin-bottom: 1.5vmin; font-weight: bold;">出会った数: ${this.meetCharacters.size}/${total}</div>` + (content || '<div>まだ誰にも出会っていません</div>');
-                document.getElementById('collection-overlay').classList.add('active');
-            },
-            
-            closeCollectionOverlay() {
-                document.getElementById('collection-overlay').classList.remove('active');
-            },
-            
-            showHistory() {
-                const content = this.fortuneHistory.length > 0 ?
-                    this.fortuneHistory.slice().reverse().map((h, i) =>
-                        `<div style="margin-bottom: 1.5vmin; padding: 1vmin; background: #f5f5f5; border-radius: 0.5vmin;">
-                            <div><strong>${h.date}</strong> ${h.level}</div>
-                            <div>${h.category}: ${h.result}</div>
-                        </div>`
-                    ).join('') :
-                    '<div>占い履歴がありません</div>';
-                document.getElementById('history-content').innerHTML = content;
-                document.getElementById('history-overlay').classList.add('active');
-            },
-            
-            closeHistoryOverlay() {
-                document.getElementById('history-overlay').classList.remove('active');
-            },
-            
-            changeProfile() {
-                this.gameRunning = false;
-                document.getElementById('game-screen').classList.remove('active');
-                document.getElementById('profile-screen').classList.add('active');
-                document.getElementById('profile-name').value = this.profile.name || '';
-                document.getElementById('profile-birthdate').value = this.profile.birthdate || '';
-                document.getElementById('profile-blood').value = this.profile.blood || '';
-            },
-            
-            backToTitle() {
-                this.gameRunning = false;
-                const screens = document.querySelectorAll('.screen');
-                screens.forEach(s => s.classList.remove('active'));
-                document.getElementById('title-screen').classList.add('active');
-                const overlays = document.querySelectorAll('.overlay');
-                overlays.forEach(o => o.classList.remove('active'));
-            },
-            
-            prevArea() {
-                this.currentArea = (this.currentArea - 1 + AREAS.length) % AREAS.length;
-                this.updateAreaName();
-            },
-            
-            nextArea() {
-                this.currentArea = (this.currentArea + 1) % AREAS.length;
-                this.updateAreaName();
-            },
-            
-            updateAreaName() {
-                document.getElementById('area-name').textContent = AREAS[this.currentArea].name;
-            },
-            
-            initAudio() {
-                try {
-                    this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                } catch (e) {
-                    console.log('Audio not supported');
-                }
-            },
-            
-            playBGM() {
-                if (!this.audioCtx || this.bgmPlaying) return;
-                this.bgmPlaying = true;
-            }
+        // NPC definitions
+        const npcDefinitions = {
+            shiba1: { name: '柴太郎', emoji: '🐕', color: '#d4791f' },
+            shiba2: { name: '柴花子', emoji: '🐕', color: '#d4791f' },
+            cat1: { name: 'みーこ', emoji: '🐱', color: '#ffa500' },
+            cat2: { name: 'たまちゃん', emoji: '🐱', color: '#ffa500' },
+            rabbit: { name: 'ウサ助', emoji: '🐰', color: '#ffb6c1' },
+            fox: { name: 'キツネ子', emoji: '🦊', color: '#ff8c00' },
+            owl: { name: 'フクロウ博士', emoji: '🦉', color: '#8b6914' },
+            frog: { name: 'カエル君', emoji: '🐸', color: '#90ee90' },
+            squirrel: { name: 'リスちゃん', emoji: '🐿️', color: '#cd7f32' },
+            butterfly: { name: '蝶々さん', emoji: '🦋', color: '#ff69b4' }
         };
-        
-        // Initialize on load
-        window.addEventListener('DOMContentLoaded', () => G.init());
+
+        // Fortune data
+        const fortuneQuestions = [
+            {
+                question: 'あなたの今の気持ちは？',
+                options: ['楽しい', 'ワクワク', 'リラックス', 'チャレンジ中']
+            },
+            {
+                question: 'これからやりたいことは？',
+                options: ['新しいこと', '深める', 'つながり', 'リセット']
+            },
+            {
+                question: 'どんな1日を過ごしたい？',
+                options: ['アクティブ', 'まったり', 'クリエイティブ', 'バランス']
+            },
+            {
+                question: '人間関係で大切なことは？',
+                options: ['楽しさ', '信頼', 'サポート', '自由']
+            },
+            {
+                question: 'あなたの強みは？',
+                options: ['優しさ', 'がんばり', '创造性', 'センス']
+            }
+        ];
+
+        const fortuneLevels = ['大吉', '吉', '中吉', '小吉', '末吉', '凶'];
+        const luckyFoods = ['みかん', 'チーズ', 'はちみつ', 'わかめ', 'しいたけ', 'トマト', 'そば', 'きのこ'];
+        const luckyColors = ['赤', '金', '青', '緑', 'ピンク', '紫', 'オレンジ', '白'];
+        const luckyDirections = ['東', '西', '南', '北', '北東', '南東', '南西', '北西'];
+        const bloodTypes = ['A型', 'B型', 'AB型', 'O型'];
+        const zodiacSigns = ['牡羊座', '牡牛座', '双子座', '蟹座', '獅子座', '乙女座', '天秤座', '蠍座', '射手座', '山羊座', '水瓶座', '魚座'];
+
+        // Canvas Drawing Functions
+        function drawShibaInu(ctx, x, y, scale = 1, legState = 0, tailWag = 0, alpha = 1) {
+            ctx.save();
+            ctx.globalAlpha = alpha;
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
+
+            // Body
+            ctx.fillStyle = '#d4791f';
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 25, 35, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Head
+            ctx.beginPath();
+            ctx.arc(0, -30, 20, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Left ear
+            ctx.beginPath();
+            ctx.ellipse(-12, -45, 7, 12, -0.3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Right ear
+            ctx.beginPath();
+            ctx.ellipse(12, -45, 7, 12, 0.3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Snout
+            ctx.fillStyle = '#f5deb3';
+            ctx.beginPath();
+            ctx.ellipse(0, -25, 12, 10, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Eyes
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(-7, -33, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(7, -33, 3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Nose
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(0, -24, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Tail (wagging animation)
+            ctx.strokeStyle = '#d4791f';
+            ctx.lineWidth = 8;
+            ctx.lineCap = 'round';
+            const tailAngle = (Math.sin(tailWag) * 0.5);
+            ctx.beginPath();
+            ctx.moveTo(20, 10);
+            ctx.quadraticCurveTo(35 + tailAngle * 10, 5 + tailAngle * 5, 40, -5);
+            ctx.stroke();
+
+            // Front left leg
+            ctx.strokeStyle = '#d4791f';
+            ctx.lineWidth = 6;
+            ctx.lineCap = 'round';
+            const legOffset = Math.sin(legState) * 3;
+            ctx.beginPath();
+            ctx.moveTo(-10, 28);
+            ctx.lineTo(-10, 42 + legOffset);
+            ctx.stroke();
+
+            // Front right leg
+            ctx.beginPath();
+            ctx.moveTo(10, 28);
+            ctx.lineTo(10, 42 - legOffset);
+            ctx.stroke();
+
+            // Back left leg
+            ctx.beginPath();
+            ctx.moveTo(-18, 25);
+            ctx.lineTo(-18, 40 - legOffset);
+            ctx.stroke();
+
+            // Back right leg
+            ctx.beginPath();
+            ctx.moveTo(18, 25);
+            ctx.lineTo(18, 40 + legOffset);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function drawBuilding(ctx, building, x, y, width, height) {
+            ctx.save();
+
+            switch (building.id) {
+                case 'shrine':
+                    drawShrine(ctx, x, y, width, height);
+                    break;
+                case 'crystal':
+                    drawCrystalPalace(ctx, x, y, width, height);
+                    break;
+                case 'fortune':
+                    drawFortuneMansion(ctx, x, y, width, height);
+                    break;
+                case 'teashop':
+                    drawTeaShop(ctx, x, y, width, height);
+                    break;
+                case 'mysteryroad':
+                    drawMysteryRoad(ctx, x, y, width, height);
+                    break;
+                case 'temple':
+                    drawOldTemple(ctx, x, y, width, height);
+                    break;
+                case 'lighthouse':
+                    drawLighthouse(ctx, x, y, width, height);
+                    break;
+                case 'seashell':
+                    drawShellHouse(ctx, x, y, width, height);
+                    break;
+                case 'seagrotto':
+                    drawSeaGrotto(ctx, x, y, width, height);
+                    break;
+                case 'treehouse':
+                    drawTreeHouse(ctx, x, y, width, height);
+                    break;
+                case 'mushroom':
+                    drawMushroomHouse(ctx, x, y, width, height);
+                    break;
+                case 'magicwell':
+                    drawMagicWell(ctx, x, y, width, height);
+                    break;
+                case 'pavilion':
+                    drawPavilion(ctx, x, y, width, height);
+                    break;
+                case 'gallery':
+                    drawArtGallery(ctx, x, y, width, height);
+                    break;
+                case 'fountain':
+                    drawFountain(ctx, x, y, width, height);
+                    break;
+                case 'castle':
+                    drawCastle(ctx, x, y, width, height);
+                    break;
+                case 'skypalace':
+                    drawSkyPalace(ctx, x, y, width, height);
+                    break;
+                case 'cloudtemple':
+                    drawCloudTemple(ctx, x, y, width, height);
+                    break;
+            }
+
+            ctx.restore();
+        }
+
+        function drawShrine(ctx, x, y, w, h) {
+            // Roof
+            ctx.fillStyle = '#c41e3a';
+            ctx.beginPath();
+            ctx.moveTo(x, y + h * 0.4);
+            ctx.lineTo(x + w / 2, y);
+            ctx.lineTo(x + w, y + h * 0.4);
+            ctx.lineTo(x + w, y + h * 0.5);
+            ctx.lineTo(x, y + h * 0.5);
+            ctx.closePath();
+            ctx.fill();
+
+            // Main building
+            ctx.fillStyle = '#d4a574';
+            ctx.fillRect(x + w * 0.1, y + h * 0.4, w * 0.8, h * 0.45);
+
+            // Door
+            ctx.fillStyle = '#8b4513';
+            ctx.fillRect(x + w * 0.35, y + h * 0.55, w * 0.3, h * 0.25);
+
+            // Window
+            ctx.fillStyle = '#87ceeb';
+            ctx.fillRect(x + w * 0.2, y + h * 0.5, w * 0.15, h * 0.15);
+            ctx.fillRect(x + w * 0.65, y + h * 0.5, w * 0.15, h * 0.15);
+
+            // Entrance torii mark
+            ctx.strokeStyle = '#c41e3a';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(x + w * 0.3, y + h);
+            ctx.lineTo(x + w * 0.3, y + h * 0.8);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x + w * 0.7, y + h);
+            ctx.lineTo(x + w * 0.7, y + h * 0.8);
+            ctx.stroke();
+        }
+
+        function drawCrystalPalace(ctx, x, y, w, h) {
+            // Crystal shimmer effect
+            ctx.fillStyle = '#e0ffff';
+            ctx.beginPath();
+            ctx.moveTo(x + w / 2, y);
+            ctx.lineTo(x + w, y + h * 0.5);
+            ctx.lineTo(x + w / 2, y + h);
+            ctx.lineTo(x, y + h * 0.5);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.strokeStyle = '#87ceeb';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Inner crystal
+            ctx.fillStyle = '#b0e0e6';
+            ctx.beginPath();
+            ctx.moveTo(x + w / 2, y + h * 0.2);
+            ctx.lineTo(x + w * 0.75, y + h * 0.5);
+            ctx.lineTo(x + w / 2, y + h * 0.8);
+            ctx.lineTo(x + w * 0.25, y + h * 0.5);
+            ctx.closePath();
+            ctx.fill();
+
+            // Sparkles
+            ctx.fillStyle = '#ffffff';
+            for (let i = 0; i < 3; i++) {
+                ctx.beginPath();
+                ctx.arc(x + w * (0.3 + i * 0.2), y + h * 0.5, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawFortuneMansion(ctx, x, y, w, h) {
+            // Walls
+            ctx.fillStyle = '#d4a574';
+            ctx.fillRect(x + w * 0.05, y + h * 0.2, w * 0.9, h * 0.7);
+
+            // Roof
+            ctx.fillStyle = '#8b6f47';
+            ctx.beginPath();
+            ctx.moveTo(x, y + h * 0.2);
+            ctx.lineTo(x + w / 2, y);
+            ctx.lineTo(x + w, y + h * 0.2);
+            ctx.lineTo(x + w, y + h * 0.25);
+            ctx.lineTo(x, y + h * 0.25);
+            ctx.closePath();
+            ctx.fill();
+
+            // Chimney
+            ctx.fillStyle = '#a0826d';
+            ctx.fillRect(x + w * 0.75, y + h * 0.05, w * 0.08, h * 0.3);
+
+            // Door
+            ctx.fillStyle = '#654321';
+            ctx.fillRect(x + w * 0.4, y + h * 0.55, w * 0.2, h * 0.35);
+
+            // Windows
+            for (let i = 0; i < 2; i++) {
+                ctx.fillStyle = '#87ceeb';
+                ctx.fillRect(x + w * (0.15 + i * 0.5), y + h * 0.35, w * 0.12, h * 0.12);
+            }
+
+            // Door handle
+            ctx.fillStyle = '#ffd700';
+            ctx.beginPath();
+            ctx.arc(x + w * 0.55, y + h * 0.7, w * 0.02, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawTeaShop(ctx, x, y, w, h) {
+            ctx.fillStyle = '#8b4513';
+            ctx.fillRect(x + w * 0.1, y + h * 0.25, w * 0.8, h * 0.65);
+            ctx.fillStyle = '#d2b48c';
+            ctx.fillRect(x + w * 0.15, y + h * 0.3, w * 0.7, h * 0.3);
+            ctx.fillStyle = '#87ceeb';
+            ctx.fillRect(x + w * 0.2, y + h * 0.35, w * 0.15, h * 0.12);
+            ctx.fillRect(x + w * 0.65, y + h * 0.35, w * 0.15, h * 0.12);
+            ctx.fillStyle = '#654321';
+            ctx.fillRect(x + w * 0.4, y + h * 0.6, w * 0.2, h * 0.3);
+        }
+
+        function drawMysteryRoad(ctx, x, y, w, h) {
+            ctx.fillStyle = '#4b0082';
+            ctx.beginPath();
+            ctx.moveTo(x + w / 2, y);
+            ctx.lineTo(x + w, y + h * 0.4);
+            ctx.lineTo(x + w * 0.8, y + h);
+            ctx.lineTo(x + w * 0.2, y + h);
+            ctx.lineTo(x, y + h * 0.4);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.fillStyle = '#9370db';
+            for (let i = 0; i < 3; i++) {
+                ctx.beginPath();
+                ctx.arc(x + w * (0.3 + i * 0.2), y + h * (0.2 + i * 0.15), 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawOldTemple(ctx, x, y, w, h) {
+            ctx.fillStyle = '#cd853f';
+            ctx.fillRect(x + w * 0.1, y + h * 0.3, w * 0.8, h * 0.6);
+            ctx.fillStyle = '#8b4513';
+            ctx.beginPath();
+            ctx.moveTo(x, y + h * 0.3);
+            ctx.lineTo(x + w / 2, y + h * 0.05);
+            ctx.lineTo(x + w, y + h * 0.3);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.fillStyle = '#654321';
+            ctx.fillRect(x + w * 0.35, y + h * 0.55, w * 0.3, h * 0.35);
+            ctx.fillStyle = '#87ceeb';
+            ctx.fillRect(x + w * 0.15, y + h * 0.4, w * 0.12, h * 0.15);
+            ctx.fillRect(x + w * 0.73, y + h * 0.4, w * 0.12, h * 0.15);
+        }
+
+        function drawLighthouse(ctx, x, y, w, h) {
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(x + w * 0.3, y + h * 0.2, w * 0.4, h * 0.7);
+            ctx.fillStyle = '#ff6347';
+            ctx.fillRect(x + w * 0.25, y + h * 0.1, w * 0.5, h * 0.15);
+            ctx.fillStyle = '#ffd700';
+            ctx.beginPath();
+            ctx.arc(x + w / 2, y + h * 0.12, w * 0.08, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawShellHouse(ctx, x, y, w, h) {
+            ctx.fillStyle = '#deb887';
+            ctx.beginPath();
+            ctx.arc(x + w / 2, y + h * 0.4, w * 0.35, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#d2b48c';
+            ctx.fillRect(x + w * 0.35, y + h * 0.6, w * 0.3, h * 0.3);
+            ctx.fillStyle = '#87ceeb';
+            ctx.fillRect(x + w * 0.42, y + h * 0.68, w * 0.16, h * 0.12);
+        }
+
+        function drawSeaGrotto(ctx, x, y, w, h) {
+            ctx.fillStyle = '#696969';
+            ctx.beginPath();
+            ctx.arc(x + w / 2, y + h * 0.4, w * 0.4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#87ceeb';
+            ctx.fillRect(x + w * 0.2, y + h * 0.5, w * 0.6, h * 0.4);
+        }
+
+        function drawTreeHouse(ctx, x, y, w, h) {
+            ctx.fillStyle = '#8b4513';
+            ctx.fillRect(x + w * 0.35, y + h * 0.1, w * 0.3, h * 0.8);
+            ctx.fillStyle = '#228b22';
+            ctx.beginPath();
+            ctx.arc(x + w / 2, y + h * 0.15, w * 0.3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#daa520';
+            ctx.fillRect(x + w * 0.3, y + h * 0.4, w * 0.4, h * 0.35);
+        }
+
+        function drawMushroomHouse(ctx, x, y, w, h) {
+            ctx.fillStyle = '#ff6347';
+            ctx.beginPath();
+            ctx.arc(x + w / 2, y + h * 0.3, w * 0.35, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#f5deb3';
+            ctx.fillRect(x + w * 0.15, y + h * 0.4, w * 0.7, h * 0.5);
+            
+            for (let i = 0; i < 3; i++) {
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(x + w * (0.25 + i * 0.25), y + h * 0.35, 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawMagicWell(ctx, x, y, w, h) {
+            ctx.fillStyle = '#696969';
+            ctx.beginPath();
+            ctx.arc(x + w / 2, y + h * 0.5, w * 0.35, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#4b0082';
+            ctx.beginPath();
+            ctx.arc(x + w / 2, y + h * 0.5, w * 0.25, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#87ceeb';
+            for (let i = 0; i < 3; i++) {
+                ctx.beginPath();
+                ctx.arc(x + w * (0.3 + i * 0.2), y + h * 0.5, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawPavilion(ctx, x, y, w, h) {
+            ctx.strokeStyle = '#8b4513';
+            ctx.lineWidth = 6;
+            ctx.strokeRect(x + w * 0.2, y + h * 0.3, w * 0.6, h * 0.5);
+            ctx.fillStyle = '#ffd700';
+            ctx.beginPath();
+            ctx.moveTo(x + w * 0.2, y + h * 0.3);
+            ctx.lineTo(x + w * 0.5, y + h * 0.05);
+            ctx.lineTo(x + w * 0.8, y + h * 0.3);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawArtGallery(ctx, x, y, w, h) {
+            ctx.fillStyle = '#d3d3d3';
+            ctx.fillRect(x + w * 0.05, y + h * 0.2, w * 0.9, h * 0.7);
+            ctx.fillStyle = '#ff69b4';
+            ctx.fillRect(x + w * 0.15, y + h * 0.3, w * 0.15, h * 0.2);
+            ctx.fillStyle = '#4169e1';
+            ctx.fillRect(x + w * 0.35, y + h * 0.35, w * 0.15, h * 0.2);
+            ctx.fillStyle = '#228b22';
+            ctx.fillRect(x + w * 0.55, y + h * 0.3, w * 0.15, h * 0.2);
+            ctx.fillStyle = '#ff8c00';
+            ctx.fillRect(x + w * 0.75, y + h * 0.35, w * 0.15, h * 0.2);
+        }
+
+        function drawFountain(ctx, x, y, w, h) {
+            ctx.fillStyle = '#87ceeb';
+            ctx.beginPath();
+            ctx.arc(x + w / 2, y + h * 0.5, w * 0.3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#696969';
+            ctx.beginPath();
+            ctx.arc(x + w / 2, y + h * 0.35, w * 0.15, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#87ceeb';
+            for (let i = 0; i < 4; i++) {
+                ctx.beginPath();
+                ctx.arc(x + w / 2 + Math.cos(i * Math.PI / 2) * w * 0.2, y + h * (0.3 + Math.sin(i * Math.PI / 2) * 0.15), 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawCastle(ctx, x, y, w, h) {
+            ctx.fillStyle = '#dcdcdc';
+            ctx.fillRect(x + w * 0.1, y + h * 0.3, w * 0.8, h * 0.6);
+            ctx.fillStyle = '#696969';
+            for (let i = 0; i < 4; i++) {
+                ctx.fillRect(x + w * (0.15 + i * 0.2), y + h * 0.1, w * 0.08, h * 0.25);
+            }
+            ctx.fillStyle = '#4169e1';
+            ctx.fillRect(x + w * 0.4, y + h * 0.6, w * 0.2, h * 0.3);
+        }
+
+        function drawSkyPalace(ctx, x, y, w, h) {
+            ctx.fillStyle = '#fff8dc';
+            ctx.beginPath();
+            ctx.moveTo(x, y + h * 0.3);
+            ctx.lineTo(x + w / 2, y);
+            ctx.lineTo(x + w, y + h * 0.3);
+            ctx.lineTo(x + w, y + h);
+            ctx.lineTo(x, y + h);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.fillStyle = '#ffd700';
+            ctx.fillRect(x + w * 0.2, y + h * 0.35, w * 0.12, h * 0.15);
+            ctx.fillRect(x + w * 0.68, y + h * 0.35, w * 0.12, h * 0.15);
+        }
+
+        function drawCloudTemple(ctx, x, y, w, h) {
+            ctx.fillStyle = '#fffacd';
+            ctx.beginPath();
+            ctx.arc(x + w * 0.25, y + h * 0.4, w * 0.2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + w * 0.75, y + h * 0.4, w * 0.2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#deb887';
+            ctx.fillRect(x + w * 0.35, y + h * 0.45, w * 0.3, h * 0.4);
+            ctx.fillStyle = '#8b4513';
+            ctx.fillRect(x + w * 0.42, y + h * 0.6, w * 0.16, h * 0.25);
+        }
+
+        function drawNPC(ctx, npcId, x, y, scale = 1) {
+            const npc = npcDefinitions[npcId];
+            if (!npc) return;
+
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
+
+            if (npcId.startsWith('shiba')) {
+                drawShibaInu(ctx, 0, 0, 0.8, state.time * 0.1, state.time * 0.15);
+            } else if (npcId.startsWith('cat')) {
+                drawCat(ctx);
+            } else if (npcId === 'rabbit') {
+                drawRabbit(ctx);
+            } else if (npcId === 'fox') {
+                drawFox(ctx);
+            } else if (npcId === 'owl') {
+                drawOwl(ctx);
+            } else if (npcId === 'frog') {
+                drawFrog(ctx);
+            } else if (npcId === 'squirrel') {
+                drawSquirrel(ctx);
+            } else if (npcId === 'butterfly') {
+                drawButterfly(ctx);
+            } else {
+                ctx.fillStyle = npc.color;
+                ctx.font = 'bold 20px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(npc.emoji, 0, 8);
+            }
+
+            ctx.restore();
+        }
+
+        function drawCat(ctx) {
+            ctx.fillStyle = '#ffa500';
+            ctx.beginPath();
+            ctx.ellipse(0, 5, 18, 22, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(0, -20, 15, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#fff8dc';
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 10, 12, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffa500';
+            ctx.beginPath();
+            ctx.moveTo(-8, -30);
+            ctx.lineTo(-12, -40);
+            ctx.lineTo(-5, -28);
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(8, -30);
+            ctx.lineTo(12, -40);
+            ctx.lineTo(5, -28);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(-5, 0);
+            ctx.lineTo(-12, 0);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(5, 0);
+            ctx.lineTo(12, 0);
+            ctx.stroke();
+
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(-6, -20, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(6, -20, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(0, -18, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawRabbit(ctx) {
+            ctx.fillStyle = '#ffb6c1';
+            ctx.beginPath();
+            ctx.ellipse(0, 5, 16, 20, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(0, -18, 14, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffc0cb';
+            ctx.beginPath();
+            ctx.ellipse(-6, -40, 4, 14, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(6, -40, 4, 14, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ff69b4';
+            ctx.beginPath();
+            ctx.ellipse(-6, -38, 2.5, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(6, -38, 2.5, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(-5, -18, 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(5, -18, 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffb6c1';
+            ctx.beginPath();
+            ctx.arc(0, 0, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawFox(ctx) {
+            ctx.fillStyle = '#ff8c00';
+            ctx.beginPath();
+            ctx.ellipse(0, 5, 18, 24, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(0, -20, 16, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ff8c00';
+            ctx.beginPath();
+            ctx.moveTo(-10, -30);
+            ctx.lineTo(-14, -38);
+            ctx.lineTo(-6, -28);
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(10, -30);
+            ctx.lineTo(14, -38);
+            ctx.lineTo(6, -28);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.ellipse(0, -5, 8, 10, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(-6, -18, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(6, -18, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(0, -15);
+            ctx.lineTo(0, -5);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#ff8c00';
+            ctx.lineWidth = 10;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(20, 10);
+            ctx.quadraticCurveTo(35, 5, 40, -8);
+            ctx.stroke();
+        }
+
+        function drawOwl(ctx) {
+            ctx.fillStyle = '#8b6914';
+            ctx.beginPath();
+            ctx.arc(0, 0, 18, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(-7, -5, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(7, -5, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(-7, -5, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(7, -5, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#8b6914';
+            ctx.beginPath();
+            ctx.moveTo(-8, -18);
+            ctx.lineTo(-12, -25);
+            ctx.lineTo(-4, -18);
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(8, -18);
+            ctx.lineTo(12, -25);
+            ctx.lineTo(4, -18);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = '#fff8dc';
+            ctx.beginPath();
+            ctx.arc(0, 8, 6, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawFrog(ctx) {
+            ctx.fillStyle = '#90ee90';
+            ctx.beginPath();
+            ctx.ellipse(0, 5, 16, 18, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#90ee90';
+            ctx.beginPath();
+            ctx.arc(-8, -10, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(8, -10, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(-8, -12, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(8, -12, 3, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#228b22';
+            for (let i = -1; i <= 1; i++) {
+                ctx.beginPath();
+                ctx.arc(-12 + i * 8, 15, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawSquirrel(ctx) {
+            ctx.fillStyle = '#cd7f32';
+            ctx.beginPath();
+            ctx.ellipse(0, 5, 14, 18, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(0, -16, 12, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#cd7f32';
+            ctx.strokeStyle = '#cd7f32';
+            ctx.lineWidth = 10;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(12, -5);
+            ctx.quadraticCurveTo(25, -15, 22, -28);
+            ctx.stroke();
+
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(-4, -16, 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(4, -16, 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawButterfly(ctx) {
+            ctx.fillStyle = '#ff69b4';
+            ctx.beginPath();
+            ctx.ellipse(-8, 0, 6, 10, -0.3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(8, 0, 6, 10, 0.3, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffb6c1';
+            ctx.beginPath();
+            ctx.ellipse(-8, 0, 3, 6, -0.3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(8, 0, 3, 6, 0.3, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(0, -5, 3, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(-1, -5);
+            ctx.lineTo(-3, -10);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(1, -5);
+            ctx.lineTo(3, -10);
+            ctx.stroke();
+        }
+
+        // Scene and animation functions
+        function drawGameScene(canvas, ctx) {
+            const w = canvas.width;
+            const h = canvas.height;
+            const currentArea = areas[state.currentAreaIndex];
+
+            // Background with sky and ground
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, h);
+            skyGradient.addColorStop(0, '#d4e8f0');
+            skyGradient.addColorStop(0.6, '#e8f4f8');
+            skyGradient.addColorStop(1, '#c9dfe8');
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, w, h);
+
+            // Ground
+            ctx.fillStyle = '#a8a87a';
+            ctx.fillRect(0, h * 0.7, w, h * 0.3);
+
+            // Grass
+            ctx.fillStyle = '#7cb342';
+            for (let i = 0; i < w; i += 30) {
+                for (let j = 0; j < 20; j += 3) {
+                    ctx.fillRect(i + Math.sin(j) * 5, h * 0.68 + j * 2, 8, 4);
+                }
+            }
+
+            // Clouds (drifting animation)
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            const cloudOffset = (state.time * 0.5) % w;
+            for (let i = 0; i < 3; i++) {
+                drawCloud(ctx, (i * w / 3 + cloudOffset) % w, h * 0.15 + i * 40, 40);
+            }
+
+            // Area-specific ambient effects
+            if (state.currentAreaIndex === 0) { // 星読みの丘
+                drawStars(ctx, w, h);
+            } else if (state.currentAreaIndex === 1) { // 占い村
+                drawCherryBlossoms(ctx, w, h);
+            } else if (state.currentAreaIndex === 2) { // 海辺
+                drawWaterRipples(ctx, w, h);
+            } else if (state.currentAreaIndex === 3) { // 魔法の森
+                drawSparkles(ctx, w, h);
+            } else if (state.currentAreaIndex === 4) { // 花咲く庭園
+                drawFlowers(ctx, w, h);
+            } else if (state.currentAreaIndex === 5) { // 雲の上
+                drawClouds(ctx, w, h);
+            }
+
+            // Draw buildings
+            for (const building of currentArea.buildings) {
+                const buildingSize = { w: 90, h: 100 };
+                drawBuilding(ctx, building, building.x - buildingSize.w / 2, building.y - buildingSize.h / 2, buildingSize.w, buildingSize.h);
+
+                // Interactive highlight
+                const dist = Math.hypot(state.playerX - building.x, state.playerY - building.y);
+                if (dist < 80) {
+                    ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(building.x - 50, building.y - 60, 100, 120);
+                }
+            }
+
+            // Draw NPCs (stationary in buildings)
+            for (const building of currentArea.buildings) {
+                for (const npcId of building.npcSpawns) {
+                    const offsetX = (Math.random() - 0.5) * 40;
+                    const offsetY = (Math.random() - 0.5) * 20;
+                    drawNPC(ctx, npcId, building.x + offsetX, building.y + 20 + offsetY, 0.8);
+                }
+            }
+
+            // Draw player
+            drawShibaInu(ctx, state.playerX, state.playerY, 1.2, state.playerLegState, state.playerTailWag);
+
+            // Touch feedback effect
+            if (state.lastTapX && state.time - state.lastTapTime < 0.2) {
+                ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
+                const radius = 10 + (state.time - state.lastTapTime) * 100;
+                ctx.beginPath();
+                ctx.arc(state.lastTapX, state.lastTapY, radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Footstep dust when walking
+            if (state.playerWalking) {
+                ctx.fillStyle = 'rgba(150, 130, 100, 0.3)';
+                ctx.beginPath();
+                ctx.arc(state.playerX + Math.random() * 20 - 10, state.playerY + 35, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(state.playerX + Math.random() * 20 - 10, state.playerY + 35, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawCloud(ctx, x, y, size) {
+            ctx.beginPath();
+            ctx.arc(x, y, size * 0.5, 0, Math.PI * 2);
+            ctx.arc(x + size * 0.4, y, size * 0.6, 0, Math.PI * 2);
+            ctx.arc(x + size * 0.8, y, size * 0.5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawStars(ctx, w, h) {
+            ctx.fillStyle = '#ffffff';
+            for (let i = 0; i < 20; i++) {
+                const x = (Math.sin(i + state.time * 0.02) * w * 0.4 + w / 2);
+                const y = (Math.cos(i + state.time * 0.02) * h * 0.2 + h * 0.15);
+                ctx.beginPath();
+                ctx.arc(x, y, 2 + Math.sin(state.time * 0.05 + i) * 1.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawCherryBlossoms(ctx, w, h) {
+            ctx.fillStyle = 'rgba(255, 192, 203, 0.6)';
+            for (let i = 0; i < 15; i++) {
+                const x = (Math.sin(i + state.time * 0.01) * w * 0.4 + w / 2);
+                const y = (i * h / 15 + state.time * 20) % h;
+                for (let j = 0; j < 5; j++) {
+                    ctx.beginPath();
+                    ctx.arc(x + Math.cos(j * Math.PI / 2.5) * 3, y + Math.sin(j * Math.PI / 2.5) * 3, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+
+        function drawWaterRipples(ctx, w, h) {
+            ctx.strokeStyle = 'rgba(135, 206, 235, 0.4)';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 5; i++) {
+                const radius = (state.time * 30 + i * 20) % (w / 2);
+                ctx.beginPath();
+                ctx.arc(w / 2, h * 0.75, radius, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+
+        function drawSparkles(ctx, w, h) {
+            ctx.fillStyle = '#ffffff';
+            for (let i = 0; i < 25; i++) {
+                const x = (Math.sin(i + state.time * 0.03) * w * 0.4 + w / 2);
+                const y = (Math.cos(i * 0.7 + state.time * 0.02) * h * 0.3 + h * 0.35);
+                const alpha = 0.5 + Math.sin(state.time * 0.1 + i) * 0.5;
+                ctx.globalAlpha = alpha;
+                ctx.beginPath();
+                ctx.arc(x, y, 2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        function drawFlowers(ctx, w, h) {
+            ctx.fillStyle = '#ff69b4';
+            for (let i = 0; i < 20; i++) {
+                const x = (i % 5) * (w / 5) + 30;
+                const y = Math.floor(i / 5) * 40 + h * 0.6 + Math.sin(state.time * 0.05 + i) * 5;
+                for (let j = 0; j < 5; j++) {
+                    ctx.beginPath();
+                    ctx.arc(x + Math.cos(j * Math.PI / 2.5) * 6, y + Math.sin(j * Math.PI / 2.5) * 6, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.fillStyle = '#ffff00';
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#ff69b4';
+            }
+        }
+
+        function drawClouds(ctx, w, h) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            for (let i = 0; i < 8; i++) {
+                drawCloud(ctx, (i * w / 4 + state.time * 15) % w, 20 + i * 40, 60);
+            }
+        }
+
+        // Game loop
+        function gameLoop() {
+            const canvas = document.getElementById('gcanvas');
+            if (!canvas || !state.currentScreen === 'game') {
+                requestAnimationFrame(gameLoop);
+                return;
+            }
+
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+
+            const ctx = canvas.getContext('2d');
+
+            state.time += 0.016;
+            state.playerLegState += 0.15;
+            state.playerTailWag += 0.1;
+
+            // Player movement
+            if (state.playerWalking) {
+                const dx = state.playerTargetX - state.playerX;
+                const dy = state.playerTargetY - state.playerY;
+                const dist = Math.hypot(dx, dy);
+
+                if (dist < 5) {
+                    state.playerWalking = false;
+                } else {
+                    const speed = 3;
+                    state.playerX += (dx / dist) * speed;
+                    state.playerY += (dy / dist) * speed;
+                }
+            }
+
+            drawGameScene(canvas, ctx);
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Screen navigation
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId + '-screen').classList.add('active');
+            state.currentScreen = screenId;
+
+            if (screenId === 'game') {
+                setTimeout(gameLoop, 100);
+            }
+        }
+
+        function goToProfile() {
+            showScreen('profile');
+        }
+
+        function startGame() {
+            const name = document.getElementById('userName').value || 'ゲスト';
+            const gender = document.getElementById('userGender').value;
+            const birthday = document.getElementById('userBirthday').value;
+            const blood = document.getElementById('userBloodType').value;
+            const zodiac = document.getElementById('userZodiac').value;
+
+            if (!blood || !zodiac) {
+                alert('血液型と星座を選んでください');
+                return;
+            }
+
+            state.playerName = name;
+            state.playerGender = gender;
+            state.playerBirthday = birthday;
+            state.playerBloodType = blood;
+            state.playerZodiac = zodiac;
+
+            document.getElementById('player-name').textContent = name;
+            document.getElementById('player-blood').textContent = blood;
+
+            // Initialize player position
+            state.playerX = document.getElementById('gcanvas').width / 2;
+            state.playerY = document.getElementById('gcanvas').height * 0.6;
+            state.playerTargetX = state.playerX;
+            state.playerTargetY = state.playerY;
+
+            showScreen('game');
+        }
+
+        function goToTitle() {
+            if (confirm('本当に終了しますか？')) {
+                showScreen('title');
+            }
+        }
+
+        function changeArea(direction) {
+            state.currentAreaIndex = (state.currentAreaIndex + direction + areas.length) % areas.length;
+            updateAreaDisplay();
+        }
+
+        function updateAreaDisplay() {
+            const areaName = areas[state.currentAreaIndex].name;
+            document.getElementById('area-name').textContent = areaName;
+        }
+
+        // Building and fortune interaction
+        document.getElementById('gcanvas').addEventListener('click', function(e) {
+            if (state.currentScreen !== 'game') return;
+
+            const rect = this.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            state.lastTapX = clickX;
+            state.lastTapY = clickY;
+            state.lastTapTime = state.time;
+
+            const buildings = areas[state.currentAreaIndex].buildings;
+            let found = false;
+
+            // Check building click
+            for (const building of buildings) {
+                const dist = Math.hypot(clickX - building.x, clickY - building.y);
+                if (dist < 80 && !found) {
+                    state.selectedBuilding = building;
+                    showBuildingOverlay(building);
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                // Move player
+                state.playerTargetX = clickX;
+                state.playerTargetY = clickY;
+                state.playerWalking = true;
+            }
+        });
+
+        // Touch events for mobile
+        document.getElementById('gcanvas').addEventListener('touchstart', function(e) {
+            if (state.currentScreen !== 'game') return;
+
+            const touch = e.touches[0];
+            const rect = this.getBoundingClientRect();
+            const touchX = touch.clientX - rect.left;
+            const touchY = touch.clientY - rect.top;
+
+            state.lastTapX = touchX;
+            state.lastTapY = touchY;
+            state.lastTapTime = state.time;
+
+            const buildings = areas[state.currentAreaIndex].buildings;
+            let found = false;
+
+            for (const building of buildings) {
+                const dist = Math.hypot(touchX - building.x, touchY - building.y);
+                if (dist < 80 && !found) {
+                    state.selectedBuilding = building;
+                    showBuildingOverlay(building);
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                state.playerTargetX = touchX;
+                state.playerTargetY = touchY;
+                state.playerWalking = true;
+            }
+        });
+
+        function showBuildingOverlay(building) {
+            state.selectedBuilding = building;
+            
+            // Draw building character
+            const canvas = document.getElementById('building-char-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Background
+            const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            bgGradient.addColorStop(0, '#fffef0');
+            bgGradient.addColorStop(1, '#fef5e7');
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw building
+            drawBuilding(ctx, building, 25, 30, 150, 140);
+
+            // Building info
+            const buildingInfo = `
+                <div class="result-content">
+                    <p><strong>${building.name}</strong></p>
+                </div>
+            `;
+
+            document.getElementById('building-info').innerHTML = buildingInfo;
+
+            // NPC list
+            const npcList = building.npcSpawns
+                .map(npcId => {
+                    const npc = npcDefinitions[npcId];
+                    state.collection.add(npcId);
+                    return `<div style="font-size: 1.6vmin; margin: 0.8vmin 0; padding: 0.8vmin; background: rgba(255,255,255,0.8); border-radius: 0.4vmin;">${npc.emoji} ${npc.name}</div>`;
+                })
+                .join('');
+
+            document.getElementById('building-npc-list').innerHTML = `
+                <div class="result-section">
+                    <div class="result-section-title">いる人達</div>
+                    <div>${npcList}</div>
+                    <button class="profile-start-btn" style="margin-top: 1.5vmin;" onclick="startFortune()">占ってもらう</button>
+                </div>
+            `;
+
+            toggleMenu('building');
+        }
+
+        function closeBuildingOverlay() {
+            toggleMenu('building');
+        }
+
+        function startFortune() {
+            closeBuildingOverlay();
+            state.fortuneAnswers = [];
+            showFortuneStep(0);
+            document.getElementById('fortune-overlay').classList.add('active');
+        }
+
+        function showFortuneStep(stepIndex) {
+            if (stepIndex >= fortuneQuestions.length) {
+                generateFortuneResult();
+                return;
+            }
+
+            const question = fortuneQuestions[stepIndex];
+            const optionsHtml = question.options
+                .map((opt, idx) => `
+                    <button class="step-option" onclick="selectFortuneOption(${stepIndex}, ${idx}, '${opt}')">
+                        ${opt}
+                    </button>
+                `)
+                .join('');
+
+            const stepsHtml = `
+                <div class="fortune-step">
+                    <div class="step-question">${question.question}</div>
+                    <div class="step-options">${optionsHtml}</div>
+                </div>
+            `;
+
+            if (stepIndex === 0) {
+                document.getElementById('fortune-steps').innerHTML = stepsHtml;
+            } else {
+                document.getElementById('fortune-steps').innerHTML += stepsHtml;
+            }
+        }
+
+        function selectFortuneOption(stepIndex, optionIndex, optionText) {
+            state.fortuneAnswers[stepIndex] = optionText;
+
+            // Visual feedback
+            document.querySelectorAll('.step-option').forEach(el => el.classList.remove('selected'));
+            event.target.classList.add('selected');
+
+            setTimeout(() => {
+                showFortuneStep(stepIndex + 1);
+            }, 300);
+        }
+
+        function generateFortuneResult() {
+            // Calculate fortune level based on answers
+            const positiveKeywords = ['楽しい', 'ワクワク', 'チャレンジ', '新しい', '創造', 'アクティブ'];
+            const positiveScore = state.fortuneAnswers.filter(a => positiveKeywords.some(k => a.includes(k))).length;
+
+            let fortuneLevel;
+            if (positiveScore >= 4) fortuneLevel = '大吉';
+            else if (positiveScore >= 3) fortuneLevel = '吉';
+            else if (positiveScore >= 2) fortuneLevel = '中吉';
+            else if (positiveScore >= 1) fortuneLevel = '小吉';
+            else fortuneLevel = '末吉';
+
+            // Generate lucky items
+            const luckyColor = luckyColors[Math.floor(Math.random() * luckyColors.length)];
+            const luckyNumber = Math.floor(Math.random() * 9) + 1;
+            const luckyDirection = luckyDirections[Math.floor(Math.random() * luckyDirections.length)];
+            const luckyFood = luckyFoods[Math.floor(Math.random() * luckyFoods.length)];
+
+            // Generate compatibility
+            const compatBloodType = bloodTypes[Math.floor(Math.random() * bloodTypes.length)];
+            const compatZodiac = zodiacSigns[Math.floor(Math.random() * zodiacSigns.length)];
+
+            // Generate personalized message
+            let message = '';
+            if (fortuneLevel === '大吉') {
+                message = 'すばらしい運の流れが来ています。今のあなたの輝きを信じて、前へ進んでください。すべてが上手くいく日々が続くでしょう。';
+            } else if (fortuneLevel === '吉') {
+                message = '良い風が吹いています。小さな工夫と努力で、あなたの願いは形になるでしょう。周りの人を大切にしてください。';
+            } else if (fortuneLevel === '中吉') {
+                message = 'バランスの取れた一日一日を大切にしてください。今はゆっくり進むことが正解です。焦らず進みましょう。';
+            } else if (fortuneLevel === '小吉') {
+                message = 'ちょっと工夫が必要な時期です。でも大丈夫。あなたの優しさと工夫で、道は開けます。';
+            } else if (fortuneLevel === '末吉') {
+                message = '今は準備の時。次のステージへ向けて、力を蓄える時間です。やがて大きな花が咲きます。';
+            } else {
+                message = '困難な時も必ず変わります。一歩一歩、前へ進んでください。その先に光があります。';
+            }
+
+            const resultHtml = `
+                <div class="result-section">
+                    <div class="result-section-title">${fortuneLevel}</div>
+                    <div class="result-content">${message}</div>
+                </div>
+
+                <div class="result-section">
+                    <div class="result-section-title">ラッキーアイテム</div>
+                    <div class="result-content">
+                        <div style="margin: 0.5vmin 0;">
+                            <span class="lucky-item">色: ${luckyColor}</span>
+                            <span class="lucky-item">数: ${luckyNumber}</span>
+                        </div>
+                        <div style="margin: 0.5vmin 0;">
+                            <span class="lucky-item">方角: ${luckyDirection}</span>
+                            <span class="lucky-item">食べ物: ${luckyFood}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-section">
+                    <div class="result-section-title">相性</div>
+                    <div class="result-content">
+                        <div style="margin: 0.5vmin 0;">
+                            <span class="compat-item">血液型: ${compatBloodType}</span>
+                            <span class="compat-item">星座: ${compatZodiac}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-section">
+                    <div class="result-section-title">アドバイス</div>
+                    <div class="result-content">
+                        ${state.fortuneAnswers[0] === '楽しい' ? '楽しい気分を大事にしてください。その幸せがあなたを良い場所へ導きます。' : ''}
+                        ${state.fortuneAnswers[1] === '新しいこと' ? '新しい挑戦に迷わず進んでください。新しい世界が待っています。' : ''}
+                        ${state.fortuneAnswers[2] === 'アクティブ' ? 'エネルギーに満ちたあなたの力を信じて、やってみたいことにチャレンジしましょう。' : ''}
+                        ${state.fortuneAnswers[3] === '楽しさ' ? 'あなたの笑顔と楽しさは周りを幸せにします。そのままでいてください。' : ''}
+                        ${state.fortuneAnswers[4] === '優しさ' ? 'あなたの優しさは大きな力です。その力で誰かを助けることで、自分も幸せになるでしょう。' : ''}
+                        大切なのは、自分を信じることです。
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('result-fortune-level').textContent = `${fortuneLevel} - ${state.playerName}さんの今日の運勢`;
+            document.getElementById('result-content').innerHTML = resultHtml;
+
+            // Save to history
+            const historyEntry = {
+                date: new Date().toLocaleDateString('ja-JP'),
+                building: state.selectedBuilding.name,
+                level: fortuneLevel,
+                timestamp: Date.now()
+            };
+            state.history.unshift(historyEntry);
+            if (state.history.length > 20) state.history.pop();
+
+            document.getElementById('fortune-overlay').classList.remove('active');
+            document.getElementById('result-overlay').classList.add('active');
+        }
+
+        function closeFortune() {
+            document.getElementById('fortune-overlay').classList.remove('active');
+        }
+
+        function closeResult() {
+            document.getElementById('result-overlay').classList.remove('active');
+        }
+
+        // Menu functions
+        function toggleMenu(menuType) {
+            if (menuType === 'history') {
+                const overlay = document.getElementById('history-overlay');
+                overlay.classList.toggle('active');
+
+                if (overlay.classList.contains('active')) {
+                    const historyHtml = state.history.length > 0
+                        ? state.history.map((h, idx) => `
+                            <div style="padding: 1vmin; background: rgba(255,255,255,0.8); border-radius: 0.6vmin; margin-bottom: 1vmin;">
+                                <div style="font-weight: bold; color: #d4791f; font-size: 1.6vmin;">${h.date}</div>
+                                <div style="font-size: 1.5vmin; color: #333;">${h.building} - <span style="color: #ffd700; font-weight: bold;">${h.level}</span></div>
+                            </div>
+                        `).join('')
+                        : '<div style="font-size: 1.6vmin; color: #999; text-align: center; padding: 2vmin;">占い履歴がありません</div>';
+
+                    document.getElementById('history-list').innerHTML = historyHtml;
+                }
+            } else if (menuType === 'collection') {
+                const overlay = document.getElementById('collection-overlay');
+                overlay.classList.toggle('active');
+
+                if (overlay.classList.contains('active')) {
+                    const npcArray = Array.from(state.collection);
+                    const collectionHtml = npcArray.length > 0
+                        ? npcArray.map(npcId => {
+                            const npc = npcDefinitions[npcId];
+                            return `
+                                <div style="padding: 1vmin; background: rgba(255,255,255,0.8); border-radius: 0.6vmin; margin-bottom: 1vmin; display: flex; align-items: center; gap: 1vmin;">
+                                    <span style="font-size: 3vmin;">${npc.emoji}</span>
+                                    <div style="font-size: 1.6vmin; color: #333;">${npc.name}</div>
+                                </div>
+                            `;
+                        }).join('')
+                        : '<div style="font-size: 1.6vmin; color: #999; text-align: center; padding: 2vmin;">まだNPCに出会っていません</div>';
+
+                    document.getElementById('collection-list').innerHTML = collectionHtml;
+                }
+            } else if (menuType === 'building') {
+                document.getElementById('building-overlay').classList.toggle('active');
+            }
+        }
+
+        // Initialize
+        updateAreaDisplay();
+
+        // Close overlay when clicking outside
+        document.getElementById('history-overlay').addEventListener('click', function(e) {
+            if (e.target === this) toggleMenu('history');
+        });
+
+        document.getElementById('collection-overlay').addEventListener('click', function(e) {
+            if (e.target === this) toggleMenu('collection');
+        });
+
+        document.getElementById('building-overlay').addEventListener('click', function(e) {
+            if (e.target === this) closeBuildingOverlay();
+        });
+
+        document.getElementById('fortune-overlay').addEventListener('click', function(e) {
+            if (e.target === this) closeFortune();
+        });
+
+        document.getElementById('result-overlay').addEventListener('click', function(e) {
+            if (e.target === this) closeResult();
+        });
     </script>
 </body>
 </html>
