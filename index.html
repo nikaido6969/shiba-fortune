@@ -381,24 +381,20 @@
                 }
                 
                 const area = AREAS[this.currentArea];
+                // Building tap check FIRST (priority)
                 for (let building of area.buildings) {
                     const dist = Math.hypot(x - building.xr, y - building.yr);
-                    if (dist < 0.08) {
+                    if (dist < 0.15) {
                         this.enterBuilding(building);
-                        break;
+                        return;
                     }
                 }
-                
-                // NPC tap check
-                const cw = this.canvasWidth;
-                const ch = this.canvasHeight;
-                const tx = x * cw;
-                const ty = y * ch;
+
+                // NPC tap check → interactive fortune
                 for (let npc of area.npcs) {
-                    const nx = npc.x * cw;
-                    const ny = npc.y * ch;
-                    if (Math.hypot(tx - nx, ty - ny) < cw * 0.05) {
-                        this.showNPCBubble(npc);
+                    const dist = Math.hypot(x - npc.x, y - npc.y);
+                    if (dist < 0.06) {
+                        this.talkToNPC(npc);
                         return;
                     }
                 }
@@ -671,6 +667,27 @@
             },
             
             // Building System
+            talkToNPC(npc) {
+                // Use building overlay for NPC fortune too
+                this.currentBuilding = { name: npc.name + 'の占い', characterType: 'tarot' };
+                const greetings = [
+                    '占いをしてあげるワン！',
+                    'あなたの運命を見てあげるニャ〜',
+                    '未来が見えるよ！占ってみる？',
+                    'いい運気を感じるよ！占おうか？',
+                    'あなたの星が輝いている…占ってみよう！'
+                ];
+                document.getElementById('building-name').textContent = npc.name;
+                document.getElementById('building-char').textContent = '🔮';
+                document.getElementById('building-text').textContent = greetings[Math.floor(Math.random() * greetings.length)];
+                document.getElementById('building-overlay').classList.add('active');
+                // Track character
+                if (!this.metChars.includes(npc.name)) {
+                    this.metChars.push(npc.name);
+                    this.saveData();
+                }
+            },
+
             enterBuilding(building) {
                 this.currentBuilding = building;
                 const char = CHARACTERS[building.characterType];
