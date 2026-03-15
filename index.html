@@ -104,6 +104,12 @@ const ctx = canvas.getContext('2d');
 const titleCanvas = document.getElementById('title-canvas');
 const titleCtx = titleCanvas.getContext('2d');
 
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
 let cW = canvas.width;
 let cH = canvas.height;
 
@@ -656,6 +662,8 @@ function gameFrame(now) {
 
 function changeArea(idx) {
   if (idx < 0 || idx >= areas.length) return;
+  cW = canvas.width;
+  cH = canvas.height;
   G.areaIdx = idx;
   G.px = cW / 2;
   G.py = cH * 0.7;
@@ -670,10 +678,15 @@ function changeArea(idx) {
 document.getElementById('start-btn').onclick = () => {
   document.getElementById('title-screen').classList.remove('active');
   document.getElementById('game-screen').classList.add('active');
-  
-  titleCtx.clearRect(0, 0, titleCanvas.width, titleCanvas.height);
-  drawDog(100, 60, '#C9A772', '#E8D5C4', 0, false);
-  
+
+  resizeCanvas();
+  cW = canvas.width;
+  cH = canvas.height;
+  G.px = cW / 2;
+  G.py = cH * 0.65;
+  G.dx = cW / 2 + 25;
+  G.dy = cH * 0.65 + 15;
+
   changeArea(0);
   startLoop();
 };
@@ -682,27 +695,32 @@ canvas.addEventListener('click', (e) => {
   const rect = canvas.getBoundingClientRect();
   const x = (e.clientX - rect.left) * (canvas.width / rect.width);
   const y = (e.clientY - rect.top) * (canvas.height / rect.height);
-  
-  G.tx = x;
-  G.ty = y;
+  handleTap(x, y);
 });
 
+function handleTap(x, y) {
+  // NPC tap detection
+  for (const n of G.npcs) {
+    if (Math.hypot(n.x - x, n.y - y) < 40) {
+      talkNPC(n);
+      return;
+    }
+  }
+  // Edge tap for area change
+  if (x < 50) { changeArea(G.areaIdx - 1); return; }
+  if (x > cW - 50) { changeArea(G.areaIdx + 1); return; }
+  // Move
+  G.tx = x;
+  G.ty = y;
+}
+
 canvas.addEventListener('touchstart', (e) => {
+  e.preventDefault();
   const rect = canvas.getBoundingClientRect();
   const touch = e.touches[0];
   const x = (touch.clientX - rect.left) * (canvas.width / rect.width);
   const y = (touch.clientY - rect.top) * (canvas.height / rect.height);
-  
-  for (const n of G.npcs) {
-    if (Math.hypot(x - n.x, y - n.y) < 30) {
-      talkNPC(n);
-      e.preventDefault();
-      return;
-    }
-  }
-  
-  G.tx = x;
-  G.ty = y;
+  handleTap(x, y);
   
   if (x < 30) changeArea(G.areaIdx - 3);
   else if (x > cW - 30) changeArea(G.areaIdx + 3);
@@ -734,8 +752,14 @@ function talkNPC(npc) {
 }
 
 window.addEventListener('resize', () => {
+  resizeCanvas();
   cW = canvas.width;
   cH = canvas.height;
+  G.px = cW / 2;
+  G.py = cH * 0.7;
+  G.dx = cW / 2;
+  G.dy = cH * 0.7;
+  spawnNPCs();
 });
 
 window.addEventListener('load', () => {
