@@ -6816,12 +6816,16 @@ function startGame() {
   G.playerBirthday = document.getElementById('p-birthday').value || '';
   G.playerBlood = document.getElementById('p-blood').value || '';
   G.playerZodiac = document.getElementById('p-zodiac').value || '';
-  G.px = cW ? cW / 2 : 200;
-  G.py = cH ? cH * 0.72 : 400;
-  G.dx = G.px - 20;
-  G.dy = G.py + 15;
+  G.px = cW / 2;
+  G.py = cH * 0.72;
+  G.dx = G.px - 40;
+  G.dy = G.py + 10;
+  G.tx = G.px;
+  G.ty = G.py;
   G.areaIdx = 0;
+  spawnNPCs();
   goScreen('game');
+  startLoop();
 }
 
 function toggleBGM() {
@@ -6830,11 +6834,10 @@ function toggleBGM() {
   if (G.bgmOn) {
     btn.textContent = '♪ BGM ON';
     btn.classList.add('on');
-    playBGM();
+    if (typeof playBGM === 'function') playBGM();
   } else {
     btn.textContent = '♪ BGM OFF';
     btn.classList.remove('on');
-    // stop not easily possible with Web Audio scheduled nodes
   }
 }
 
@@ -6844,11 +6847,11 @@ function spawnNPCs() {
   areaNpcs.forEach((nd, i) => {
     G.npcs.push({
       ...nd,
-      x: 60 + Math.random() * ((cW||300) - 120),
-      y: (cH||600) * 0.35 + Math.random() * (cH||600) * 0.35,
-      vx: (Math.random() - 0.5) * 0.6,
-      vy: (Math.random() - 0.5) * 0.2,
-      frame: Math.floor(Math.random() * 20)
+      x: 80 + Math.random() * (cW - 160),
+      y: cH * 0.45 + Math.random() * (cH * 0.25),
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: 0,
+      frame: Math.floor(Math.random() * 60)
     });
   });
   // Update HUD
@@ -6859,275 +6862,314 @@ function spawnNPCs() {
   if (areaNm2) areaNm2.textContent = area.name;
 }
 
+// Building layout: 3 cols x 2 rows
+function getBuildingPos(bIdx, w, h) {
+  const cols = [0.17, 0.50, 0.83];
+  const rows = [0.12, 0.34];
+  const col = bIdx % 3;
+  const row = Math.floor(bIdx / 3);
+  return {
+    x: w * cols[col],
+    y: h * rows[row],
+    bw: w * 0.14,
+    bh: h * 0.22
+  };
+}
+
 function drawAll() {
   if (!ctx) return;
   const w = cW;
   const h = cH;
   ctx.clearRect(0, 0, w, h);
 
+  const aIdx = G.areaIdx;
+
   // 1. Draw area background
-  const bgFn = [drawAreaBackground0,drawAreaBackground1,drawAreaBackground2,drawAreaBackground3,
-                 drawAreaBackground4,drawAreaBackground5,drawAreaBackground6,drawAreaBackground7];
-  if (bgFn[G.areaIdx]) bgFn[G.areaIdx](ctx, w, h, G.frame);
+  const bgFns = [drawAreaBackground0, drawAreaBackground1, drawAreaBackground2, drawAreaBackground3,
+                 drawAreaBackground4, drawAreaBackground5, drawAreaBackground6, drawAreaBackground7];
+  if (bgFns[aIdx]) bgFns[aIdx](ctx, w, h, G.frame);
 
-  // 2. Draw buildings
-  const bldFn = [drawAreaBuilding0,drawAreaBuilding1,drawAreaBuilding2,drawAreaBuilding3,
-                  drawAreaBuilding4,drawAreaBuilding5,drawAreaBuilding6,drawAreaBuilding7];
-  if (bldFn[G.areaIdx]) bldFn[G.areaIdx](ctx, w, h, G.frame);
+  // 2. Draw buildings (6 per area, 3 cols x 2 rows)
+  const bldFns = [drawAreaBuilding0, drawAreaBuilding1, drawAreaBuilding2, drawAreaBuilding3,
+                  drawAreaBuilding4, drawAreaBuilding5, drawAreaBuilding6, drawAreaBuilding7];
+  if (bldFns[aIdx]) {
+    for (let i = 0; i < 6; i++) {
+      const pos = getBuildingPos(i, w, h);
+      try {
+        bldFns[aIdx](ctx, pos.x, pos.y, pos.bw, pos.bh, i);
+      } catch(e) {}
+      // Building name label
+      const bName = AREAS[aIdx].buildings[i] || '';
+      ctx.save();
+      ctx.fillStyle = 'rgba(80,40,10,0.8)';
+      ctx.font = 'bold 9px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(bName, pos.x, pos.y + pos.bh + 14);
+      ctx.restore();
+    }
+  }
 
-  // 3. Draw area navigation arrows
+  // 3. Area nav arrows
   ctx.save();
-  ctx.fillStyle = 'rgba(212,121,31,0.5)';
-  ctx.font = 'bold 28px sans-serif';
+  ctx.fillStyle = 'rgba(180,90,20,0.6)';
+  ctx.font = 'bold 32px sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('◀', 25, h * 0.5);
-  ctx.fillText('▶', w - 25, h * 0.5);
+  ctx.fillText('◀', 22, h * 0.5);
+  ctx.fillText('▶', w - 22, h * 0.5);
   ctx.restore();
 
   // 4. Draw NPCs
+  const npcDrawFns = {
+    'tall': drawCuteOta, 'short': drawCuteTanaka, 'cat': drawCuteCat,
+    'rabbit': drawCuteRabbit, 'fox': drawCuteFox, 'owl': drawCuteOwl,
+    'frog': drawCuteFrog, 'panda': drawCutePanda, 'hamster': drawCuteHamster,
+    'penguin': drawCutePenguin, 'tanuki': drawCuteTanuki, 'sheep': drawCuteSheep,
+    'squirrel': drawCuteSquirrel, 'bear': drawCuteBear, 'dragon': drawCuteDragon,
+    'mermaid': drawCuteCat
+  };
   for (const npc of G.npcs) {
-    const drawFn = DRAW_NPC[npc.type];
-    if (drawFn) {
+    // Update NPC position (gentle wander)
+    npc.x += npc.vx;
+    if (npc.x < 40 || npc.x > w - 40) npc.vx *= -1;
+    npc.frame = (npc.frame + 1) % 120;
+    const bounce = Math.sin(npc.frame * 0.1) * 0.5;
+    const fn = npcDrawFns[npc.type];
+    if (fn) {
       ctx.save();
-      drawFn(ctx, npc.x, npc.y, 1.0);
+      try { fn(ctx, npc.x, npc.y, bounce, 0.9); } catch(e) {}
       ctx.restore();
     }
-    // NPC name label
+    // Name label
     ctx.save();
-    ctx.fillStyle = 'rgba(255,255,255,0.85)';
-    ctx.font = '10px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(npc.name, npc.x, npc.y - 30);
-    ctx.restore();
-  }
-
-  // 5. Draw player shiba
-  ctx.save();
-  drawPlayerShiba(ctx, G.px, G.py, 1.0, G.frame);
-  ctx.restore();
-
-  // 6. Draw companion dog
-  ctx.save();
-  drawPlayerShiba(ctx, G.dx, G.dy, 0.7, G.frame + 5);
-  ctx.restore();
-
-  // 7. Draw speech bubbles
-  for (const b of G.bubbles) {
-    const alpha = Math.min(1, b.life / 20);
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.fillStyle = 'rgba(255,255,255,0.9)';
-    const tw = ctx.measureText(b.text).width + 16;
-    const bx = b.x - tw / 2;
+    ctx.fillStyle = 'rgba(255,255,255,0.88)';
+    const tw = ctx.measureText(npc.name).width + 14;
     ctx.beginPath();
-    ctx.roundRect(bx, b.y - 14, tw, 24, 12);
+    if (ctx.roundRect) ctx.roundRect(npc.x - tw/2, npc.y - 55, tw, 18, 9);
+    else ctx.rect(npc.x - tw/2, npc.y - 55, tw, 18);
     ctx.fill();
     ctx.fillStyle = '#5D4037';
-    ctx.font = '11px sans-serif';
+    ctx.font = '10px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(b.text, b.x, b.y + 2);
+    ctx.fillText(npc.name, npc.x, npc.y - 43);
     ctx.restore();
   }
 
-  // 8. Draw particles
-  for (const p of G.particles) {
-    const alpha = p.life / 30;
+  // 5. Player shiba (signature: drawPlayerShiba(ctx, x, y, frame, scale))
+  ctx.save();
+  try { drawPlayerShiba(ctx, G.px, G.py, G.frame, 1.0); } catch(e) {}
+  ctx.restore();
+
+  // 6. Companion dog (smaller)
+  ctx.save();
+  try { drawPlayerShiba(ctx, G.dx, G.dy, G.frame + 8, 0.7); } catch(e) {}
+  ctx.restore();
+
+  // 7. Speech bubbles
+  for (let i = G.bubbles.length - 1; i >= 0; i--) {
+    const b = G.bubbles[i];
+    b.life--;
+    if (b.life <= 0) { G.bubbles.splice(i, 1); continue; }
+    const alpha = Math.min(1, b.life / 15);
     ctx.save();
     ctx.globalAlpha = alpha;
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
+    const tw = ctx.measureText(b.text).width + 18;
+    const bx = Math.max(2, Math.min(b.x - tw/2, w - tw - 2));
+    if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(bx, b.y - 14, tw, 22, 11); ctx.fill(); }
+    else { ctx.fillRect(bx, b.y - 14, tw, 22); }
+    ctx.fillStyle = '#4A2E0A';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(b.text, bx + 9, b.y + 3);
+    ctx.restore();
+  }
+
+  // 8. Particles
+  for (let i = G.particles.length - 1; i >= 0; i--) {
+    const p = G.particles[i];
+    p.x += p.vx; p.y += p.vy; p.life--;
+    if (p.life <= 0) { G.particles.splice(i, 1); continue; }
+    ctx.save();
+    ctx.globalAlpha = p.life / 30;
     ctx.fillStyle = '#FFB74D';
     ctx.beginPath();
     ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }
+
+  // 9. Move player toward target
+  if (G.tx !== null) {
+    const dx = G.tx - G.px;
+    const dy = G.ty - G.py;
+    const dist = Math.hypot(dx, dy);
+    if (dist > 3) {
+      G.px += dx * 0.06;
+      G.py += dy * 0.06;
+      G.dx = G.px - 40;
+      G.dy = G.py + 10;
+    } else {
+      G.tx = null;
+    }
+  }
 }
 
-// Override enterBuilding to show building modal
-function enterBuilding(building) {
-  if (typeof building === 'object' && building.id) {
-    G.buildingId = building.id;
+// Override handleTap
+function handleTap(x, y) {
+  // Building hit detection
+  for (let i = 0; i < 6; i++) {
+    const pos = getBuildingPos(i, cW, cH);
+    if (Math.abs(pos.x - x) < pos.bw * 0.7 && Math.abs(pos.y + pos.bh * 0.5 - y) < pos.bh * 0.7) {
+      enterBuilding(i);
+      return;
+    }
   }
-  // Show building modal with building name
+  // NPC hit detection
+  for (const n of G.npcs) {
+    if (Math.hypot(n.x - x, n.y - y) < 38) {
+      talkToNPC(n);
+      return;
+    }
+  }
+  // Area navigation
+  if (x < 50) { changeArea(-1); return; }
+  if (x > cW - 50) { changeArea(1); return; }
+  // Move player
+  G.tx = x;
+  G.ty = Math.max(cH * 0.5, Math.min(cH * 0.85, y));
+  if (typeof playSE === 'function') playSE('step');
+}
+
+// Override changeArea
+function changeArea(dir) {
+  G.areaIdx = (G.areaIdx + dir + 8) % 8;
+  spawnNPCs();
+  emitParticles(cW/2, cH/2, 12);
+  if (typeof playSE === 'function') playSE('area');
+}
+
+// enterBuilding
+function enterBuilding(bIdx) {
   const area = AREAS[G.areaIdx];
-  const buildingNames = area.buildings;
-  let bName = '';
-  let bIdx = -1;
-  
-  // Find which building was tapped
-  if (typeof building === 'string') {
-    bName = building;
-    bIdx = buildingNames.indexOf(building);
-  } else if (typeof building === 'number') {
-    bIdx = building;
-    bName = buildingNames[bIdx] || '占いの建物';
-  } else {
-    bName = '占いの建物';
-  }
-  
+  const bName = area.buildings[bIdx] || '占いの建物';
+  const fType = FORTUNE_TYPES ? FORTUNE_TYPES[G.areaIdx * 6 + bIdx] || 'omikuji' : 'omikuji';
   G.currentBuildingName = bName;
   G.currentBuildingIdx = bIdx;
-  G.currentFortuneType = FORTUNE_TYPES[G.areaIdx * 6 + (bIdx >= 0 ? bIdx : 0)] || 'omikuji';
-
-  document.getElementById('bt2').textContent = bName;
-  document.getElementById('bm2').textContent = 'この建物で占いをしてもらえます';
-  document.getElementById('building-modal').classList.add('show');
+  G.currentFortuneType = fType;
+  const bt2 = document.getElementById('bt2');
+  const bm2 = document.getElementById('bm2');
+  const bModal = document.getElementById('building-modal');
+  if (bt2) bt2.textContent = bName;
+  if (bm2) bm2.textContent = '✨ ここで占いをしてもらえます';
+  if (bModal) bModal.classList.add('show');
+  if (typeof playSE === 'function') playSE('open');
 }
 
 function closeBuilding() {
-  document.getElementById('building-modal').classList.remove('show');
+  const bModal = document.getElementById('building-modal');
+  if (bModal) bModal.classList.remove('show');
 }
 
 function startFortuneTelling() {
   closeBuilding();
   const fType = G.currentFortuneType || 'omikuji';
-  const result = generateFortune(fType);
+  let result;
+  try { result = generateFortune(fType); } catch(e) { result = {type:fType, level:'大吉', msg:'今日はとても良い日です！', advice:'前向きに過ごしましょう', items:['白い花','金色のもの']}; }
   result.type = fType;
-  
-  // Store in history
   fortuneHistory.unshift({
     date: new Date().toLocaleDateString('ja-JP'),
-    fortune: FORTUNE_NAMES[fType] || fType,
+    fortune: (typeof FORTUNE_NAMES !== 'undefined' ? FORTUNE_NAMES[fType] : null) || fType,
     level: result.level,
     msg: result.msg
   });
   if (fortuneHistory.length > 50) fortuneHistory.pop();
-  
-  // Show multi-step fortune result using the overlay
   showFortuneResult(result);
-  playSE('fortune');
+  if (typeof playSE === 'function') playSE('fortune');
 }
 
 function showFortuneResult(result) {
   const overlay = document.getElementById('fortune-result-overlay');
-  document.getElementById('fr-title').textContent = FORTUNE_NAMES[result.type] || '占い結果';
-  
-  let bodyHtml = '<div style="margin:10px 0;font-size:22px;color:#DAA520;font-weight:bold;">' + (result.level || '') + '</div>';
-  bodyHtml += '<div style="margin:10px 0;font-size:14px;line-height:1.7;color:#333;">' + (result.msg || '') + '</div>';
-  bodyHtml += '<div style="margin:10px 0;font-size:13px;color:#666;line-height:1.6;">' + (result.advice || '') + '</div>';
-  
+  if (!overlay) return;
+  const frTitle = document.getElementById('fr-title');
+  const frBody = document.getElementById('fr-body');
+  if (frTitle) frTitle.textContent = (typeof FORTUNE_NAMES !== 'undefined' ? FORTUNE_NAMES[result.type] : null) || '占い結果';
+  const levelColors = {'大大吉':'#FF4500','大吉':'#FF8C00','中吉':'#DAA520','小吉':'#3CB371','吉':'#1E90FF','末吉':'#9370DB','凶':'#778899','大凶':'#708090'};
+  const levelColor = levelColors[result.level] || '#DAA520';
+  let bodyHtml = '<div style="font-size:28px;font-weight:bold;color:' + levelColor + ';margin:10px 0;text-shadow:0 1px 3px rgba(0,0,0,0.2);">' + (result.level || '吉') + '</div>';
+  bodyHtml += '<div style="font-size:14px;line-height:1.8;color:#333;margin:10px 0;">' + (result.msg || '') + '</div>';
+  if (result.advice) bodyHtml += '<div style="font-size:13px;color:#666;line-height:1.6;margin:8px 0;padding:8px;background:rgba(255,165,0,0.08);border-radius:8px;">' + result.advice + '</div>';
   if (result.items && result.items.length > 0) {
-    bodyHtml += '<div style="margin:14px 0;"><span style="font-size:12px;color:#999;">ラッキーアイテム:</span><br>';
-    result.items.forEach(item => {
-      bodyHtml += '<span style="display:inline-block;background:#FFA500;color:white;padding:6px 14px;border-radius:16px;margin:4px;font-size:12px;">' + item + '</span>';
-    });
+    bodyHtml += '<div style="margin:10px 0;"><div style="font-size:11px;color:#999;margin-bottom:6px;">ラッキーアイテム</div>';
+    result.items.forEach(item => { bodyHtml += '<span style="display:inline-block;background:linear-gradient(135deg,#FFA500,#FF8C00);color:white;padding:5px 14px;border-radius:16px;margin:3px;font-size:12px;font-weight:bold;">' + item + '</span>'; });
     bodyHtml += '</div>';
   }
-  
-  document.getElementById('fr-body').innerHTML = bodyHtml;
+  if (frBody) frBody.innerHTML = bodyHtml;
   overlay.classList.add('show');
 }
 
 function closeFortune() {
-  document.getElementById('fortune-result-overlay').classList.remove('show');
-}
-
-// Override handleTap to work with simplified AREAS
-function handleTap(x, y) {
-  const area = AREAS[G.areaIdx];
-  
-  // Building hit detection (2 rows x 3 cols)
-  const buildingXPositions = [0.17, 0.50, 0.83];
-  const row1Y = 0.15;
-  const row2Y = 0.40;
-  
-  for (let i = 0; i < 6; i++) {
-    const rowIdx = Math.floor(i / 3);
-    const colIdx = i % 3;
-    const bx = cW * buildingXPositions[colIdx];
-    const by = cH * (rowIdx === 0 ? row1Y : row2Y);
-    
-    if (Math.hypot(bx - x, by - y) < 55) {
-      enterBuilding(i);
-      return;
-    }
-  }
-  
-  // NPC hit detection
-  for (const n of G.npcs) {
-    if (Math.hypot(n.x - x, n.y - y) < 35) {
-      talkToNPC(n);
-      return;
-    }
-  }
-  
-  // Area navigation
-  if (x < 50) { changeArea(-1); return; }
-  if (x > cW - 50) { changeArea(1); return; }
-  
-  // Set movement target
-  G.tx = x;
-  G.ty = y;
-  playSE('step');
+  const overlay = document.getElementById('fortune-result-overlay');
+  if (overlay) overlay.classList.remove('show');
 }
 
 function talkToNPC(npc) {
-  G.selectedNpc = npc;
   const greetings = [
-    npc.name + 'だよ！今日の占いはいかが？',
-    'やあ！' + npc.name + 'です。占っていきませんか？',
-    npc.name + '参上！あなたの運勢を見てあげよう！',
-    'こんにちは！' + npc.name + 'が占ってあげるよ！'
+    npc.name + 'だよ！今日の運勢を占おうか？',
+    'やあ！' + npc.name + 'です！どの建物でも占えますよ♪',
+    npc.name + '参上！あなたの未来が見えるよ！',
+    'こんにちは！' + npc.name + 'が今日の吉方位を教えてあげよう！'
   ];
-  const text = greetings[Math.floor(Math.random() * greetings.length)];
-  addBubble(npc.x, npc.y - 40, text, 80);
-  
-  // Track in album
-  if (!npcAlbum[npc.name]) npcAlbum[npc.name] = { met: true, type: npc.type, count: 0 };
+  addBubble(npc.x, npc.y - 45, greetings[Math.floor(Math.random() * greetings.length)], 90);
+  if (!npcAlbum[npc.name]) npcAlbum[npc.name] = {met:true, type:npc.type, count:0};
   npcAlbum[npc.name].count++;
+  if (typeof playSE === 'function') playSE('talk');
 }
 
 function openAlbum() {
   const grid = document.getElementById('album-grid');
+  if (!grid) return;
   grid.innerHTML = '';
   NPC_DATA.forEach(npc => {
     const met = npcAlbum[npc.name];
     const card = document.createElement('div');
     card.className = 'album-card' + (met ? '' : ' locked');
-    card.innerHTML = '<div class="ac-name">' + npc.name + '</div>' +
-      '<div class="ac-met">' + (met ? '会った: ' + met.count + '回' : '未発見') + '</div>';
+    card.innerHTML = '<div class="ac-name">' + npc.name + '</div><div class="ac-met">' + (met ? '会った: '+met.count+'回' : '未発見 🔒') + '</div>';
     grid.appendChild(card);
   });
   document.getElementById('album-overlay').classList.add('show');
 }
 
 function closeAlbum() {
-  document.getElementById('album-overlay').classList.remove('show');
+  const el = document.getElementById('album-overlay');
+  if (el) el.classList.remove('show');
 }
 
 function openHistory() {
   const list = document.getElementById('history-list');
-  list.innerHTML = '';
+  if (!list) return;
   if (fortuneHistory.length === 0) {
-    list.innerHTML = '<div style="color:#999;text-align:center;padding:20px;">まだ占いの履歴がありません</div>';
+    list.innerHTML = '<div style="color:#999;text-align:center;padding:30px;font-size:14px;">まだ占いの履歴がありません<br>建物に入って占ってもらおう！</div>';
   } else {
-    fortuneHistory.forEach(h => {
-      const item = document.createElement('div');
-      item.className = 'history-item';
-      item.innerHTML = '<div class="hi-date">' + h.date + '</div>' +
-        '<div class="hi-fortune">' + h.fortune + ' - ' + h.level + '</div>' +
-        '<div class="hi-description">' + (h.msg || '').substring(0, 60) + '...</div>';
-      list.appendChild(item);
-    });
+    list.innerHTML = fortuneHistory.map(h =>
+      '<div class="history-item"><div class="hi-date">'+h.date+'</div><div class="hi-fortune">'+h.fortune+' — <span style="color:#FFA500;font-weight:bold;">'+h.level+'</span></div><div class="hi-description">'+(h.msg||'').substring(0,60)+'...</div></div>'
+    ).join('');
   }
   document.getElementById('history-overlay').classList.add('show');
 }
 
 function closeHistory() {
-  document.getElementById('history-overlay').classList.remove('show');
+  const el = document.getElementById('history-overlay');
+  if (el) el.classList.remove('show');
 }
 
-// Title screen stars animation
+// Title stars
 function createStars() {
   const ct = document.getElementById('stars-ct');
   if (!ct) return;
   for (let i = 0; i < 30; i++) {
     const star = document.createElement('div');
     star.className = 'star';
-    star.style.left = Math.random() * 100 + '%';
-    star.style.top = Math.random() * 100 + '%';
-    star.style.width = (2 + Math.random() * 4) + 'px';
-    star.style.height = star.style.width;
-    star.style.animationDelay = (Math.random() * 2) + 's';
+    star.style.cssText = 'left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;width:'+(2+Math.random()*4)+'px;height:'+star.style.width+';animation-delay:'+(Math.random()*2)+'s;';
     ct.appendChild(star);
   }
 }
