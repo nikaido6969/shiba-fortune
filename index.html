@@ -270,7 +270,38 @@
         }
         .option-btn:active { transform: scale(.98); }
         
-        .fortune-result {
+        #fortune-result {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,.85);
+            z-index: 300;
+            align-items: center;
+            justify-content: center;
+        }
+        #fortune-result.show { display: flex; }
+        .fortune-result-content {
+            background: #fff;
+            border-radius: 24px;
+            padding: 28px 22px;
+            max-width: 340px;
+            width: 92%;
+            text-align: center;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,.3);
+            animation: modalPop .3s ease-out;
+        }
+        .fortune-result-content h2 { color: #d4791f; font-size: 22px; margin-bottom: 12px; }
+        .fortune-level { font-size: 48px; font-weight: bold; color: #FF6D00; margin: 12px 0; }
+        .fortune-message { font-size: 14px; color: #333; line-height: 1.8; margin: 12px 0; }
+        .fortune-advice { font-size: 12px; color: #888; line-height: 1.6; margin: 12px 0; padding: 10px; background: #FFF8E1; border-radius: 8px; }
+        .lucky-items, .ratings { background: #FFF8E1; border-radius: 12px; padding: 14px; margin: 12px 0; text-align: left; }
+        .lucky-items h4, .ratings h4 { color: #d4791f; font-size: 14px; margin-bottom: 8px; }
+        .lucky-items p, .ratings p { font-size: 13px; color: #555; line-height: 1.7; }
+        .result-buttons { margin-top: 16px; }
+
+        .fortune-result-inline {
             background: #FFF8E1;
             border: 2px solid #FFB74D;
             border-radius: 12px;
@@ -281,8 +312,8 @@
             line-height: 1.7;
             font-size: 13px;
         }
-        
-        .fortune-result strong {
+
+        .fortune-result-inline strong {
             color: #d4791f;
             display: block;
             margin-bottom: 8px;
@@ -300,7 +331,7 @@
         <div class="title-text">柴犬うらないハウス</div>
         <div class="title-sub">占いの不思議な世界へ</div>
     </div>
-    <button class="btn-p" onclick="game.showProfileSetup()">ゲーム開始</button>
+    <button class="btn-p" onclick="goScreen('profile')">ゲーム開始</button>
     <div class="title-desc">
         <p>占い館を訪ねて、<br>12の動物たちに占ってもらおう！<br>4つのエリアを探索し、<br>運命の出会いを待っている...</p>
     </div>
@@ -310,22 +341,40 @@
 <div id="profile-screen" class="screen">
     <div class="profile-card">
         <h2>🌟 プロフィール設定</h2>
+        <form id="profile-form">
         <div class="input-group">
             <label>あなたのお名前</label>
             <input type="text" id="playerNameInput" placeholder="例：太郎" maxlength="10">
         </div>
         <div class="input-group">
-            <label>占う内容を選んでね</label>
-            <select id="fortuneTypeInput" style="padding: 12px; border: 2px solid #FFB74D; border-radius: 8px; font-family: inherit; font-size: 14px;">
-                <option value="love">恋愛運</option>
-                <option value="fortune">財運</option>
-                <option value="health">健康運</option>
-                <option value="career">仕事運</option>
-                <option value="general">総合運</option>
+            <label>生年月日（より正確な占いに）</label>
+            <input type="date" id="playerBirthdayInput" style="padding: 12px; border: 2px solid #FFB74D; border-radius: 8px; font-family: inherit; font-size: 14px;">
+        </div>
+        <div class="input-group">
+            <label>血液型</label>
+            <select id="playerBloodTypeInput" style="padding: 12px; border: 2px solid #FFB74D; border-radius: 8px; font-family: inherit; font-size: 14px;">
+                <option value="">選択しない</option>
+                <option value="A">A型</option>
+                <option value="B">B型</option>
+                <option value="O">O型</option>
+                <option value="AB">AB型</option>
             </select>
         </div>
-        <button class="btn-wide" onclick="game.startGame()">占いを開始</button>
-        <button class="btn-wide" style="background: #999; margin-top: 6px;" onclick="game.goToTitle()">戻る</button>
+        <div class="input-group">
+            <label>星座</label>
+            <select id="playerZodiacInput" style="padding: 12px; border: 2px solid #FFB74D; border-radius: 8px; font-family: inherit; font-size: 14px;">
+                <option value="">選択しない</option>
+                <option value="牡羊座">牡羊座</option><option value="牡牛座">牡牛座</option>
+                <option value="双子座">双子座</option><option value="蟹座">蟹座</option>
+                <option value="獅子座">獅子座</option><option value="乙女座">乙女座</option>
+                <option value="天秤座">天秤座</option><option value="蠍座">蠍座</option>
+                <option value="射手座">射手座</option><option value="山羊座">山羊座</option>
+                <option value="水瓶座">水瓶座</option><option value="魚座">魚座</option>
+            </select>
+        </div>
+        <button type="submit" class="btn-wide">占いの世界へ出発！</button>
+        <button type="button" class="btn-wide" style="background: #999; margin-top: 6px;" onclick="goScreen('title')">戻る</button>
+        </form>
     </div>
 </div>
 
@@ -336,14 +385,14 @@
         <div class="area-row">
             <div class="area-nm" id="area-name">エリア 1: 和の占い通り</div>
             <div class="area-nav">
-                <button class="nav-btn" onclick="game.prevArea()">◀</button>
-                <button class="nav-btn" onclick="game.nextArea()">▶</button>
+                <button class="nav-btn" onclick="changeArea(-1)">◀</button>
+                <button class="nav-btn" onclick="changeArea(1)">▶</button>
             </div>
         </div>
         <div id="ctrl">
-            <button class="cb" onclick="game.showHistory()">履歴</button>
-            <button class="cb" onclick="game.showAlbum()">図鑑</button>
-            <button class="cb" onclick="game.goToTitle()">終了</button>
+            <button class="cb" onclick="showHistory()">履歴</button>
+            <button class="cb" onclick="showAlbum()">図鑑</button>
+            <button class="cb" onclick="goScreen('title')">終了</button>
         </div>
     </div>
 </div>
@@ -354,6 +403,9 @@
 <div id="modal">
     <div id="mbox"></div>
 </div>
+
+<!-- Fortune Result Modal -->
+<div id="fortune-result"></div>
 
 <script>
 // ============================================================
@@ -1892,273 +1944,951 @@ const ANIMALS = [
   { name: 'リス', emoji: '🐿️', draw: drawSquirrel, color: '#D2691E' },
   { name: 'ヒツジ', emoji: '🐑', draw: drawSheep, color: '#FFF' },
 ];
+// ===================== PART 2: FORTUNE-TELLING GAME ENGINE =====================
+// Global state, areas & buildings, NPCs, fortune logic, and game loop
 
+// ===================== GLOBAL STATE (G object) =====================
+const G = {
+  screen: 'title',
+  frame: 0,
+  gtime: 0,
+  lastTime: 0,
+  areaIdx: 0,
+  buildingId: null,
+  fortuneInProgress: false,
+  fortuneResult: null,
+  px: 0, py: 0,
+  dx: 0, dy: 0,
+  tx: null, ty: null,
+  npcs: [],
+  bubbles: [],
+  particles: [],
+  selectedNpc: null,
+  coins: 100,
+  bgmOn: true,
+  loopRunning: false,
+  walkFrame: 0,
+  tailFrame: 0,
+  playerName: '',
+  playerBirthday: '',
+  playerBloodType: '',
+  playerZodiac: ''
+};
+
+function W() { return window.innerWidth; }
+function H() { return window.innerHeight; }
+
+let canvas, ctx, cW, cH;
+let audioCtx, bgmGain, bgmPlaying = false, bgmInterval;
+const DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
+const GROUND_Y_RATIO = 0.62;
+const PLAYER_WALK_Y_RATIO = 0.72;
+const SKY_END_RATIO = 0.45;
+const BUILDING_ROW1_Y_RATIO = 0.15;
+const BUILDING_ROW2_Y_RATIO = 0.40;
+const BUILDING_X_POSITIONS = [0.17, 0.50, 0.83];
+const NPC_SPAWN_RADIUS = 60;
+const NPC_SPAWN_Y_OFFSET = 80;
+
+// ===================== AREA & BUILDING DATA =====================
 const AREAS = [
-  { id: 1, name: '和の占い通り', emoji: '⛩️' },
-  { id: 2, name: '西洋占い広場', emoji: '🏛️' },
-  { id: 3, name: 'ふしぎ占い森', emoji: '🌲' },
-  { id: 4, name: '星空占いの丘', emoji: '⭐' },
+  {
+    id: 1,
+    name: '和の占い通り',
+    sky: ['#87CEEB', '#B3E5FC', '#E0F7FA'],
+    ground: ['#81C784', '#66BB6A', '#388E3C'],
+    buildings: [
+      { id: 'omikuji', name: 'おみくじ神社', fortuneType: 'omikuji' },
+      { id: 'shichushuminei', name: '四柱推命の館', fortuneType: 'shichusuimei' },
+      { id: 'kyusei', name: '九星気学堂', fortuneType: 'kyusei' },
+      { id: 'hanauranai', name: '花占い処', fortuneType: 'hanauranai' },
+      { id: 'yumeuranai', name: '夢占い庵', fortuneType: 'yumeuranai' },
+      { id: 'fusui', name: '風水の間', fortuneType: 'fusui' }
+    ]
+  },
+  {
+    id: 2,
+    name: '西洋占い広場',
+    sky: ['#FFE0B2', '#FFD7A8', '#FFC107'],
+    ground: ['#D7CCC8', '#BCAAA4', '#A1887F'],
+    buildings: [
+      { id: 'tarot', name: 'タロットの館', fortuneType: 'tarot' },
+      { id: 'numerology', name: '数秘術の塔', fortuneType: 'numerology' },
+      { id: 'rune', name: 'ルーン占い小屋', fortuneType: 'rune' },
+      { id: 'astrology', name: '西洋占星術の館', fortuneType: 'astrology' },
+      { id: 'oracle', name: 'オラクルカード館', fortuneType: 'oracle' },
+      { id: 'pendulum', name: 'ペンデュラム室', fortuneType: 'pendulum' }
+    ]
+  },
+  {
+    id: 3,
+    name: 'ふしぎ占い森',
+    sky: ['#90CAF9', '#BBDEFB', '#E3F2FD'],
+    ground: ['#8BC34A', '#9CCC65', '#689F38'],
+    buildings: [
+      { id: 'crystal', name: '水晶占いの泉', fortuneType: 'crystal' },
+      { id: 'animal', name: '動物占いの森', fortuneType: 'animal' },
+      { id: 'color', name: '色占いの虹', fortuneType: 'color' },
+      { id: 'pastlife', name: '前世占い洞窟', fortuneType: 'pastlife' },
+      { id: 'compatibility', name: '相性占いの花畑', fortuneType: 'compatibility' },
+      { id: 'fairy', name: '妖精占いの木', fortuneType: 'fairy' }
+    ]
+  },
+  {
+    id: 4,
+    name: '星空占いの丘',
+    sky: ['#1a1230', '#2d2255', '#3d2a6a'],
+    ground: ['#37474F', '#455A64', '#263238'],
+    buildings: [
+      { id: 'zodiac', name: '星座占い天文台', fortuneType: 'zodiac' },
+      { id: 'moon', name: '月占いの館', fortuneType: 'moon' },
+      { id: 'planet', name: '惑星占いの塔', fortuneType: 'planet' },
+      { id: 'birthday', name: '誕生日占いの庭', fortuneType: 'birthday' },
+      { id: 'dayofweek', name: '曜日占い時計台', fortuneType: 'dayofweek' },
+      { id: 'guardian', name: '守護天使占いの教会', fortuneType: 'guardian' }
+    ]
+  }
 ];
 
-class Game {
-  constructor() {
-    this.canvas = document.getElementById('gcanvas');
-    this.ctx = this.canvas.getContext('2d');
-    this.playerName = '';
-    this.fortuneType = 'general';
-    this.currentArea = 1;
-    this.frame = 0;
-    this.history = [];
-    this.album = [];
-    this.playerX = 0;
-    this.playerY = 0;
-    this.buildings = [];
-    this.npcs = [];
-    
-    this.resizeCanvas();
-    window.addEventListener('resize', () => this.resizeCanvas());
-  }
-  
-  resizeCanvas() {
-    this.canvas.width = this.canvas.clientWidth * window.devicePixelRatio;
-    this.canvas.height = this.canvas.clientHeight * window.devicePixelRatio;
-    this.ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-  }
-  
-  showProfileSetup() {
-    this.switchScreen('profile-screen');
-  }
-  
-  startGame() {
-    const nameInput = document.getElementById('playerNameInput');
-    const typeInput = document.getElementById('fortuneTypeInput');
-    this.playerName = nameInput.value || 'さん';
-    this.fortuneType = typeInput.value;
-    this.loadArea(1);
-    this.switchScreen('game-screen');
-  }
-  
-  loadArea(areaNum) {
-    this.currentArea = areaNum;
-    this.buildings = this.generateBuildings(areaNum);
-    this.npcs = this.generateNPCs(areaNum);
-    this.playerX = this.canvas.clientWidth / 2;
-    this.playerY = this.canvas.clientHeight * 0.5;
-    document.getElementById('area-name').textContent = AREAS[areaNum - 1].name;
-  }
-  
-  generateBuildings(areaId) {
-    const w = this.canvas.clientWidth;
-    const h = this.canvas.clientHeight;
-    const groundY = h * 0.62;
-    const row1Y = h * 0.15;
-    const row2Y = h * 0.40;
-    
-    return [
-      { x: w * 0.17, y: row1Y, type: areaId === 1 ? 'shrine' : areaId === 2 ? 'tower' : areaId === 3 ? 'cottage' : 'observatory', npcIdx: 0 },
-      { x: w * 0.50, y: row1Y, type: areaId === 1 ? 'shrine' : areaId === 2 ? 'tower' : areaId === 3 ? 'cottage' : 'observatory', npcIdx: 1 },
-      { x: w * 0.83, y: row1Y, type: areaId === 1 ? 'shrine' : areaId === 2 ? 'tower' : areaId === 3 ? 'cottage' : 'observatory', npcIdx: 2 },
-      { x: w * 0.17, y: row2Y, type: areaId === 1 ? 'shrine' : areaId === 2 ? 'tower' : areaId === 3 ? 'cottage' : 'observatory', npcIdx: 3 },
-      { x: w * 0.50, y: row2Y, type: areaId === 1 ? 'shrine' : areaId === 2 ? 'tower' : areaId === 3 ? 'cottage' : 'observatory', npcIdx: 4 },
-      { x: w * 0.83, y: row2Y, type: areaId === 1 ? 'shrine' : areaId === 2 ? 'tower' : areaId === 3 ? 'cottage' : 'observatory', npcIdx: 5 },
-    ];
-  }
-  
-  generateNPCs(areaId) {
-    return ANIMALS.slice(0, 12).map((animal, idx) => {
-      const building = this.buildings[idx % 6];
-      return {
-        animal: animal,
-        x: building.x + 30,
-        y: building.y + 20,
-        buildingIdx: idx % 6,
-      };
-    });
-  }
-  
-  switchScreen(screenId) {
+// ===================== NPC DATA (16 NPCs) =====================
+const NPCS_DATA = [
+  { id: 'shibataro', name: 'しばたろう', animal: '🐕', personality: 'おだやか', color: '#D4A060',
+    lines: ['こんにちは。占い師のしばたろうです。', '占いは心を整える手段なんです。', '未来は自分で作るものですよ。'] },
+  { id: 'mike', name: 'マイク', animal: '🐕‍🦺', personality: 'きさく', color: '#F5C56B',
+    lines: ['Hey! 占星術でお悩み解決！', '星の配置って本当に面白いんだ！', 'ポジティブに考えることが大事だよ！'] },
+  { id: 'usahime', name: 'うさ姫', animal: '🐰', personality: 'ほわほわ', color: '#E8E8E8',
+    lines: ['フワッ...九星気学でお助けします...', '方角ってとても大事なんですよ...', 'いいタイミングを待つことも大切...'] },
+  { id: 'konta', name: 'こんた', animal: '🦊', personality: 'しんし', color: '#FF8C00',
+    lines: ['狐の占い師・こんたです。よろしく。', '古来より狐は占いの達人とされ...', '直感を大事にしてください。'] },
+  { id: 'fukujii', name: 'ふくじい', animal: '🦉', personality: 'いかめしい', color: '#8B4513',
+    lines: ['ふくろう博士です。占いの秘密、教えましょう。', 'タロットカードは深い意味を持つ...', 'カードの声に耳を傾けてください。'] },
+  { id: 'panchan', name: 'ぱんちゃん', animal: '🐼', personality: 'ぶっきらぼう', color: '#000',
+    lines: ['数秘術のぱんちゃんです。', '数字は宇宙の言葉なんだよ。', 'お前の数字はもう決まってる。'] },
+  { id: 'kerosuke', name: 'けろすけ', animal: '🐸', personality: 'おちゃめ', color: '#4CAF50',
+    lines: ['かえろぽん〜！占い師のけろすけです！', 'ルーン文字ってカエルのかたちに見えない？', 'ジャンプして前に進もう！'] },
+  { id: 'hamuta', name: 'はむた', animal: '🐹', personality: 'いきもの', color: '#CD853F',
+    lines: ['チチチッ！占星術のはむたです。', '小さい体で大きな星を見てます。', 'コツコツ頑張ることが大事。'] },
+  { id: 'penpen', name: 'ぺんぺん', animal: '🐧', personality: 'おとなしい', color: '#000',
+    lines: ['よろしく。水晶を見つめます。', '水晶は地球のこころなんです。', 'じっと待つことも大切です。'] },
+  { id: 'tanukichi', name: 'たぬきち', animal: '🦝', personality: 'ようき', color: '#8B6914',
+    lines: ['ぽんぽこぽん！たぬきの占い師です！', '動物占いは誰の中にもいるんだぬ！', 'みんな仲間だぬ！助け合おうぬ！'] },
+  { id: 'risurin', name: 'りすりん', animal: '🐿️', personality: 'せっかち', color: '#A0522D',
+    lines: ['チチッ！色占いのりすりんです！', 'あなたの色は何色ですか？', 'カラフルに生きちゃおう！'] },
+  { id: 'mofumofu', name: 'もふもふ', animal: '🐑', personality: 'やさしい', color: '#FFF',
+    lines: ['メェ〜。前世を見ていきましょう。', 'あなたは何度も生まれ変わってます。', 'その記憶を思い出してください。'] },
+  { id: 'hoshimaru', name: 'ほしまる', animal: '⭐', personality: 'ぎょうぎただしい', color: '#FFD700',
+    lines: ['星の使者・ほしまるです。よろしく。', '星たちは皆さんを見守っています。', '星のごとく輝いてください。'] },
+  { id: 'luna', name: 'ルナ', animal: '🌙', personality: 'せんちめんたる', color: '#E8E8E8',
+    lines: ['月の占い師・ルナです。', '月は女性性と感情を支配します。', '心に耳を傾けてください。'] },
+  { id: 'sora', name: 'そら', animal: '🦅', personality: 'ぼうけんしゃ', color: '#8B4513',
+    lines: ['Sky explorer ソラです！', '惑星のエネルギーは凄い！', 'グイグイ冒険に行こう！'] },
+  { id: 'hikaru', name: 'ひかる', animal: '✨', personality: 'ふしぎ', color: '#FFB6D9',
+    lines: ['ピカッ✨ ひかるです〜', 'あなたの誕生日は特別な日なんだよ〜', 'その日を大切にしてね〜'] }
+];
+
+// ===================== FORTUNE SYSTEM DATA =====================
+const OMIKUJI_LEVELS = ['大吉', '吉', '中吉', '小吉', '末吉', '凶'];
+const OMIKUJI_CATEGORIES = ['願望', '恋愛', '学業', '仕事', '健康', '旅行', '金運'];
+
+const ZODIAC_SIGNS = [
+  { name: '牡羊座', dates: '3/21-4/19', symbol: '♈', color: '#FF5722' },
+  { name: '牡牛座', dates: '4/20-5/20', symbol: '♉', color: '#8BC34A' },
+  { name: '双子座', dates: '5/21-6/20', symbol: '♊', color: '#FFC107' },
+  { name: '蟹座', dates: '6/21-7/22', symbol: '♋', color: '#9C27B0' },
+  { name: '獅子座', dates: '7/23-8/22', symbol: '♌', color: '#FF9800' },
+  { name: '乙女座', dates: '8/23-9/22', symbol: '♍', color: '#00BCD4' },
+  { name: '天秤座', dates: '9/23-10/22', symbol: '♎', color: '#E91E63' },
+  { name: '蠍座', dates: '10/23-11/21', symbol: '♏', color: '#673AB7' },
+  { name: '射手座', dates: '11/22-12/21', symbol: '♐', color: '#2196F3' },
+  { name: '山羊座', dates: '12/22-1/19', symbol: '♑', color: '#795548' },
+  { name: '水瓶座', dates: '1/20-2/18', symbol: '♒', color: '#00BCD4' },
+  { name: '魚座', dates: '2/19-3/20', symbol: '♓', color: '#FF69B4' }
+];
+
+// ===================== CANVAS & RENDERING INITIALIZATION =====================
+window.addEventListener('load', () => {
+  canvas = document.getElementById('gcanvas');
+  if (!canvas) return;
+
+  ctx = canvas.getContext('2d');
+  resizeCanvas();
+
+  window.addEventListener('resize', resizeCanvas);
+  canvas.addEventListener('touchstart', (e) => { e.preventDefault(); const r = canvas.getBoundingClientRect(); handleTap(e.touches[0], r); }, { passive: false });
+  canvas.addEventListener('click', (e) => { const r = canvas.getBoundingClientRect(); handleTap(e, r); });
+
+  initBGM();
+});
+
+function resizeCanvas() {
+  cW = W();
+  const bottomEl = document.getElementById('bottom-ui');
+  const bottomH = (bottomEl ? bottomEl.offsetHeight : 160) || 160;
+  cH = H() - bottomH;
+
+  canvas.width = cW * DEVICE_PIXEL_RATIO;
+  canvas.height = Math.max(cH, 300) * DEVICE_PIXEL_RATIO;
+
+  canvas.style.width = cW + 'px';
+  canvas.style.height = canvas.height / DEVICE_PIXEL_RATIO + 'px';
+
+  ctx.scale(DEVICE_PIXEL_RATIO, DEVICE_PIXEL_RATIO);
+}
+
+// ===================== SCREEN NAVIGATION =====================
+function goScreen(screenName, fadeOutDuration = 350) {
+  const current = document.querySelector('.screen.active');
+  const next = document.getElementById(screenName + '-screen');
+
+  if (!next) return;
+
+  if (current && current !== next) {
+    current.classList.add('fade-out');
+    setTimeout(() => {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active', 'fade-out'));
+      next.classList.add('active');
+      G.screen = screenName;
+
+      if (screenName === 'game') {
+        resizeCanvas();
+        G.px = cW / 2;
+        G.py = cH * PLAYER_WALK_Y_RATIO;
+        G.dx = G.px - 20;
+        G.dy = G.py + 15;
+        spawnNPCs();
+        startLoop();
+        if (G.bgmOn) playBGM();
+      } else {
+        stopLoop();
+        stopBGM();
+      }
+    }, fadeOutDuration);
+  } else {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(screenId).classList.add('active');
-  }
-  
-  gameLoop() {
-    const w = this.canvas.clientWidth;
-    const h = this.canvas.clientHeight;
-    
-    drawBackground(this.ctx, w, h, this.currentArea, this.frame);
-    
-    for (let b of this.buildings) {
-      drawBuilding(this.ctx, b.x, b.y, b.type, this.currentArea);
-    }
-    
-    for (let npc of this.npcs) {
-      this.ctx.save();
-      this.ctx.translate(npc.x, npc.y);
-      const legSwing = Math.sin((this.frame % 20) / 20 * Math.PI) * 1;
-      npc.animal.draw(this.ctx, 0, 0, legSwing, npc.animal.color);
-      this.ctx.restore();
-    }
-    
-    drawPlayerShiba(this.ctx, this.playerX, h * 0.72, this.frame);
-    
-    this.frame++;
-    requestAnimationFrame(() => this.gameLoop());
-  }
-  
-  handleCanvasClick(e) {
-    const rect = this.canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    for (let npc of this.npcs) {
-      if (Math.hypot(npc.x - x, npc.y - y) < 30) {
-        this.showNPCModal(npc);
-        return;
-      }
-    }
-    
-    for (let b of this.buildings) {
-      if (Math.hypot(b.x - x, b.y - y) < 40) {
-        this.showBuildingModal(b);
-        return;
-      }
-    }
-  }
-  
-  showBuildingModal(building) {
-    const modal = document.getElementById('modal');
-    const mbox = document.getElementById('mbox');
-    mbox.innerHTML = `
-      <div class="me">✨</div>
-      <h3>${AREAS[this.currentArea - 1].name}</h3>
-      <p>占いの館へようこそ</p>
-      <button class="mbtn" onclick="game.showFortune()">占ってもらう</button>
-      <button class="mbtn" style="background: #999;" onclick="game.closeModal()">もどる</button>
-    `;
-    modal.classList.add('show');
-  }
-  
-  showNPCModal(npc) {
-    const modal = document.getElementById('modal');
-    const mbox = document.getElementById('mbox');
-    mbox.innerHTML = `
-      <div class="me">${npc.animal.emoji}</div>
-      <h3>${npc.animal.name}</h3>
-      <p>こんにちは！</p>
-      <button class="option-btn" onclick="game.showNPCConversation('${npc.animal.name}', 0)">豆知識</button>
-      <button class="option-btn" onclick="game.showNPCConversation('${npc.animal.name}', 1)">アドバイス</button>
-      <button class="option-btn" onclick="game.showNPCConversation('${npc.animal.name}', 2)">自己紹介</button>
-      <button class="option-btn" style="background: #999; color: #fff; border-color: #999;" onclick="game.closeModal()">さよなら</button>
-    `;
-    modal.classList.add('show');
-  }
-  
-  showNPCConversation(name, type) {
-    const modal = document.getElementById('modal');
-    const mbox = document.getElementById('mbox');
-    let content = '';
-    
-    if (type === 0) {
-      content = `<strong>占いの豆知識</strong><br><br>${name}から占いについての興味深い話を聞きました。`;
-    } else if (type === 1) {
-      content = `<strong>今日のアドバイス</strong><br><br>あなたの直感を信じ、今この瞬間を大切にしてください。${name}より`;
-    } else if (type === 2) {
-      content = `<strong>自己紹介</strong><br><br>私は${name}。占いを通じて多くの人を導いてきました。`;
-    }
-    
-    mbox.innerHTML = `
-      <div class="fortune-result">${content}</div>
-      <button class="mbtn" onclick="game.closeModal()">もどる</button>
-    `;
-  }
-  
-  showFortune() {
-    const fortunes = [
-      '大吉：素晴らしい運に恵まれます',
-      '中吉：良い流れが来ています',
-      '小吉：少しずつ運が向いています',
-      '吉：努力が実ります',
-      '凶：今は準備の時。焦らず待ちましょう',
-    ];
-    
-    const result = fortunes[Math.floor(Math.random() * fortunes.length)];
-    const today = new Date().toLocaleString('ja-JP');
-    
-    this.history.push({ date: today, result: result });
-    localStorage.setItem('fortuneHistory', JSON.stringify(this.history));
-    
-    const modal = document.getElementById('modal');
-    const mbox = document.getElementById('mbox');
-    mbox.innerHTML = `
-      <div class="me">🔮</div>
-      <h3>占い結果</h3>
-      <div class="fortune-result">
-        <strong>${this.playerName}さんの${this.fortuneType === 'love' ? '恋愛' : this.fortuneType === 'fortune' ? '金' : this.fortuneType === 'health' ? '健康' : this.fortuneType === 'career' ? '仕事' : '総合'}運</strong><br><br>
-        ${result}<br><br>
-        <small>${today}</small>
-      </div>
-      <button class="mbtn" onclick="game.closeModal()">わかりました</button>
-    `;
-    modal.classList.add('show');
-  }
-  
-  showHistory() {
-    const modal = document.getElementById('modal');
-    const mbox = document.getElementById('mbox');
-    
-    if (this.history.length === 0) {
-      mbox.innerHTML = '<p>まだ占い結果がありません</p><button class="mbtn" onclick="game.closeModal()">もどる</button>';
+    next.classList.add('active');
+    G.screen = screenName;
+
+    if (screenName === 'game') {
+      resizeCanvas();
+      G.px = cW / 2;
+      G.py = cH * PLAYER_WALK_Y_RATIO;
+      G.dx = G.px - 20;
+      G.dy = G.py + 15;
+      spawnNPCs();
+      startLoop();
+      if (G.bgmOn) playBGM();
     } else {
-      let html = '<h3>占い履歴</h3>';
-      this.history.forEach((item, idx) => {
-        html += `<div class="fortune-result"><strong>占い ${idx + 1}</strong><br>${item.date}<br>${item.result}</div>`;
-      });
-      html += '<button class="mbtn" onclick="game.closeModal()">もどる</button>';
-      mbox.innerHTML = html;
+      stopLoop();
+      stopBGM();
     }
-    modal.classList.add('show');
-  }
-  
-  showAlbum() {
-    const modal = document.getElementById('modal');
-    const mbox = document.getElementById('mbox');
-    mbox.innerHTML = `
-      <h3>📚 図鑑</h3>
-      <p>12の動物たちに会いました：</p>
-      ${ANIMALS.map((a, i) => `<div style="margin: 8px 0;">${a.emoji} ${a.name}</div>`).join('')}
-      <button class="mbtn" onclick="game.closeModal()">もどる</button>
-    `;
-    modal.classList.add('show');
-  }
-  
-  closeModal() {
-    document.getElementById('modal').classList.remove('show');
-  }
-  
-  prevArea() {
-    this.currentArea = this.currentArea === 1 ? 4 : this.currentArea - 1;
-    this.loadArea(this.currentArea);
-  }
-  
-  nextArea() {
-    this.currentArea = this.currentArea === 4 ? 1 : this.currentArea + 1;
-    this.loadArea(this.currentArea);
-  }
-  
-  goToTitle() {
-    this.switchScreen('title-screen');
-    this.frame = 0;
   }
 }
 
-const game = new Game();
+// ===================== GAME LOOP =====================
+function startLoop() {
+  if (G.loopRunning) return;
+  G.loopRunning = true;
+  G.lastTime = performance.now();
+  requestAnimationFrame(gameFrame);
+}
 
-// Event listeners
+function stopLoop() {
+  G.loopRunning = false;
+}
+
+function gameFrame(now) {
+  if (!G.loopRunning) return;
+  const dt = now - G.lastTime;
+
+  if (dt >= 16) {
+    G.lastTime = now;
+    gameLoop();
+  }
+
+  requestAnimationFrame(gameFrame);
+}
+
+function gameLoop() {
+  G.frame++;
+  G.gtime++;
+
+  // Player movement
+  if (G.tx !== null && G.ty !== null) {
+    const dx = G.tx - G.px;
+    const dy = G.ty - G.py;
+    const d = Math.hypot(dx, dy);
+
+    if (d > 3) {
+      const ease = Math.min(0.12, 4.0 / d);
+      G.px += dx * ease;
+      G.py += dy * ease;
+    } else {
+      G.tx = null;
+      G.ty = null;
+    }
+  }
+
+  // Dog follows
+  const tdx = G.px - 20 - G.dx;
+  const tdy = G.py + 15 - G.dy;
+  const td = Math.hypot(tdx, tdy);
+  if (td > 25) {
+    const ease = Math.min(1, 2.2 / td * 3);
+    const lerp = 0.06 + ease * 0.08;
+    G.dx += tdx * lerp;
+    G.dy += tdy * lerp;
+  }
+
+  // NPC movement
+  for (const n of G.npcs) {
+    n.frame = (n.frame || 0) + 1;
+    n.x += n.vx || 0;
+    n.y += n.vy || 0;
+
+    if (n.x < 30 || n.x > cW - 30) n.vx *= -1;
+    if (n.y < cH * 0.25 || n.y > cH * 0.85) n.vy *= -1;
+
+    if (Math.random() > 0.98) {
+      n.vx = (Math.random() - 0.5) * 1;
+      n.vy = (Math.random() - 0.5) * 0.5;
+    }
+  }
+
+  G.walkFrame = (G.walkFrame + 1) % 10;
+  G.tailFrame = (G.tailFrame + 1) % 8;
+
+  const m = 25;
+  G.px = Math.max(m, Math.min(cW - m, G.px));
+  G.py = Math.max(cH * 0.25, Math.min(cH * 0.85, G.py));
+
+  G.bubbles = G.bubbles.filter(b => {
+    b.life--;
+    b.y -= 0.5;
+    return b.life > 0;
+  });
+
+  updateParticles();
+  drawAll();
+}
+
+// ===================== TOUCH & CLICK HANDLING =====================
+function handleTap(touch, rect) {
+  if (!rect) {
+    const r = canvas.getBoundingClientRect();
+    rect = r;
+  }
+
+  const x = ((touch.clientX || touch.x || 0) - rect.left) * (cW / rect.width);
+  const y = ((touch.clientY || touch.y || 0) - rect.top) * (cH / rect.height);
+
+  const area = AREAS[G.areaIdx];
+
+  // Check building hits
+  for (let i = 0; i < area.buildings.length; i++) {
+    const building = area.buildings[i];
+    const rowIdx = Math.floor(i / 3);
+    const colIdx = i % 3;
+    const bx = cW * BUILDING_X_POSITIONS[colIdx];
+    const by = cH * (rowIdx === 0 ? BUILDING_ROW1_Y_RATIO : BUILDING_ROW2_Y_RATIO);
+
+    if (Math.hypot(bx - x, by - y) < 50) {
+      enterBuilding(building);
+      return;
+    }
+  }
+
+  // Check NPC hits
+  for (const n of G.npcs) {
+    if (Math.hypot(n.x - x, n.y - y) < 35) {
+      talkToNPC(n);
+      return;
+    }
+  }
+
+  // Area navigation
+  if (x < 50) { changeArea(-1); return; }
+  if (x > cW - 50) { changeArea(1); return; }
+
+  // Set movement target
+  G.tx = x;
+  G.ty = y;
+  playSE('step');
+}
+
+function changeArea(direction) {
+  G.areaIdx = (G.areaIdx + direction + AREAS.length) % AREAS.length;
+  const area = AREAS[G.areaIdx];
+
+  const areaNameEl = document.getElementById('area-name');
+  if (areaNameEl) {
+    areaNameEl.textContent = 'エリア ' + area.id + ': ' + area.name;
+  }
+
+  addBubble(cW / 2, cH / 2, area.name + 'に到着！', 60);
+  playSE('arrival');
+  spawnNPCs();
+}
+
+// ===================== NPC SYSTEM =====================
+function spawnNPCs() {
+  G.npcs = [];
+  const area = AREAS[G.areaIdx];
+
+  for (let i = 0; i < 4; i++) {
+    const npcData = NPCS_DATA[G.areaIdx * 4 + i];
+    if (!npcData) continue;
+
+    const npc = {
+      ...npcData,
+      x: 60 + Math.random() * (cW - 120),
+      y: cH * 0.35 + Math.random() * cH * 0.4,
+      vx: (Math.random() - 0.5) * 0.8,
+      vy: (Math.random() - 0.5) * 0.3,
+      frame: Math.floor(Math.random() * 20)
+    };
+
+    G.npcs.push(npc);
+  }
+}
+
+function talkToNPC(npc) {
+  G.selectedNpc = npc;
+  const text = npc.lines[Math.floor(Math.random() * npc.lines.length)];
+  addBubble(npc.x, npc.y - 40, text, 50);
+}
+
+function enterBuilding(building) {
+  G.buildingId = building.id;
+  G.fortuneInProgress = true;
+
+  const mbox = document.getElementById('mbox');
+  const modal = document.getElementById('modal');
+  if (mbox && modal) {
+    mbox.innerHTML = `
+      <div class="me">🏠</div>
+      <h3>${building.name}</h3>
+      <p>占ってもらいますか？</p>
+      <button class="mbtn" onclick="startFortune('${building.id}', '${building.fortuneType}')">占ってもらう</button>
+      <button class="mbtn" style="background:#999" onclick="closeModal()">もどる</button>
+    `;
+    modal.classList.add('show');
+  }
+
+  playSE('enter');
+}
+
+function showHistory() {
+  const mbox = document.getElementById('mbox');
+  const modal = document.getElementById('modal');
+  if (mbox && modal) {
+    mbox.innerHTML = `
+      <div class="me">📜</div>
+      <h3>占い履歴</h3>
+      <p>まだ占い履歴がありません。<br>占いの館で占ってもらいましょう！</p>
+      <button class="mbtn" onclick="closeModal()">閉じる</button>
+    `;
+    modal.classList.add('show');
+  }
+}
+
+function showAlbum() {
+  const mbox = document.getElementById('mbox');
+  const modal = document.getElementById('modal');
+  if (mbox && modal) {
+    mbox.innerHTML = `
+      <div class="me">📖</div>
+      <h3>占い図鑑</h3>
+      <p>占いを体験すると図鑑に記録されます。<br>全24種類をコンプリートしよう！</p>
+      <button class="mbtn" onclick="closeModal()">閉じる</button>
+    `;
+    modal.classList.add('show');
+  }
+}
+
+function startFortune(buildingId, fortuneType) {
+  G.fortuneResult = generateFortune(fortuneType);
+  closeModal();
+  showFortuneResult(G.fortuneResult);
+}
+
+function closeModal() {
+  const modal = document.getElementById('modal');
+  if (modal) modal.classList.remove('show');
+}
+
+// ===================== FORTUNE GENERATION =====================
+function generateFortune(fortuneType, answers = []) {
+  const result = {
+    type: fortuneType,
+    timestamp: new Date().toLocaleString('ja-JP'),
+    category: OMIKUJI_CATEGORIES[Math.floor(Math.random() * OMIKUJI_CATEGORIES.length)]
+  };
+
+  if (fortuneType === 'omikuji') {
+    const level = OMIKUJI_LEVELS[Math.floor(Math.random() * OMIKUJI_LEVELS.length)];
+    const messages = {
+      '大吉': ['願いは必ず叶う。迷わず進め。', '今こそ挑戦の時。全力を尽くしなさい。', 'チャンスが訪れる。逃すな。'],
+      '吉': ['願いは叶う。ただし工夫が必要。', '努力の先に道が開ける。', '時間がかかるが叶う願い。'],
+      '中吉': ['願いは叶うが時間がかかる。', '工夫と努力で道が開ける。', 'チャンスを見極めることが大切。'],
+      '小吉': ['願いは時間をかけて叶う。', '努力が必要。諦めずに。', 'チャンスは小さいが存在する。'],
+      '末吉': ['願いは叶いにくい。工夫が重要。', '別の道を探ることも視野に。', 'タイミングが難しい時期。'],
+      '凶': ['願いは叶いにくい。時を待つべし。', '現状では実現不可能。', '異なるアプローチを模索せよ。']
+    };
+
+    result.level = level;
+    result.message = messages[level][Math.floor(Math.random() * messages[level].length)];
+    result.advice = 'このおみくじから与えられる助言を大切にしてください。あなたの行動と心がけが未来を形作ります。';
+    result.lucky = {
+      color: ['赤', '白', '金', '黒', '青'][Math.floor(Math.random() * 5)],
+      number: [1, 3, 5, 7, 8, 9][Math.floor(Math.random() * 6)],
+      direction: ['北', '東', '南', '西'][Math.floor(Math.random() * 4)],
+      food: ['米', 'うどん', 'わかめ', 'なす', 'みかん'][Math.floor(Math.random() * 5)]
+    };
+  } else if (fortuneType === 'tarot') {
+    const cardNames = ['愚者', 'マジシャン', '女教皇', '女帝', '皇帝', '教皇', '恋人', '戦車', '力', '隠者'];
+    result.cards = [
+      cardNames[Math.floor(Math.random() * cardNames.length)],
+      cardNames[Math.floor(Math.random() * cardNames.length)],
+      cardNames[Math.floor(Math.random() * cardNames.length)]
+    ];
+    result.spread = '3カード・スプレッド (過去/現在/未来)';
+    result.message = `${result.cards[0]}（過去） → ${result.cards[1]}（現在） → ${result.cards[2]}（未来）`;
+    result.advice = 'このカードたちのメッセージを心に留め、あなたの直感に耳を傾けてください。';
+  } else if (fortuneType === 'numerology') {
+    const lifePath = G.playerBirthday ? calculateLifePath(G.playerBirthday) : Math.floor(Math.random() * 9) + 1;
+    result.number = lifePath;
+    const meanings = {
+      1: '独立と創造のパス。先駆者になる運命。',
+      2: 'バランスと協調のパス。調和者になる運命。',
+      3: '創造と表現のパス。アーティストになる運命。',
+      4: '安定と基盤のパス。建設者になる運命。',
+      5: '自由と変化のパス。冒険者になる運命。',
+      6: '愛と責任のパス。ケアテイカーになる運命。',
+      7: '知識と精神のパス。探究者になる運命。',
+      8: '力と豊かさのパス。リーダーになる運命。',
+      9: '完成と奉仕のパス。人道主義者になる運命。'
+    };
+    result.message = meanings[lifePath] || '数字があなたを導きます。';
+    result.advice = 'あなたのライフパスナンバーは ' + lifePath + ' です。このパスを歩み続けましょう。';
+  } else if (fortuneType === 'astrology' || fortuneType === 'zodiac') {
+    const zodiac = G.playerZodiac || ZODIAC_SIGNS[Math.floor(Math.random() * ZODIAC_SIGNS.length)];
+    result.zodiac = typeof zodiac === 'string' ? zodiac : zodiac.name;
+    result.ratings = {
+      overall: Math.floor(Math.random() * 5) + 1,
+      love: Math.floor(Math.random() * 5) + 1,
+      work: Math.floor(Math.random() * 5) + 1,
+      money: Math.floor(Math.random() * 5) + 1,
+      health: Math.floor(Math.random() * 5) + 1
+    };
+    result.message = result.zodiac + ' の運勢は好調です。星たちはあなたを支援しています。';
+    result.advice = 'このメッセージを大切に。星の導きに従いましょう。';
+  } else if (fortuneType === 'shichusuimei') {
+    const tenkan = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+    const chishi = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+    const myTenkan = tenkan[Math.floor(Math.random()*10)];
+    const myChishi = chishi[Math.floor(Math.random()*12)];
+    result.pillar = myTenkan + myChishi;
+    result.element = ['木','火','土','金','水'][Math.floor(Math.random()*5)];
+    result.message = `あなたの日柱は「${result.pillar}」。五行は「${result.element}」の性質を持っています。`;
+    result.advice = '四柱推命は古代中国から伝わる命術。生年月日時から運命の流れを読み解きます。';
+  } else if (fortuneType === 'kyusei') {
+    const stars = ['一白水星','二黒土星','三碧木星','四緑木星','五黄土星','六白金星','七赤金星','八白土星','九紫火星'];
+    const myStar = stars[Math.floor(Math.random()*9)];
+    const directions = ['北','北東','東','南東','南','南西','西','北西'];
+    result.star = myStar;
+    result.luckyDir = directions[Math.floor(Math.random()*8)];
+    result.message = `あなたの本命星は「${myStar}」。今月の吉方位は「${result.luckyDir}」です。`;
+    result.advice = '方位のエネルギーを活用して運気アップを目指しましょう。';
+  } else if (fortuneType === 'hanauranai') {
+    const flowers = [{name:'バラ',meaning:'情熱と愛'},{name:'ひまわり',meaning:'明るさと希望'},{name:'すみれ',meaning:'謙虚と誠実'},{name:'桜',meaning:'新しい始まり'},{name:'チューリップ',meaning:'思いやり'},{name:'ラベンダー',meaning:'静けさと癒し'}];
+    const f = flowers[Math.floor(Math.random()*flowers.length)];
+    result.flower = f.name;
+    result.message = `あなたの花は「${f.name}」。花言葉は「${f.meaning}」。この花があなたの運勢を導きます。`;
+    result.advice = `${f.name}を身近に置くと運気がアップするでしょう。`;
+  } else if (fortuneType === 'yumeuranai') {
+    const dreams = [{theme:'空を飛ぶ夢',meaning:'自由への渇望。新しいことに挑戦する時期です。'},{theme:'海の夢',meaning:'感情の深さを表します。心を落ち着けましょう。'},{theme:'動物の夢',meaning:'本能的な直感が冴えています。直感を信じて。'},{theme:'花園の夢',meaning:'豊かさと成長の象徴。良い時期が訪れます。'},{theme:'星空の夢',meaning:'希望と目標を表します。高い志を持ちましょう。'}];
+    const d = dreams[Math.floor(Math.random()*dreams.length)];
+    result.dream = d.theme;
+    result.message = `「${d.theme}」が示すメッセージ：${d.meaning}`;
+    result.advice = '夢は潜在意識からのメッセージです。大切に受け止めましょう。';
+  } else if (fortuneType === 'fusui') {
+    const elements = ['水','火','木','金','土'];
+    const el = elements[Math.floor(Math.random()*5)];
+    const colors = {水:'青・黒',火:'赤・オレンジ',木:'緑・茶',金:'白・金',土:'黄・ベージュ'};
+    const items = {水:'水槽・鏡',火:'キャンドル・照明',木:'観葉植物・木製品',金:'金属製品・時計',土:'陶器・石'};
+    result.element = el;
+    result.message = `あなたに必要な風水の気は「${el}」。ラッキーカラーは「${colors[el]}」です。`;
+    result.advice = `${items[el]}を部屋に取り入れると運気が改善します。`;
+  } else if (fortuneType === 'rune') {
+    const runes = [{name:'フェフ',symbol:'ᚠ',meaning:'財産と豊かさ'},{name:'ウルズ',symbol:'ᚢ',meaning:'力と健康'},{name:'アンスズ',symbol:'ᚨ',meaning:'知恵と導き'},{name:'ライゾ',symbol:'ᚱ',meaning:'旅と変化'},{name:'ケナズ',symbol:'ᚲ',meaning:'創造と情熱'},{name:'ギフ',symbol:'ᚷ',meaning:'贈り物と愛'}];
+    const r = runes[Math.floor(Math.random()*runes.length)];
+    result.rune = r;
+    result.message = `引いたルーンは「${r.name}」${r.symbol}。意味は「${r.meaning}」。`;
+    result.advice = 'ルーンの古代の知恵があなたを導いています。';
+  } else if (fortuneType === 'oracle') {
+    const cards = ['天使のカード：守護天使があなたを見守っています','豊穣のカード：実りの時期が近づいています','変容のカード：大きな変化が訪れます','愛のカード：愛に満ちた時間が待っています','勇気のカード：一歩踏み出す時です','直感のカード：あなたの内なる声に従いましょう'];
+    const c = cards[Math.floor(Math.random()*cards.length)];
+    result.message = c;
+    result.advice = 'オラクルカードはあなたの魂へのメッセージです。';
+  } else if (fortuneType === 'pendulum') {
+    const answers = ['大きくYES！前に進みましょう','やさしくYES。ゆっくり進んで大丈夫','少し待ちましょう。タイミングが大切です','NO。別の道を探ってみましょう','強いYES！今がチャンスです！'];
+    const a = answers[Math.floor(Math.random()*answers.length)];
+    result.message = `ペンデュラムの答え：${a}`;
+    result.advice = '振り子はあなたの潜在意識と繋がっています。';
+  } else if (fortuneType === 'crystal') {
+    const visions = ['光り輝く道が見えます。あなたの未来は明るい。','静かな湖面に月が映っています。心を落ち着ける時期。','花が咲き乱れる庭園。豊かな時期が訪れます。','星が瞬く夜空。高い目標に向かって進みましょう。','虹がかかる空。困難の後に美しい結果が待っています。'];
+    result.message = `水晶に映るビジョン：${visions[Math.floor(Math.random()*visions.length)]}`;
+    result.advice = '水晶は真実を映す鏡。心を静めて受け取りましょう。';
+  } else if (fortuneType === 'animal') {
+    const spirits = [{animal:'オオカミ',trait:'直感力と家族愛'},{animal:'鷹',trait:'高い視点と決断力'},{animal:'イルカ',trait:'知性と遊び心'},{animal:'蝶',trait:'変容と美しさ'},{animal:'亀',trait:'忍耐と長寿'},{animal:'鹿',trait:'優しさと優雅さ'}];
+    const s = spirits[Math.floor(Math.random()*spirits.length)];
+    result.spiritAnimal = s.animal;
+    result.message = `あなたの守護動物は「${s.animal}」。特性は「${s.trait}」。`;
+    result.advice = `${s.animal}のように振る舞うことで運気がアップします。`;
+  } else if (fortuneType === 'color') {
+    const colors = [{color:'レッド',meaning:'情熱・行動力',hex:'#FF4444'},{color:'ブルー',meaning:'冷静・知性',hex:'#4488FF'},{color:'グリーン',meaning:'癒し・成長',hex:'#44BB44'},{color:'ゴールド',meaning:'豊かさ・成功',hex:'#FFD700'},{color:'パープル',meaning:'直感・神秘',hex:'#9944CC'},{color:'ピンク',meaning:'愛・やさしさ',hex:'#FF88AA'}];
+    const c = colors[Math.floor(Math.random()*colors.length)];
+    result.color = c;
+    result.message = `あなたのラッキーカラーは「${c.color}」。意味は「${c.meaning}」。`;
+    result.advice = `今日は${c.color}のアイテムを身につけると良いでしょう。`;
+  } else if (fortuneType === 'pastlife') {
+    const lives = ['古代エジプトの神官：知恵と神秘の力を持っていました','中世ヨーロッパの旅人：冒険と自由を愛していました','平安時代の歌人：美と表現の才能に溢れていました','古代ギリシャの哲学者：真理を追求していました','戦国時代の茶人：おもてなしの心を持っていました'];
+    result.message = `あなたの前世：${lives[Math.floor(Math.random()*lives.length)]}`;
+    result.advice = '前世の記憶は現世の才能として引き継がれています。';
+  } else if (fortuneType === 'compatibility') {
+    const scores = Math.floor(Math.random()*41)+60;
+    const aspects = ['精神的な繋がり','感情の共有','価値観の一致','コミュニケーション','将来のビジョン'];
+    result.score = scores;
+    result.bestAspect = aspects[Math.floor(Math.random()*aspects.length)];
+    result.message = `相性度：${scores}%。特に「${result.bestAspect}」の面で良い相性です。`;
+    result.advice = '相性は固定ではなく、お互いの努力で高めることができます。';
+  } else if (fortuneType === 'fairy') {
+    const fairies = [{name:'花の妖精',power:'癒しの力'},{name:'風の妖精',power:'自由の力'},{name:'水の妖精',power:'浄化の力'},{name:'光の妖精',power:'希望の力'},{name:'星の妖精',power:'導きの力'}];
+    const f = fairies[Math.floor(Math.random()*fairies.length)];
+    result.fairy = f.name;
+    result.message = `あなたに寄り添う妖精は「${f.name}」。「${f.power}」であなたを助けてくれます。`;
+    result.advice = '妖精の存在を信じることで、その力はより強くなります。';
+  } else if (fortuneType === 'moon') {
+    const phases = ['新月：新しい始まりの時','上弦の月：成長と挑戦の時','満月：成就と感謝の時','下弦の月：手放しと休息の時'];
+    const p = phases[Math.floor(Math.random()*phases.length)];
+    result.message = `月のメッセージ：${p}。月の満ち欠けはあなたの人生のリズムを映しています。`;
+    result.advice = '月のリズムに合わせた生活が運気を高めます。';
+  } else if (fortuneType === 'planet') {
+    const planets = [{name:'水星',domain:'コミュニケーション・知性'},{name:'金星',domain:'愛・美・豊かさ'},{name:'火星',domain:'行動力・情熱'},{name:'木星',domain:'拡大・幸運'},{name:'土星',domain:'忍耐・責任'}];
+    const p = planets[Math.floor(Math.random()*planets.length)];
+    result.planet = p.name;
+    result.message = `あなたを導く惑星は「${p.name}」。支配する領域は「${p.domain}」。`;
+    result.advice = `${p.name}のエネルギーを意識して過ごしましょう。`;
+  } else if (fortuneType === 'birthday') {
+    const dayNum = G.playerBirthday ? new Date(G.playerBirthday).getDate() : Math.floor(Math.random()*31)+1;
+    const traits = ['リーダーシップ','協調性','創造力','堅実さ','自由な発想','愛情深さ','探究心','決断力','奉仕の心'];
+    const t = traits[dayNum % traits.length];
+    result.dayNumber = dayNum;
+    result.message = `${dayNum}日生まれのあなたの才能は「${t}」。この才能を活かして進みましょう。`;
+    result.advice = '生まれた日にはあなただけの特別なエネルギーが宿っています。';
+  } else if (fortuneType === 'dayofweek') {
+    const days = [{day:'月曜',planet:'月',trait:'感受性'},{day:'火曜',planet:'火星',trait:'行動力'},{day:'水曜',planet:'水星',trait:'知性'},{day:'木曜',planet:'木星',trait:'発展'},{day:'金曜',planet:'金星',trait:'愛と美'},{day:'土曜',planet:'土星',trait:'忍耐'},{day:'日曜',planet:'太陽',trait:'活力'}];
+    const today = days[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
+    result.message = `今日は${today.day}日。守護星は「${today.planet}」。今日のテーマは「${today.trait}」です。`;
+    result.advice = `${today.trait}を意識して過ごすと良い一日になります。`;
+  } else if (fortuneType === 'guardian') {
+    const angels = [{name:'ミカエル',role:'勇気と守護'},{name:'ガブリエル',role:'導きと啓示'},{name:'ラファエル',role:'癒しと健康'},{name:'ウリエル',role:'知恵と光'},{name:'チャミュエル',role:'愛と人間関係'}];
+    const a = angels[Math.floor(Math.random()*angels.length)];
+    result.angel = a.name;
+    result.message = `あなたの守護天使は「${a.name}」。司る力は「${a.role}」。`;
+    result.advice = `${a.name}に語りかけることで、その守護の力を受け取れます。`;
+  } else {
+    result.message = 'あなたの未来は明るいものです。進み続けましょう。';
+    result.advice = '占いの結果はあなたの行動によって変わります。自分を信じてください。';
+  }
+
+  return result;
+}
+
+function calculateLifePath(birthday) {
+  const date = new Date(birthday);
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  let sum = String(year).split('').reduce((a, b) => a + parseInt(b), 0) +
+            String(month).split('').reduce((a, b) => a + parseInt(b), 0) +
+            String(day).split('').reduce((a, b) => a + parseInt(b), 0);
+
+  while (sum > 9 && ![11, 22, 33].includes(sum)) {
+    sum = String(sum).split('').reduce((a, b) => a + parseInt(b), 0);
+  }
+
+  return sum;
+}
+
+const FORTUNE_NAMES = {
+  omikuji:'おみくじ', shichusuimei:'四柱推命', kyusei:'九星気学', hanauranai:'花占い',
+  yumeuranai:'夢占い', fusui:'風水', tarot:'タロット', numerology:'数秘術',
+  rune:'ルーン占い', astrology:'西洋占星術', oracle:'オラクルカード', pendulum:'ペンデュラム',
+  crystal:'水晶占い', animal:'動物占い', color:'色占い', pastlife:'前世占い',
+  compatibility:'相性占い', fairy:'妖精占い', zodiac:'星座占い', moon:'月占い',
+  planet:'惑星占い', birthday:'誕生日占い', dayofweek:'曜日占い', guardian:'守護天使占い'
+};
+
+function showFortuneResult(result) {
+  const resultModal = document.getElementById('fortune-result');
+  if (!resultModal) return;
+
+  let content = `
+    <div class="fortune-result-content">
+      <h2>${FORTUNE_NAMES[result.type] || result.type}</h2>
+      ${result.level ? `<div class="fortune-level">${result.level}</div>` : ''}
+      <p class="fortune-message">${result.message}</p>
+      <p class="fortune-advice">${result.advice}</p>
+  `;
+
+  if (result.lucky) {
+    content += `
+      <div class="lucky-items">
+        <h4>ラッキーアイテム</h4>
+        <p>色: ${result.lucky.color}</p>
+        <p>数字: ${result.lucky.number}</p>
+        <p>方角: ${result.lucky.direction}</p>
+        <p>食べ物: ${result.lucky.food}</p>
+      </div>
+    `;
+  }
+
+  if (result.ratings) {
+    content += `
+      <div class="ratings">
+        <h4>運勢レーティング</h4>
+        <p>総合: ${result.ratings.overall}/5</p>
+        <p>恋愛: ${result.ratings.love}/5</p>
+        <p>仕事: ${result.ratings.work}/5</p>
+        <p>金運: ${result.ratings.money}/5</p>
+        <p>健康: ${result.ratings.health}/5</p>
+      </div>
+    `;
+  }
+
+  content += `
+    <div class="result-buttons">
+      <button class="mbtn" onclick="saveFortuneResult()">結果を保存</button>
+      <button class="mbtn" onclick="closeFortuneResult()">閉じる</button>
+    </div>
+  `;
+
+  resultModal.innerHTML = content;
+  resultModal.classList.add('show');
+}
+
+function closeFortuneResult() {
+  const resultModal = document.getElementById('fortune-result');
+  if (resultModal) resultModal.classList.remove('show');
+}
+
+function saveFortuneResult() {
+  if (!G.fortuneResult) return;
+  const saved = JSON.stringify(G.fortuneResult);
+  console.log('Fortune saved:', saved);
+  addBubble(cW / 2, cH / 2, '結果を保存しました！', 50);
+}
+
+// ===================== PARTICLE & BUBBLE EFFECTS =====================
+function addBubble(x, y, text, duration = 40) {
+  G.bubbles.push({ x: x, y: y, text: text, life: duration });
+}
+
+function emitParticles(x, y, count = 8) {
+  for (let i = 0; i < count; i++) {
+    G.particles.push({
+      x: x, y: y,
+      vx: (Math.random() - 0.5) * 4,
+      vy: (Math.random() - 0.5) * 4 - 2,
+      life: 30
+    });
+  }
+}
+
+function updateParticles() {
+  G.particles = G.particles.filter(p => {
+    p.life--;
+    p.x += p.vx;
+    p.y += p.vy;
+    return p.life > 0;
+  });
+}
+
+// ===================== AUDIO =====================
+function initBGM() {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  bgmGain = audioCtx.createGain();
+  bgmGain.gain.value = 0.08;
+  bgmGain.connect(audioCtx.destination);
+}
+
+function playBGM() {
+  if (bgmPlaying) return;
+  bgmPlaying = true;
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+
+  const notes = [523, 587, 659, 698, 784, 698, 659, 587];
+  let ni = 0;
+
+  function playNote() {
+    if (!bgmPlaying) return;
+    const o = audioCtx.createOscillator();
+    o.type = 'sine';
+    o.frequency.value = notes[ni % notes.length];
+    const g = audioCtx.createGain();
+    g.gain.value = 0.06;
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+    o.connect(g);
+    g.connect(bgmGain);
+    o.start();
+    o.stop(audioCtx.currentTime + 0.38);
+    ni++;
+  }
+
+  playNote();
+  bgmInterval = setInterval(playNote, 400);
+}
+
+function stopBGM() {
+  bgmPlaying = false;
+  if (bgmInterval) clearInterval(bgmInterval);
+}
+
+function playSE(type) {
+  if (!audioCtx) return;
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+
+  try {
+    const now = audioCtx.currentTime;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.connect(g);
+    g.connect(audioCtx.destination);
+
+    if (type === 'step') {
+      o.frequency.setValueAtTime(1200, now);
+      o.frequency.exponentialRampToValueAtTime(800, now + 0.04);
+      g.gain.setValueAtTime(0.04, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+      o.start(now);
+      o.stop(now + 0.06);
+    } else if (type === 'enter') {
+      o.type = 'triangle';
+      o.frequency.setValueAtTime(600, now);
+      o.frequency.exponentialRampToValueAtTime(900, now + 0.3);
+      g.gain.setValueAtTime(0.06, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      o.start(now);
+      o.stop(now + 0.3);
+    } else if (type === 'arrival') {
+      o.frequency.setValueAtTime(523, now);
+      g.gain.setValueAtTime(0.07, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+      o.start(now);
+      o.stop(now + 0.4);
+    }
+  } catch (e) {}
+}
+
+// ===================== DRAWING FUNCTIONS =====================
+// Map NPC animal emoji to drawing functions
+const ANIMAL_DRAW_MAP = {
+  '🐕': drawShiba, '🐕‍🦺': drawShiba, '🐱': drawCat, '🐰': drawRabbit,
+  '🦊': drawFox, '🦉': drawOwl, '🐸': drawFrog, '🐼': drawPanda,
+  '🐹': drawHamster, '🐧': drawPenguin, '🦝': drawTanuki, '🐿️': drawSquirrel,
+  '🐑': drawSheep, '⭐': drawFox, '🌙': drawCat, '🦅': drawOwl, '✨': drawRabbit
+};
+
+function drawAll() {
+  if (!ctx) return;
+  const w = cW;
+  const h = cH;
+  ctx.clearRect(0, 0, w, h);
+
+  const area = AREAS[G.areaIdx];
+
+  // Use detailed background drawing
+  drawBackground(ctx, w, h, area.id, G.frame);
+
+  // Draw buildings using detailed function
+  for (let i = 0; i < area.buildings.length; i++) {
+    const rowIdx = Math.floor(i / 3);
+    const colIdx = i % 3;
+    const bx = w * BUILDING_X_POSITIONS[colIdx];
+    const by = h * (rowIdx === 0 ? BUILDING_ROW1_Y_RATIO : BUILDING_ROW2_Y_RATIO);
+
+    drawBuilding(ctx, bx, by, area.buildings[i].fortuneType, area.id);
+
+    // Building name label
+    ctx.fillStyle = area.id === 4 ? '#FFF' : '#333';
+    ctx.font = 'bold 11px "Hiragino Maru Gothic ProN", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(area.buildings[i].name, bx, by + 42);
+  }
+
+  // Draw NPCs using detailed animal drawing functions
+  for (const npc of G.npcs) {
+    const drawFn = ANIMAL_DRAW_MAP[npc.animal];
+    const bounce = Math.sin((npc.frame || 0) * 0.1) * 2;
+    if (drawFn) {
+      drawFn(ctx, npc.x, npc.y, bounce, npc.color || '#D4A060');
+    } else {
+      // Fallback to emoji for unknown animals
+      ctx.font = '24px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(npc.animal, npc.x, npc.y);
+    }
+    // Draw NPC name
+    ctx.fillStyle = area.id === 4 ? '#FFF' : '#555';
+    ctx.font = '10px "Hiragino Maru Gothic ProN", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(npc.name, npc.x, npc.y + 28);
+  }
+
+  // Draw player shiba using detailed drawing
+  drawPlayerShiba(ctx, G.px, G.py, G.frame);
+
+  // Draw bubbles
+  for (const b of G.bubbles) {
+    const alpha = b.life / 40;
+    ctx.globalAlpha = Math.max(0, alpha);
+
+    ctx.fillStyle = '#FFF';
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 2;
+
+    const textWidth = ctx.measureText(b.text).width;
+    const bubbleWidth = textWidth + 20;
+    const bubbleHeight = 30;
+    const bubbleX = b.x - bubbleWidth / 2;
+    const bubbleY = b.y - bubbleHeight;
+
+    ctx.beginPath();
+    ctx.roundRect(bubbleX, bubbleY, bubbleWidth, bubbleHeight, 8);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#333';
+    ctx.font = '12px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(b.text, b.x, b.y - 8);
+
+    ctx.globalAlpha = 1;
+  }
+
+  // Draw area navigation hints
+  ctx.fillStyle = 'rgba(200, 200, 200, 0.5)';
+  ctx.font = '14px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('◀', 25, h / 2);
+  ctx.fillText('▶', w - 25, h / 2);
+}
+
+// ===================== INIT ON DOM READY =====================
 document.addEventListener('DOMContentLoaded', () => {
-  game.canvas.addEventListener('click', (e) => game.handleCanvasClick(e));
-  game.gameLoop();
-  
-  // Generate stars
+  // Generate stars for title screen
   const starsContainer = document.getElementById('stars-ct');
   if (starsContainer) {
     for (let i = 0; i < 50; i++) {
@@ -2172,7 +2902,38 @@ document.addEventListener('DOMContentLoaded', () => {
       starsContainer.appendChild(star);
     }
   }
+
+  // Set up profile form submission
+  const profileForm = document.getElementById('profile-form');
+  if (profileForm) {
+    profileForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nameInput = document.getElementById('playerNameInput');
+      const birthdayInput = document.getElementById('playerBirthdayInput');
+      const bloodTypeInput = document.getElementById('playerBloodTypeInput');
+      const zodiacInput = document.getElementById('playerZodiacInput');
+
+      G.playerName = nameInput ? nameInput.value || 'さん' : 'さん';
+      G.playerBirthday = birthdayInput ? birthdayInput.value : '';
+      G.playerBloodType = bloodTypeInput ? bloodTypeInput.value : '';
+      G.playerZodiac = zodiacInput ? zodiacInput.value : '';
+
+      goScreen('game');
+    });
+  }
+
+  // Alternative start button
+  const startBtn = document.getElementById('start-btn');
+  if (startBtn) {
+    startBtn.addEventListener('click', () => {
+      const nameInput = document.getElementById('playerNameInput');
+      G.playerName = nameInput ? nameInput.value || 'さん' : 'さん';
+      goScreen('game');
+    });
+  }
 });
+
+
 </script>
 </body>
 </html>
