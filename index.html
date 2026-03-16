@@ -1686,7 +1686,7 @@ function drawCuteComedyDuo(ctx, x, y, oY, type = 'tall') {
 
 function drawPlayerShiba(ctx, x, y, frame) {
   ctx.save();
-  const legOffset = Math.sin(frame * 0.1) * 2;
+  const legOffset = Math.sin(frame * 0.1) * 3;
   ctx.translate(x, y + legOffset);
   
   ctx.strokeStyle = '#222';
@@ -1932,25 +1932,43 @@ function startCanvas() {
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
   let animationFrame = 0;
-  
+  let dpr = window.devicePixelRatio || 1;
+  // Logical (CSS) dimensions
+  let lw = 0, lh = 0;
+
   function resizeCanvas() {
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    dpr = window.devicePixelRatio || 1;
+    lw = canvas.offsetWidth;
+    lh = canvas.offsetHeight;
+    canvas.width = lw * dpr;
+    canvas.height = lh * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
-  
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
-  
-  // Area sky/ground colors
+
+  // Area sky/ground/accent colors (warm, kawaii palette)
   const AREA_COLORS = [
-    {sky:['#FFE0B2','#FFCC80','#87CEEB'], ground:'#81C784'}, // 和の占い村
-    {sky:['#FFE0B2','#FFD7A8','#E1BEE7'], ground:'#D7CCC8'}, // 西洋占い街
-    {sky:['#C8E6C9','#A5D6A7','#E8F5E9'], ground:'#8BC34A'}, // 森
-    {sky:['#1a1230','#2d2255','#3d2a6a'], ground:'#37474F'}, // 星空の丘
-    {sky:['#FFB74D','#FF9800','#FFCCBC'], ground:'#795548'}, // 龍神の山
-    {sky:['#4FC3F7','#81D4FA','#B3E5FC'], ground:'#FFE0B2'}, // 海
-    {sky:['#CE93D8','#E1BEE7','#F3E5F5'], ground:'#A5D6A7'}, // 精霊の川
-    {sky:['#F8BBD0','#FCE4EC','#F3E5F5'], ground:'#E1BEE7'}  // 天空の城
+    {sky:['#FFF3E0','#FFE0B2','#FFCC80'], ground:'#A5D6A7', accent:'#FF8A65', groundEnd:'#81C784'}, // 和の占い村
+    {sky:['#F3E5F5','#E1BEE7','#CE93D8'], ground:'#D7CCC8', accent:'#BA68C8', groundEnd:'#BCAAA4'}, // 西洋占い街
+    {sky:['#E8F5E9','#C8E6C9','#A5D6A7'], ground:'#8BC34A', accent:'#66BB6A', groundEnd:'#689F38'}, // 森
+    {sky:['#1a1a40','#2d2260','#3d3080'], ground:'#37474F', accent:'#FDD835', groundEnd:'#263238'}, // 星空の丘
+    {sky:['#FFF3E0','#FFB74D','#FF9800'], ground:'#A1887F', accent:'#FF7043', groundEnd:'#795548'}, // 龍神の山
+    {sky:['#E1F5FE','#81D4FA','#4FC3F7'], ground:'#FFE0B2', accent:'#29B6F6', groundEnd:'#FFD54F'}, // 海
+    {sky:['#F3E5F5','#CE93D8','#E1BEE7'], ground:'#C8E6C9', accent:'#AB47BC', groundEnd:'#A5D6A7'}, // 精霊の川
+    {sky:['#FCE4EC','#F8BBD0','#F48FB1'], ground:'#E1BEE7', accent:'#EC407A', groundEnd:'#CE93D8'}  // 天空の城
+  ];
+
+  // Building theme colors per area
+  const BLDG_THEMES = [
+    ['#D84315','#BF360C','#E65100','#F4511E','#FF5722','#E64A19'], // 和風赤茶
+    ['#7B1FA2','#6A1B9A','#8E24AA','#9C27B0','#AB47BC','#7E57C2'], // 洋風紫
+    ['#2E7D32','#388E3C','#43A047','#4CAF50','#66BB6A','#1B5E20'], // 森緑
+    ['#1565C0','#0D47A1','#1976D2','#1E88E5','#2196F3','#283593'], // 夜空青
+    ['#BF360C','#D84315','#E64A19','#F4511E','#FF5722','#FF6E40'], // 山赤
+    ['#00838F','#00ACC1','#0097A7','#00BCD4','#26C6DA','#4DD0E1'], // 海青
+    ['#6A1B9A','#8E24AA','#9C27B0','#AB47BC','#CE93D8','#7B1FA2'], // 川紫
+    ['#C2185B','#D81B60','#E91E63','#F06292','#F48FB1','#EC407A']  // 城ピンク
   ];
 
   const DRAW_NPC = {
@@ -1963,33 +1981,35 @@ function startCanvas() {
     'dragon': drawCuteDragon, 'mermaid': drawCuteMermaid
   };
 
-  // Building positions (2 rows x 3 cols)
-  const BX = [0.17, 0.50, 0.83];
-  const BY = [0.18, 0.42];
+  // Building positions (2 rows x 3 cols) — logical coords
+  const BX = [0.18, 0.50, 0.82];
+  const BY = [0.15, 0.38];
 
-  // Player position
-  let px, py, tx = null, ty = null;
+  // Player position (logical)
+  let px = 0, py = 0, tx = null, ty = null;
+  let playerInited = false;
 
-  // Canvas tap handler
+  // Canvas tap handler — use logical coords
   canvas.addEventListener('click', (e) => {
     const rect = canvas.getBoundingClientRect();
-    const cx = (e.clientX - rect.left) * (canvas.width / rect.width);
-    const cy = (e.clientY - rect.top) * (canvas.height / rect.height);
-    const w = canvas.width, h = canvas.height;
+    const cx = (e.clientX - rect.left);
+    const cy = (e.clientY - rect.top);
+    const w = lw, h = lh;
 
-    // Check building taps
+    // Check building taps (bigger hit area)
     const area = AREAS[G.currentArea];
     for (let i = 0; i < 6; i++) {
       const bx = w * BX[i % 3];
       const by = h * BY[Math.floor(i / 3)];
-      if (Math.abs(cx - bx) < 35 && Math.abs(cy - by) < 35) {
+      const hitW = w * 0.12, hitH = h * 0.12;
+      if (Math.abs(cx - bx) < hitW && Math.abs(cy - by) < hitH) {
         const fType = FORTUNE_TYPES[G.currentArea * 6 + i];
         const bName = area.buildings[i];
         showBuildingModal(bName, fType);
         return;
       }
     }
-    // Otherwise move player
+    // Move player
     tx = cx; ty = cy;
   });
 
@@ -2011,120 +2031,301 @@ function startCanvas() {
     setTimeout(() => showMultiStepFortune(fortune), 200);
   };
 
+  // Helper: draw a kawaii building
+  function drawBuilding(bx, by, w, h, name, areaIdx, bIdx) {
+    const sc = Math.min(w, h) / 400; // scale factor
+    const bW = 56 * sc, bH = 48 * sc;
+    const roofH = 24 * sc;
+    const theme = BLDG_THEMES[areaIdx] || BLDG_THEMES[0];
+    const bColor = theme[bIdx % theme.length];
+
+    // Glow
+    const glow = ctx.createRadialGradient(bx, by, 2, bx, by, bW * 1.8);
+    glow.addColorStop(0, 'rgba(255,220,100,0.35)');
+    glow.addColorStop(1, 'rgba(255,220,100,0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(bx, by, bW * 1.8, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.1)';
+    ctx.beginPath();
+    ctx.ellipse(bx, by + bH * 0.6, bW * 0.9, bH * 0.15, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Wall
+    ctx.fillStyle = bColor;
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+    ctx.lineWidth = 1.5 * sc;
+    const wallTop = by - bH * 0.3;
+    const wallBot = by + bH * 0.5;
+    roundRect(ctx, bx - bW * 0.5, wallTop, bW, wallBot - wallTop, 4 * sc);
+
+    // Window
+    ctx.fillStyle = 'rgba(255,255,200,0.7)';
+    ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+    ctx.lineWidth = sc;
+    ctx.fillRect(bx - bW * 0.3, wallTop + bH * 0.15, bW * 0.2, bH * 0.2);
+    ctx.strokeRect(bx - bW * 0.3, wallTop + bH * 0.15, bW * 0.2, bH * 0.2);
+    ctx.fillRect(bx + bW * 0.1, wallTop + bH * 0.15, bW * 0.2, bH * 0.2);
+    ctx.strokeRect(bx + bW * 0.1, wallTop + bH * 0.15, bW * 0.2, bH * 0.2);
+
+    // Door
+    ctx.fillStyle = '#8D6E63';
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+    ctx.lineWidth = sc;
+    roundRect(ctx, bx - bW * 0.12, wallBot - bH * 0.35, bW * 0.24, bH * 0.35, 2 * sc);
+
+    // Doorknob
+    ctx.fillStyle = '#FFD54F';
+    ctx.beginPath();
+    ctx.arc(bx + bW * 0.08, wallBot - bH * 0.17, 1.5 * sc, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Roof
+    ctx.fillStyle = lighten(bColor, 20);
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+    ctx.lineWidth = 1.5 * sc;
+    ctx.beginPath();
+    ctx.moveTo(bx - bW * 0.65, wallTop);
+    ctx.lineTo(bx, wallTop - roofH);
+    ctx.lineTo(bx + bW * 0.65, wallTop);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Roof decoration (small circle)
+    ctx.fillStyle = '#FFD54F';
+    ctx.beginPath();
+    ctx.arc(bx, wallTop - roofH + 4 * sc, 3 * sc, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Name label
+    ctx.fillStyle = areaIdx === 3 ? '#FFF' : '#4a3520';
+    ctx.font = `bold ${Math.max(10, 12 * sc)}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText(name, bx, wallBot + 4 * sc);
+    ctx.textBaseline = 'alphabetic';
+  }
+
+  // Rounded rect helper
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
+
+  // Lighten color helper
+  function lighten(hex, pct) {
+    let r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+    r = Math.min(255, r + pct); g = Math.min(255, g + pct); b = Math.min(255, b + pct);
+    return `rgb(${r},${g},${b})`;
+  }
+
+  // Draw area-specific decorations (clouds, trees, stars, etc.)
+  function drawAreaDecor(w, h, areaIdx, frame) {
+    if (areaIdx === 0) {
+      // 和の占い村 — Cherry blossom petals
+      for (let i = 0; i < 12; i++) {
+        const px2 = ((frame * 0.4 + i * 33) % (w + 40)) - 20;
+        const py2 = ((frame * 0.2 + i * 50) % (h * 0.55));
+        ctx.globalAlpha = 0.4 + Math.sin(frame * 0.03 + i) * 0.2;
+        ctx.fillStyle = '#FFCDD2';
+        ctx.beginPath();
+        ctx.ellipse(px2, py2, 3, 5, frame * 0.02 + i, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // Torii gate hint
+      ctx.globalAlpha = 0.15;
+      ctx.fillStyle = '#D32F2F';
+      ctx.fillRect(w * 0.08, h * 0.52, w * 0.04, h * 0.1);
+      ctx.fillRect(w * 0.15, h * 0.52, w * 0.04, h * 0.1);
+      ctx.fillRect(w * 0.06, h * 0.51, w * 0.15, h * 0.02);
+      ctx.globalAlpha = 1;
+    } else if (areaIdx === 3) {
+      // 星空の丘 — Stars + shooting stars
+      for (let i = 0; i < 30; i++) {
+        const sx = (i * 37 + frame * 0.05) % w;
+        const sy = (i * 23) % (h * 0.5);
+        ctx.globalAlpha = 0.3 + Math.sin(frame * 0.05 + i * 2) * 0.3;
+        ctx.fillStyle = '#FFF';
+        ctx.beginPath();
+        ctx.arc(sx, sy, 1 + Math.sin(frame * 0.08 + i) * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // Moon
+      ctx.globalAlpha = 0.6;
+      ctx.fillStyle = '#FDD835';
+      ctx.beginPath();
+      ctx.arc(w * 0.85, h * 0.08, 18, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    } else if (areaIdx === 5) {
+      // 海 — Waves
+      ctx.globalAlpha = 0.15;
+      ctx.strokeStyle = '#4FC3F7';
+      ctx.lineWidth = 2;
+      for (let i = 0; i < 5; i++) {
+        ctx.beginPath();
+        for (let x = 0; x < w; x += 10) {
+          const y = h * 0.56 + i * 8 + Math.sin(x * 0.02 + frame * 0.04 + i) * 4;
+          x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    } else {
+      // Default: soft floating particles
+      for (let i = 0; i < 8; i++) {
+        const px2 = ((frame * 0.3 + i * 47) % w);
+        const py2 = ((Math.sin(frame * 0.02 + i) * h * 0.15) + h * 0.25);
+        ctx.globalAlpha = 0.25 + Math.sin(frame * 0.05 + i) * 0.15;
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath();
+        ctx.arc(px2, py2, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  // Draw soft clouds
+  function drawClouds(w, h, frame) {
+    ctx.globalAlpha = 0.2;
+    ctx.fillStyle = '#fff';
+    for (let i = 0; i < 3; i++) {
+      const cx = ((frame * 0.15 + i * w * 0.4) % (w + 100)) - 50;
+      const cy = h * 0.06 + i * h * 0.06;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+      ctx.arc(cx + 15, cy - 5, 14, 0, Math.PI * 2);
+      ctx.arc(cx + 30, cy, 16, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
   function drawGame() {
-    const w = canvas.width;
-    const h = canvas.height;
+    const w = lw;
+    const h = lh;
+    if (w === 0 || h === 0) { requestAnimationFrame(drawGame); return; }
     const areaIdx = G.currentArea;
     const area = AREAS[areaIdx];
     const colors = AREA_COLORS[areaIdx];
     document.getElementById('areaName').textContent = area.name;
 
-    // Draw sky gradient
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.62);
+    // Clear
+    ctx.clearRect(0, 0, w, h);
+
+    // === SKY ===
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.6);
     skyGrad.addColorStop(0, colors.sky[0]);
     skyGrad.addColorStop(0.5, colors.sky[1]);
     skyGrad.addColorStop(1, colors.sky[2]);
     ctx.fillStyle = skyGrad;
     ctx.fillRect(0, 0, w, h * 0.62);
 
-    // Draw ground
-    const gndGrad = ctx.createLinearGradient(0, h * 0.62, 0, h);
+    // === GROUND ===
+    const gndGrad = ctx.createLinearGradient(0, h * 0.58, 0, h);
     gndGrad.addColorStop(0, colors.ground);
-    gndGrad.addColorStop(1, '#5D4037');
+    gndGrad.addColorStop(1, colors.groundEnd);
     ctx.fillStyle = gndGrad;
-    ctx.fillRect(0, h * 0.62, w, h * 0.38);
+    ctx.fillRect(0, h * 0.58, w, h * 0.42);
+
+    // Soft horizon line
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.fillRect(0, h * 0.57, w, h * 0.03);
+
+    // Clouds (skip for starry sky)
+    if (areaIdx !== 3) drawClouds(w, h, animationFrame);
 
     // Path/road
-    ctx.fillStyle = 'rgba(200,180,150,0.4)';
-    ctx.fillRect(0, h * 0.68, w, h * 0.08);
+    ctx.fillStyle = 'rgba(210,190,160,0.35)';
+    const roadY = h * 0.66;
+    ctx.beginPath();
+    ctx.moveTo(0, roadY);
+    ctx.bezierCurveTo(w * 0.25, roadY - 5, w * 0.75, roadY + 5, w, roadY);
+    ctx.lineTo(w, roadY + h * 0.06);
+    ctx.bezierCurveTo(w * 0.75, roadY + h * 0.06 + 5, w * 0.25, roadY + h * 0.06 - 5, 0, roadY + h * 0.06);
+    ctx.closePath();
+    ctx.fill();
 
-    // Animated particles based on area
-    for (let i = 0; i < 8; i++) {
-      const px2 = ((animationFrame * 0.3 + i * 47) % w);
-      const py2 = ((Math.sin(animationFrame * 0.02 + i) * h * 0.2) + h * 0.3);
-      ctx.globalAlpha = 0.3 + Math.sin(animationFrame * 0.05 + i) * 0.2;
-      ctx.fillStyle = areaIdx === 3 ? '#FFF' : (areaIdx === 5 ? '#4FC3F7' : '#FFD700');
-      ctx.beginPath();
-      ctx.arc(px2, py2, 2, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.globalAlpha = 1;
+    // Area-specific decorations
+    drawAreaDecor(w, h, areaIdx, animationFrame);
 
-    // Draw buildings (2 rows x 3 cols)
+    // === BUILDINGS ===
     for (let i = 0; i < 6; i++) {
       const bx = w * BX[i % 3];
       const by = h * BY[Math.floor(i / 3)];
-
-      // Building glow
-      const glow = ctx.createRadialGradient(bx, by, 5, bx, by, 40);
-      glow.addColorStop(0, 'rgba(255,215,0,0.3)');
-      glow.addColorStop(1, 'rgba(255,215,0,0)');
-      ctx.fillStyle = glow;
-      ctx.fillRect(bx - 40, by - 40, 80, 80);
-
-      // Building body
-      const hue = (areaIdx * 45 + i * 30) % 360;
-      ctx.fillStyle = `hsl(${hue}, 40%, 75%)`;
-      ctx.strokeStyle = '#654321';
-      ctx.lineWidth = 2;
-      ctx.fillRect(bx - 18, by - 10, 36, 30);
-      ctx.strokeRect(bx - 18, by - 10, 36, 30);
-
-      // Roof
-      ctx.fillStyle = `hsl(${hue}, 50%, 55%)`;
-      ctx.beginPath();
-      ctx.moveTo(bx - 22, by - 10);
-      ctx.lineTo(bx, by - 28);
-      ctx.lineTo(bx + 22, by - 10);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-
-      // Door
-      ctx.fillStyle = '#8B6914';
-      ctx.fillRect(bx - 5, by + 10, 10, 10);
-
-      // Name label
-      ctx.fillStyle = areaIdx === 3 ? '#FFF' : '#333';
-      ctx.font = 'bold 9px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(area.buildings[i], bx, by + 35);
+      drawBuilding(bx, by, w, h, area.buildings[i], areaIdx, i);
     }
 
+    // === Player init ===
+    if (!playerInited) { px = w * 0.5; py = h * 0.72; playerInited = true; }
+
     // Move player toward tap target
-    if (!px) { px = w * 0.5; py = h * 0.72; }
     if (tx !== null && ty !== null) {
       const dx = tx - px, dy = ty - py;
       const dist = Math.sqrt(dx * dx + dy * dy);
       if (dist > 3) {
-        px += (dx / dist) * 2.5;
-        py += (dy / dist) * 2.5;
+        const speed = Math.min(3.5, dist * 0.06);
+        px += (dx / dist) * speed;
+        py += (dy / dist) * speed;
       } else { tx = null; ty = null; }
     }
 
-    // Draw NPCs
+    // === NPCs ===
+    const sc = Math.min(w, h) / 400;
     const npcList = NPC_DATA.filter(n => n.area === areaIdx);
     npcList.forEach((npc, i) => {
-      const xPos = w * (0.2 + i * 0.2);
-      const yPos = h * 0.72 + Math.sin(animationFrame * 0.04 + i) * 2;
+      const xPos = w * (0.15 + i * 0.22);
+      const yPos = h * 0.72;
+      const bounce = Math.sin(animationFrame * 0.04 + i) * 2;
+      ctx.save();
+      ctx.translate(xPos, yPos);
+      const npcSc = sc * 1.1;
+      ctx.scale(npcSc, npcSc);
       const drawFn = DRAW_NPC[npc.type];
-      if (drawFn) drawFn(ctx, xPos, yPos, Math.sin(animationFrame * 0.04 + i) * 2);
+      if (drawFn) drawFn(ctx, 0, 0, bounce);
+      ctx.restore();
       // NPC name
-      ctx.fillStyle = areaIdx === 3 ? '#FFF' : '#555';
-      ctx.font = '9px sans-serif';
+      ctx.fillStyle = areaIdx === 3 ? '#FFF' : '#5a4030';
+      ctx.font = `bold ${Math.max(9, 10 * sc)}px sans-serif`;
       ctx.textAlign = 'center';
-      ctx.fillText(npc.name, xPos, yPos + 28);
+      ctx.fillText(npc.name, xPos, yPos + 28 * sc);
     });
 
-    // Draw player
-    drawPlayerShiba(ctx, px, py, animationFrame);
-
-    // Area nav hints
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    ctx.font = 'bold 18px sans-serif';
+    // === PLAYER ===
+    ctx.save();
+    ctx.translate(px, py);
+    const plSc = sc * 1.3;
+    ctx.scale(plSc, plSc);
+    drawPlayerShiba(ctx, 0, 0, animationFrame);
+    ctx.restore();
+    // Player name
+    ctx.fillStyle = '#E65100';
+    ctx.font = `bold ${Math.max(10, 11 * sc)}px sans-serif`;
     ctx.textAlign = 'center';
-    ctx.fillText('◀', 20, h * 0.5);
-    ctx.fillText('▶', w - 20, h * 0.5);
+    ctx.fillText(G.playerName, px, py + 32 * sc);
+
+    // === Nav arrow hints ===
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.font = `bold ${Math.max(18, 22 * sc)}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText('◀', 22, h * 0.5);
+    ctx.fillText('▶', w - 22, h * 0.5);
 
     animationFrame++;
     requestAnimationFrame(drawGame);
