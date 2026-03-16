@@ -214,7 +214,19 @@ html,body{width:100%;height:100%;overflow:hidden;background:#fef5e7;font-family:
 </div>
 
 <!-- ビル情報モーダル -->
-<div id="building-modal"><div id="building-box"><div class="be" id="be2"></div><h3 id="bt2"></h3><p id="bm2"></p><div id="b-btns"><button class="mbtn" onclick="startFortuneTelling()">占ってもらう</button><button class="mbtn" onclick="closeBuilding()">閉じる</button></div></div></div>
+<div id="building-modal"><div id="building-box">
+<div class="be" id="be2"></div>
+<h3 id="bt2"></h3>
+<p id="bm2">5種類の占いから選んでね</p>
+<div id="fortune-menu">
+  <button class="fmenu-btn" onclick="startFortuneTelling('today')">🌟 今日の全体運</button>
+  <button class="fmenu-btn" onclick="startFortuneTelling('love')">💖 恋愛運</button>
+  <button class="fmenu-btn" onclick="startFortuneTelling('work')">💼 仕事・学業運</button>
+  <button class="fmenu-btn" onclick="startFortuneTelling('health')">🌿 健康・体調運</button>
+  <button class="fmenu-btn" onclick="startFortuneTelling('lucky')">✨ ラッキーアドバイス</button>
+</div>
+<button class="mbtn close-btn" onclick="closeBuilding()">閉じる</button>
+</div></div>
 
 <!-- 占いフロー -->
 <div id="fortune-flow-overlay">
@@ -7056,11 +7068,35 @@ function enterBuilding(bIdx) {
   G.currentBuildingName = bName;
   G.currentBuildingIdx = bIdx;
   G.currentFortuneType = fType;
+
   const bt2 = document.getElementById('bt2');
-  const bm2 = document.getElementById('bm2');
   const bModal = document.getElementById('building-modal');
   if (bt2) bt2.textContent = bName;
-  if (bm2) bm2.textContent = '✨ ここで占いをしてもらえます';
+
+  // Update fortune menu buttons
+  const key = G.areaIdx + '_' + bIdx;
+  const used = (G.usedCategories && G.usedCategories[key]) ? G.usedCategories[key] : [];
+  const cats = [
+    {id:'today', label:'🌟 今日の全体運'},
+    {id:'love',  label:'💖 恋愛運'},
+    {id:'work',  label:'💼 仕事・学業運'},
+    {id:'health',label:'🌿 健康・体調運'},
+    {id:'lucky', label:'✨ ラッキーアドバイス'}
+  ];
+  const menu = document.getElementById('fortune-menu');
+  if (menu) {
+    menu.innerHTML = '';
+    cats.forEach(function(cat) {
+      const isUsed = used.includes(cat.id);
+      const btn = document.createElement('button');
+      btn.className = 'fmenu-btn' + (isUsed ? ' used' : '');
+      btn.textContent = cat.label + (isUsed ? ' ✓' : '');
+      btn.setAttribute('data-cat', cat.id);
+      btn.onclick = function() { startFortuneTelling(this.getAttribute('data-cat')); };
+      menu.appendChild(btn);
+    });
+  }
+
   if (bModal) bModal.classList.add('show');
   if (typeof playSE === 'function') playSE('open');
 }
@@ -7070,21 +7106,91 @@ function closeBuilding() {
   if (bModal) bModal.classList.remove('show');
 }
 
-function startFortuneTelling() {
+function startFortuneTelling(category) {
+  category = category || 'today';
   closeBuilding();
+
   const fType = G.currentFortuneType || 'omikuji';
   let result;
-  try { result = generateFortune(fType); } catch(e) { result = {type:fType, level:'大吉', msg:'今日はとても良い日です！', advice:'前向きに過ごしましょう', items:['白い花','金色のもの']}; }
+  try { result = generateFortune(fType); } catch(e) {
+    result = {type:fType, level:'吉', msg:'良い流れが来ています。', advice:'前向きに進みましょう。', items:['金色','白い花']};
+  }
   result.type = fType;
+  result.category = category;
+
+  // Category-specific overrides
+  const catData = getCategoryFortune(category, result, G.playerName || 'あなた');
+  result.categoryTitle = catData.title;
+  result.categoryMsg = catData.msg;
+  result.categoryAdvice = catData.advice;
+  result.categoryItems = catData.items;
+
+  // Mark this category as used for current building
+  if (!G.usedCategories) G.usedCategories = {};
+  const key = G.areaIdx + '_' + G.currentBuildingIdx;
+  if (!G.usedCategories[key]) G.usedCategories[key] = [];
+  if (!G.usedCategories[key].includes(category)) G.usedCategories[key].push(category);
+
+  // Store in history
   fortuneHistory.unshift({
     date: new Date().toLocaleDateString('ja-JP'),
-    fortune: (typeof FORTUNE_NAMES !== 'undefined' ? FORTUNE_NAMES[fType] : null) || fType,
+    fortune: G.currentBuildingName + '（' + catData.title + '）',
     level: result.level,
-    msg: result.msg
+    msg: catData.msg
   });
   if (fortuneHistory.length > 50) fortuneHistory.pop();
+
   showFortuneResult(result);
   if (typeof playSE === 'function') playSE('fortune');
+}
+
+// Generate category-specific fortune content
+function getCategoryFortune(category, base, name) {
+  const level = base.level || '吉';
+  const isGood = ['大大吉','大吉','中吉','小吉','吉'].includes(level);
+  const cats = {
+    today: {
+      title: '今日の全体運',
+      msg: isGood
+        ? name + 'さんの今日は全体的に運気が上昇中！積極的に動くと良い結果が生まれます。'
+        : name + 'さん、今日は少しゆっくり過ごすのが吉。無理をせず、丁寧に行動しましょう。',
+      advice: '朝のルーティンを大切に。小さな成功体験が一日の運気を底上げします。',
+      items: ['黄色いもの', '丸いもの', '数字の' + (Math.floor(Math.random()*9)+1)]
+    },
+    love: {
+      title: '恋愛運',
+      msg: isGood
+        ? '💖 恋愛運は絶好調！気になる相手への積極的なアプローチが実を結ぶ時期です。'
+        : '💝 今は焦らず、自分磨きの時期。内面を豊かにすることで素敵な出会いが近づきます。',
+      advice: '笑顔と挨拶を大切に。普段から明るく接することで運命の出会いが引き寄せられます。',
+      items: ['ピンク色', 'バラ', 'ハート柄', 'バニラの香り']
+    },
+    work: {
+      title: '仕事・学業運',
+      msg: isGood
+        ? '💼 仕事運が急上昇！新しいプロジェクトや挑戦に最適なタイミングです。チームワークも◎'
+        : '📚 今は地道な努力が実を結ぶ準備期間。基礎をしっかり固めることが後の成功につながります。',
+      advice: 'TO-DOリストを作って優先順位をつけること。集中力が高まる午前中に重要な作業を。',
+      items: ['青いペン', '手帳', '緑茶', '観葉植物']
+    },
+    health: {
+      title: '健康・体調運',
+      msg: isGood
+        ? '🌿 健康運は良好！体を動かすと運気がさらにアップ。新しい運動習慣を始めるのに最適です。'
+        : '🍃 少し疲れが溜まっているかも。十分な睡眠と水分補給を心がけて、体を労ってあげましょう。',
+      advice: '規則正しい生活リズムが運気の基盤。特に「睡眠の質」を大切にしてください。',
+      items: ['水', '緑色の野菜', '深呼吸', 'ストレッチ']
+    },
+    lucky: {
+      title: 'ラッキーアドバイス',
+      msg: '✨ 今のあなたへの特別なメッセージです。' + (isGood
+        ? 'チャンスの波が来ています！直感を信じて、やりたいことに素直に従いましょう。'
+        : '今は準備の時期。焦らず、コツコツと積み上げることで大きな花が咲きます。'),
+      advice: ['今日中に誰かに感謝を伝えてみて', '窓を開けて新鮮な空気を吸おう', '好きな音楽を聴いてリフレッシュ', '新しいルートで帰り道を歩いてみよう', '日記に今日の良かったことを3つ書こう'][Math.floor(Math.random()*5)],
+      items: base.items || ['ラッキーカラー', '笑顔', '感謝の言葉']
+    }
+  };
+  return cats[category] || cats.today;
 }
 
 function showFortuneResult(result) {
@@ -7092,17 +7198,49 @@ function showFortuneResult(result) {
   if (!overlay) return;
   const frTitle = document.getElementById('fr-title');
   const frBody = document.getElementById('fr-body');
-  if (frTitle) frTitle.textContent = (typeof FORTUNE_NAMES !== 'undefined' ? FORTUNE_NAMES[result.type] : null) || '占い結果';
+
+  // Title: building name + category
+  const titleText = (result.categoryTitle || (typeof FORTUNE_NAMES !== 'undefined' ? FORTUNE_NAMES[result.type] : null) || '占い結果');
+  if (frTitle) frTitle.textContent = G.currentBuildingName + ' — ' + titleText;
+
   const levelColors = {'大大吉':'#FF4500','大吉':'#FF8C00','中吉':'#DAA520','小吉':'#3CB371','吉':'#1E90FF','末吉':'#9370DB','凶':'#778899','大凶':'#708090'};
   const levelColor = levelColors[result.level] || '#DAA520';
-  let bodyHtml = '<div style="font-size:28px;font-weight:bold;color:' + levelColor + ';margin:10px 0;text-shadow:0 1px 3px rgba(0,0,0,0.2);">' + (result.level || '吉') + '</div>';
-  bodyHtml += '<div style="font-size:14px;line-height:1.8;color:#333;margin:10px 0;">' + (result.msg || '') + '</div>';
-  if (result.advice) bodyHtml += '<div style="font-size:13px;color:#666;line-height:1.6;margin:8px 0;padding:8px;background:rgba(255,165,0,0.08);border-radius:8px;">' + result.advice + '</div>';
-  if (result.items && result.items.length > 0) {
-    bodyHtml += '<div style="margin:10px 0;"><div style="font-size:11px;color:#999;margin-bottom:6px;">ラッキーアイテム</div>';
-    result.items.forEach(item => { bodyHtml += '<span style="display:inline-block;background:linear-gradient(135deg,#FFA500,#FF8C00);color:white;padding:5px 14px;border-radius:16px;margin:3px;font-size:12px;font-weight:bold;">' + item + '</span>'; });
+  const isGood = ['大大吉','大吉','中吉','小吉','吉'].includes(result.level);
+
+  let bodyHtml = '';
+  // Level badge
+  bodyHtml += '<div style="font-size:30px;font-weight:bold;color:' + levelColor + ';margin:8px 0;text-shadow:0 1px 4px rgba(0,0,0,0.15);">' + (result.level || '吉') + '</div>';
+
+  // Category message (priority over base message)
+  const mainMsg = result.categoryMsg || result.msg || '';
+  bodyHtml += '<div style="font-size:14px;line-height:1.85;color:#333;margin:10px 0;">' + mainMsg + '</div>';
+
+  // Category advice
+  const adviceText = result.categoryAdvice || result.advice || '';
+  if (adviceText) {
+    bodyHtml += '<div style="font-size:13px;color:#555;line-height:1.65;margin:8px 0;padding:10px 14px;background:rgba(255,165,0,0.07);border-left:3px solid #FFA500;border-radius:6px;">' + adviceText + '</div>';
+  }
+
+  // Lucky items
+  const items = result.categoryItems || result.items || [];
+  if (items.length > 0) {
+    bodyHtml += '<div style="margin:12px 0;"><div style="font-size:11px;color:#aaa;margin-bottom:6px;letter-spacing:1px;">LUCKY ITEMS</div>';
+    items.forEach(item => {
+      bodyHtml += '<span style="display:inline-block;background:linear-gradient(135deg,#FFA500,#FF8C00);color:white;padding:5px 14px;border-radius:16px;margin:3px;font-size:12px;font-weight:bold;">' + item + '</span>';
+    });
     bodyHtml += '</div>';
   }
+
+  // Show remaining categories hint
+  const key = G.areaIdx + '_' + G.currentBuildingIdx;
+  const usedCount = (G.usedCategories && G.usedCategories[key]) ? G.usedCategories[key].length : 1;
+  const remaining = 5 - usedCount;
+  if (remaining > 0) {
+    bodyHtml += '<div style="margin-top:12px;font-size:11px;color:#FFA500;text-align:center;">あと' + remaining + '種類の占いが残っています ✨</div>';
+  } else {
+    bodyHtml += '<div style="margin-top:12px;font-size:11px;color:#4CAF50;text-align:center;font-weight:bold;">🎉 この建物の占いを全種類コンプリート！</div>';
+  }
+
   if (frBody) frBody.innerHTML = bodyHtml;
   overlay.classList.add('show');
 }
