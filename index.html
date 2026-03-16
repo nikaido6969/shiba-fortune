@@ -1,933 +1,2002 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>柴犬うらないハウス</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{width:100%;height:100%;overflow:hidden;background:#fffef0;font-family:'Hiragino Maru Gothic ProN','Hiragino Sans','Meiryo',sans-serif;touch-action:none;}
-#app{width:100%;height:100%;position:relative;overflow:hidden;display:flex;flex-direction:column;}
-.screen{display:none;width:100%;height:100%;position:absolute;top:0;left:0;flex-direction:column;opacity:0;transition:opacity 0.35s ease-in-out;}
-.screen.active{display:flex;opacity:1;}
-.screen.fade-out{opacity:0;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>柴犬うらないハウス</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* タイトル */
-#title-screen{background:linear-gradient(180deg,#fef5e7 0%,#fffef0 50%,#f5f1e8 100%);justify-content:center;align-items:center;gap:24px;overflow:hidden;}
-.title-logo{text-align:center;z-index:1;}
-.title-dog{font-size:80px;display:block;animation:bounce 1.5s ease-in-out infinite;filter:drop-shadow(0 0 24px rgba(255,183,77,.3));}
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-.title-text{color:#d4791f;font-size:26px;font-weight:bold;margin-top:8px;letter-spacing:2px;}
-.title-sub{color:#FFB74D;font-size:13px;margin-top:4px;}
-.title-desc{background:rgba(255,255,255,.7);border:2px solid #FFB74D;border-radius:16px;padding:16px 18px;max-width:320px;text-align:center;z-index:1;box-shadow:0 4px 16px rgba(0,0,0,.08);}
-.title-desc p{color:#5D4037;font-size:12px;line-height:1.6;}
-.btn-p{background:linear-gradient(135deg,#FFB74D,#d4791f);color:#fff;border:none;border-radius:50px;padding:14px 48px;font-size:16px;font-weight:bold;cursor:pointer;z-index:1;box-shadow:0 4px 16px rgba(212,121,31,.3);transition:transform .1s;font-family:inherit;}
-.btn-p:active{transform:scale(.95);}
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #fffef0;
+            color: #333;
+            overflow: hidden;
+            height: 100vh;
+        }
 
-/* ゲーム画面 */
-#game-screen{background:#fffef0;flex:1;position:relative;overflow:hidden;}
-#gcanvas{display:block;width:100%;height:100%;touch-action:none;cursor:pointer;position:absolute;top:0;left:0;}
+        /* Screen System */
+        .screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            background: #fffef0;
+        }
 
-/* HUD */
-#hud{position:absolute;top:env(safe-area-inset-top,8px);left:8px;z-index:10;display:flex;flex-direction:column;gap:5px;}
-.hud-pill{background:rgba(255,183,77,.2);border:1px solid #FFB74D;border-radius:12px;padding:5px 12px;font-size:11px;color:#d4791f;display:flex;align-items:center;gap:5px;font-weight:bold;}
-#menu-btn{position:absolute;top:env(safe-area-inset-top,8px);right:8px;background:linear-gradient(135deg,#FFB74D,#d4791f);color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit;z-index:10;font-weight:bold;}
+        .screen.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
 
-/* 下部UI */
-#bottom-ui{background:linear-gradient(180deg,#fef5e7,#fffef0);padding:8px 12px env(safe-area-inset-bottom,8px);display:flex;flex-direction:column;gap:6px;border-top:2px solid #FFB74D;flex-shrink:0;box-shadow:0 -2px 8px rgba(0,0,0,.05);}
-.area-nav{display:flex;justify-content:space-between;align-items:center;padding:0 4px;}
-.area-nav button{background:#FFB74D;color:#fff;border:none;border-radius:20px;padding:6px 10px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:bold;}
-.area-nav button:active{transform:scale(.95);}
-.area-name{color:#d4791f;font-size:13px;font-weight:bold;text-align:center;flex:1;}
-.bottom-controls{display:flex;gap:8px;}
-.ctrl-btn{flex:1;background:#fff;border:2px solid #FFB74D;color:#d4791f;border-radius:12px;padding:8px 4px;font-size:11px;font-weight:bold;cursor:pointer;font-family:inherit;text-align:center;transition:all .15s;}
-.ctrl-btn:active{background:#fef5e7;transform:scale(.96);}
+        /* Title Screen */
+        .title-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
 
-/* モーダル */
-#modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;}
-#modal.show{display:flex;}
-#mbox{background:#fffef0;border-radius:20px;padding:24px 20px;max-width:340px;width:92%;text-align:center;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:modalPop .3s ease-out;border:2px solid #FFB74D;}
-@keyframes modalPop{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
-#mbox h3{font-size:18px;color:#5D4037;margin-bottom:8px;font-weight:bold;}
-#mbox p{font-size:13px;color:#666;line-height:1.6;margin-bottom:12px;}
-.mbtn{background:#FFB74D;color:#fff;border:none;border-radius:50px;padding:10px 28px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;margin:4px;transition:all .1s;}
-.mbtn:active{transform:scale(.95);}
-.mbtn.gr{background:#4CAF50;}
-.mbtn.bl{background:#2196F3;}
-.mbtn.rd{background:#e53935;}
+        .title-screen h1 {
+            font-size: 3em;
+            color: #d4791f;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(212, 121, 31, 0.1);
+        }
 
-/* フォーチュンフロー */
-#fortune-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:250;align-items:center;justify-content:center;flex-direction:column;padding:16px;}
-#fortune-overlay.show{display:flex;}
-#fortune-box{background:linear-gradient(180deg,#fffef0,#fef5e7);border-radius:20px;padding:22px 18px;max-width:360px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:modalPop .3s ease-out;border:2px solid #FFB74D;}
-.fortune-step{display:none;animation:fadeIn .3s ease-out;}
-.fortune-step.active{display:block;}
-@keyframes fadeIn{0%{opacity:0}100%{opacity:1}}
-.fortune-step h4{font-size:16px;color:#d4791f;margin-bottom:12px;font-weight:bold;}
-.fortune-choices{display:grid;grid-template-columns:1fr;gap:8px;}
-.fortune-btn{background:#fff;border:2px solid #FFB74D;color:#5D4037;border-radius:12px;padding:12px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;transition:all .15s;}
-.fortune-btn:active{background:#fef5e7;transform:scale(.96);}
-.fortune-btn.sel{background:#FFB74D;color:#fff;}
-.progress-bar{width:100%;height:8px;background:#e0d5c0;border-radius:4px;overflow:hidden;margin-bottom:14px;}
-.progress-fill{height:100%;background:linear-gradient(90deg,#FFB74D,#d4791f);border-radius:4px;transition:width .3s;}
-.step-counter{font-size:11px;color:#999;margin-top:8px;text-align:center;}
+        .title-screen p {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 40px;
+        }
 
-/* 結果画面 */
-.fortune-result{display:none;text-align:center;animation:fadeIn .4s ease-out;}
-.fortune-result.active{display:block;}
-.result-title{font-size:20px;color:#d4791f;font-weight:bold;margin:12px 0 8px;}
-.result-level{font-size:32px;color:#FFB74D;font-weight:bold;margin:8px 0;}
-.result-message{font-size:13px;color:#5D4037;line-height:1.8;margin:12px 0;padding:12px;background:#fff;border-radius:12px;border-left:4px solid #FFB74D;}
-.result-detail{font-size:12px;color:#666;margin:8px 0;padding:8px;background:rgba(255,183,77,.1);border-radius:8px;}
-.result-detail b{color:#d4791f;}
-.result-close-btn{background:linear-gradient(135deg,#FFB74D,#d4791f);color:#fff;border:none;border-radius:50px;padding:12px 40px;font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit;margin-top:16px;}
+        .btn-start {
+            background: #FFB74D;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 183, 77, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
 
-/* 図鑑 */
-#album-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:200;overflow-y:auto;padding:20px;}
-#album-overlay.show{display:flex;flex-direction:column;align-items:center;}
-.album-header{color:#d4791f;font-size:20px;font-weight:bold;margin:16px 0 12px;text-align:center;}
-.album-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-width:360px;width:100%;}
-.album-card{background:#fffef0;border:2px solid #FFB74D;border-radius:14px;padding:12px;text-align:center;cursor:pointer;transition:all .2s;}
-.album-card canvas{width:50px;height:50px;margin:0 auto 6px;display:block;}
-.album-card .ac-name{font-size:12px;font-weight:bold;color:#5D4037;}
-.album-close{background:#FFB74D;color:#fff;border:none;border-radius:50px;padding:10px 36px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;margin:16px 0 20px;}
+        .btn-start:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 8px rgba(255, 183, 77, 0.3);
+        }
 
-/* 履歴 */
-#history-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:200;overflow-y:auto;padding:20px;}
-#history-overlay.show{display:flex;flex-direction:column;align-items:center;}
-.history-header{color:#d4791f;font-size:20px;font-weight:bold;margin:16px 0 12px;text-align:center;}
-.history-list{max-width:360px;width:100%;display:flex;flex-direction:column;gap:8px;}
-.history-item{background:#fffef0;border:2px solid #FFB74D;border-radius:12px;padding:12px;text-align:left;}
-.history-item .hi-title{font-size:13px;font-weight:bold;color:#d4791f;}
-.history-item .hi-detail{font-size:11px;color:#666;margin-top:3px;}
-.history-item .hi-time{font-size:10px;color:#999;margin-top:3px;}
-.history-close{background:#FFB74D;color:#fff;border:none;border-radius:50px;padding:10px 36px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;margin:16px 0 20px;}
+        /* Game Screen */
+        .game-screen {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+        }
 
-/* プロフィール */
-#profile-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:200;overflow-y:auto;padding:20px;}
-#profile-overlay.show{display:flex;flex-direction:column;align-items:center;}
-.profile-header{color:#d4791f;font-size:20px;font-weight:bold;margin:16px 0 12px;text-align:center;}
-.profile-form{max-width:360px;width:100%;background:#fffef0;border:2px solid #FFB74D;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;}
-.form-group{display:flex;flex-direction:column;gap:4px;}
-.form-group label{font-size:12px;font-weight:bold;color:#5D4037;}
-.form-group input{padding:8px 10px;border:2px solid #FFB74D;border-radius:8px;font-size:12px;font-family:inherit;}
-.form-group input:focus{outline:none;background:#fef5e7;}
-.profile-save{background:#FFB74D;color:#fff;border:none;border-radius:50px;padding:12px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;margin-top:8px;}
-.profile-close{background:#FFB74D;color:#fff;border:none;border-radius:50px;padding:10px 36px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;margin:16px 0 20px;}
+        .game-header {
+            padding: 15px;
+            background: rgba(255, 255, 240, 0.95);
+            border-bottom: 2px solid #FFB74D;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-/* パーティクル */
-.particle{position:fixed;pointer-events:none;z-index:150;}
-</style>
+        .game-header h2 {
+            color: #d4791f;
+            font-size: 1.5em;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-btn {
+            background: #FFB74D;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: transform 0.2s;
+        }
+
+        .header-btn:active {
+            transform: scale(0.95);
+        }
+
+        .game-canvas-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-title {
+            font-size: 1.8em;
+            color: #d4791f;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-subtitle {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .modal-text {
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+        }
+
+        .fortune-result {
+            background: #fef5e7;
+            padding: 20px;
+            border-left: 4px solid #FFB74D;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+
+        .fortune-label {
+            color: #d4791f;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .fortune-value {
+            color: #333;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .lucky-items {
+            margin: 15px 0;
+        }
+
+        .lucky-item {
+            background: white;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 1px solid #FFB74D;
+        }
+
+        .lucky-item-label {
+            color: #d4791f;
+            font-weight: bold;
+            display: inline-block;
+            min-width: 80px;
+        }
+
+        .rating-stars {
+            margin: 10px 0;
+        }
+
+        .rating-label {
+            color: #d4791f;
+            font-weight: bold;
+            display: inline-block;
+            min-width: 80px;
+        }
+
+        .stars {
+            display: inline-block;
+            color: #FFB74D;
+            font-size: 1.2em;
+            letter-spacing: 2px;
+        }
+
+        .conversation-npc {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .npc-avatar {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 15px;
+            border-radius: 50%;
+            background: #fef5e7;
+            border: 3px solid #FFB74D;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .npc-avatar canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .npc-info {
+            margin-bottom: 20px;
+        }
+
+        .npc-name {
+            font-size: 1.3em;
+            color: #d4791f;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .npc-personality {
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+        }
+
+        .conversation-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .option-btn {
+            background: #FFB74D;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .option-btn:active {
+            transform: scale(0.98);
+            background: #d4791f;
+        }
+
+        .btn-close {
+            background: #999;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+
+        .btn-close:active {
+            transform: scale(0.98);
+        }
+
+        /* Bottom UI */
+        .bottom-ui {
+            padding: 15px;
+            background: rgba(255, 255, 240, 0.95);
+            border-top: 2px solid #FFB74D;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .input-group {
+            margin: 15px 0;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #d4791f;
+            font-weight: bold;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #FFB74D;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #d4791f;
+        }
+
+        /* Area Screen */
+        .area-screen {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+        }
+
+        .area-info {
+            padding: 15px;
+            background: rgba(255, 255, 240, 0.95);
+            border-bottom: 2px solid #FFB74D;
+            font-size: 1.1em;
+            color: #d4791f;
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .title-screen h1 {
+                font-size: 2em;
+            }
+
+            .modal-content {
+                max-width: 95%;
+                padding: 20px;
+            }
+
+            .modal-title {
+                font-size: 1.5em;
+            }
+        }
+    </style>
 </head>
 <body>
-<div id="app">
-  <!-- タイトル -->
-  <div id="title-screen" class="screen active">
-    <div class="title-logo">
-      <div class="title-dog">🐕</div>
-      <div class="title-text">柴犬うらないハウス</div>
-      <div class="title-sub">占いの世界へようこそ</div>
-    </div>
-    <div class="title-desc">
-      <p>6つのエリアを探索して、<br>個性的なキャラクターに<br>占ってもらおう！</p>
-    </div>
-    <button class="btn-p" onclick="startGame()">はじめる</button>
-  </div>
-
-  <!-- ゲーム -->
-  <div id="game-screen" class="screen">
-    <canvas id="gcanvas"></canvas>
-    <div id="hud">
-      <div class="hud-pill">エリア: <span id="area-name">占い村</span></div>
-    </div>
-    <button id="menu-btn" onclick="openMenu()">メニュー</button>
-    <div id="bottom-ui">
-      <div class="area-nav">
-        <button onclick="changeArea(-1)">◀</button>
-        <div class="area-name" id="area-display">占い村</div>
-        <button onclick="changeArea(1)">▶</button>
-      </div>
-      <div class="bottom-controls">
-        <button class="ctrl-btn" onclick="openProfile()">🧑‍🤝‍🧑 プロフ</button>
-        <button class="ctrl-btn" onclick="openAlbum()">📖 図鑑</button>
-        <button class="ctrl-btn" onclick="openHistory()">📜 履歴</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- モーダル -->
-<div id="modal">
-  <div id="mbox"></div>
-</div>
-
-<!-- フォーチュンフロー -->
-<div id="fortune-overlay">
-  <div id="fortune-box">
-    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-    <div class="step-counter"><span id="step-num">1</span>/5</div>
-
-    <div class="fortune-step active" id="step-1">
-      <h4>カテゴリを選んでね</h4>
-      <div class="fortune-choices" id="choices-1"></div>
-    </div>
-
-    <div class="fortune-step" id="step-2">
-      <h4 id="q2-title"></h4>
-      <div class="fortune-choices" id="choices-2"></div>
-    </div>
-
-    <div class="fortune-step" id="step-3">
-      <h4>最近のできごと</h4>
-      <div class="fortune-choices" id="choices-3"></div>
-    </div>
-
-    <div class="fortune-step" id="step-4">
-      <h4>今の気持ちは？</h4>
-      <div class="fortune-choices" id="choices-4"></div>
-    </div>
-
-    <div class="fortune-step" id="step-5">
-      <h4>色を選んでください</h4>
-      <div class="fortune-choices" id="choices-5"></div>
-    </div>
-
-    <div class="fortune-result" id="result">
-      <div style="font-size:40px;margin-bottom:8px;">✨</div>
-      <div class="result-title" id="result-title"></div>
-      <div class="result-level" id="result-level"></div>
-      <div class="result-message" id="result-message"></div>
-      <div class="result-detail"><b>🍀 ラッキーアイテム</b><br><span id="result-lucky"></span></div>
-      <div class="result-detail"><b>💑 相性</b><br><span id="result-compat"></span></div>
-      <div class="result-detail"><b>💡 アドバイス</b><br><span id="result-advice"></span></div>
-      <button class="result-close-btn" onclick="closeFortuneOverlay()">閉じる</button>
-    </div>
-  </div>
-</div>
-
-<!-- 図鑑 -->
-<div id="album-overlay">
-  <div class="album-header">キャラクター図鑑</div>
-  <div class="album-grid" id="album-grid"></div>
-  <button class="album-close" onclick="closeAlbum()">閉じる</button>
-</div>
-
-<!-- 履歴 -->
-<div id="history-overlay">
-  <div class="history-header">占い履歴</div>
-  <div class="history-list" id="history-list"></div>
-  <button class="history-close" onclick="closeHistory()">閉じる</button>
-</div>
-
-<!-- プロフィール -->
-<div id="profile-overlay">
-  <div class="profile-header">🧑‍🤝‍🧑 プロフィール</div>
-  <div class="profile-form">
-    <div class="form-group">
-      <label>名前</label>
-      <input type="text" id="profile-name" placeholder="名前を入力">
-    </div>
-    <div class="form-group">
-      <label>誕生日 (例: 2000-01-15)</label>
-      <input type="date" id="profile-birthday">
-    </div>
-    <div class="form-group">
-      <label>血液型</label>
-      <input type="text" id="profile-blood" placeholder="A/B/O/AB">
-    </div>
-    <button class="profile-save" onclick="saveProfile()">保存</button>
-  </div>
-  <button class="profile-close" onclick="closeProfile()">閉じる</button>
-</div>
-
-<script>
-// ==================== グローバル状態 ====================
-const G={
-  loopRunning:false,
-  lastTime:0,
-  frame:0,
-  areaIdx:0,
-  px:0,py:0,dx:0,dy:0,tx:0,ty:0,
-  npcs:[],
-  particles:[],
-  fortuneStep:1,
-  fortuneAnswers:{},
-  currentCharacter:null,
-};
-
-const canvas=document.getElementById('gcanvas');
-let ctx=null;
-let audioCtx=null;
-let bgmPlaying=false;
-let bgmInterval=null;
-
-// ==================== エリア定義 ====================
-const areas=[
-  {id:'omoi',name:'占い村',icon:'🏘️',sky:['#e8f5ff','#f0fbff','#fffef0'],ground:['#90b896','#8fb8a0','#7ca67a']},
-  {id:'tarot',name:'タロットの館',icon:'🏛️',sky:['#f0e8ff','#f5ecff','#fffef0'],ground:['#a5a5a5','#b8b8b8','#9a9a9a']},
-  {id:'shrine',name:'おみくじ神社',icon:'⛩️',sky:['#ffe8d0','#fff0da','#fffef0'],ground:['#c9a86f','#d4b896','#b89970']},
-  {id:'stars',name:'星読みの丘',icon:'⭐',sky:['#2a1a6a','#4a3a8a','#6a5aaa'],ground:['#1a1a3a','#2a2a4a','#1a1a3a']},
-  {id:'crystal',name:'水晶の泉',icon:'💎',sky:['#c8e8f8','#d8f0ff','#fffef0'],ground:['#8fb8c8','#a0c8d8','#7aa0b8']},
-  {id:'mystery',name:'ふしぎ小路',icon:'🌙',sky:['#d8c8f0','#e8d8ff','#fffef0'],ground:['#a08cb8','#b89cd0','#987ab8']},
-];
-
-// ==================== キャラクター ====================
-const characters={
-  witch:{name:'魔法使いウィッチ',icon:'🧙‍♀️',area:0},
-  seer:{name:'予言者セイア',icon:'👵',area:0},
-  tarot:{name:'タロット占い師',icon:'🎴',area:1},
-  priest:{name:'神官プリースト',icon:'👨‍⚖️',area:2},
-  miko:{name:'巫女ミコ',icon:'👰‍♀️',area:2},
-  astro:{name:'星読み博士',icon:'🔭',area:3},
-  crystal:{name:'水晶姫',icon:'👑',area:4},
-  spirit:{name:'妖精スピリット',icon:'🧚‍♀️',area:5},
-  kitsune:{name:'狐キツネ',icon:'🦊',area:5},
-};
-
-// ==================== ローカルストレージ ====================
-function loadProfile(){
-  const data=JSON.parse(localStorage.getItem('fortune_profile')||'{}');
-  return{name:data.name||'',birthday:data.birthday||'',blood:data.blood||''};
-}
-
-function saveProfileData(){
-  const name=document.getElementById('profile-name').value;
-  const birthday=document.getElementById('profile-birthday').value;
-  const blood=document.getElementById('profile-blood').value;
-  localStorage.setItem('fortune_profile',JSON.stringify({name,birthday,blood}));
-}
-
-function loadHistory(){
-  return JSON.parse(localStorage.getItem('fortune_history')||'[]');
-}
-
-function addHistory(category,level,message){
-  const history=loadHistory();
-  history.push({date:new Date().toLocaleString('ja-JP'),category,level,message});
-  localStorage.setItem('fortune_history',JSON.stringify(history));
-}
-
-function loadAlbum(){
-  return JSON.parse(localStorage.getItem('fortune_album')||'{}');
-}
-
-function recordCharacter(charKey){
-  const album=loadAlbum();
-  if(!album[charKey]){album[charKey]={met:new Date().toLocaleString('ja-JP')};}
-  localStorage.setItem('fortune_album',JSON.stringify(album));
-}
-
-// ==================== UI制御 ====================
-function showModal(html){
-  document.getElementById('mbox').innerHTML=html;
-  document.getElementById('modal').classList.add('show');
-}
-
-function closeModal(){
-  document.getElementById('modal').classList.remove('show');
-}
-
-function openMenu(){
-  const a=areas[G.areaIdx];
-  showModal(`
-    <h3>メニュー</h3>
-    <p>現在地: ${a.name}</p>
-    <button class="mbtn" onclick="closeModal();startGame()">ゲームに戻る</button>
-    <button class="mbtn bl" onclick="closeModal();document.location.reload()">リセット</button>
-  `);
-}
-
-function openProfile(){
-  const profile=loadProfile();
-  document.getElementById('profile-name').value=profile.name;
-  document.getElementById('profile-birthday').value=profile.birthday;
-  document.getElementById('profile-blood').value=profile.blood;
-  document.getElementById('profile-overlay').classList.add('show');
-}
-
-function closeProfile(){
-  document.getElementById('profile-overlay').classList.remove('show');
-}
-
-function saveProfile(){
-  saveProfileData();
-  showModal('<h3>✓ 保存しました</h3>');
-  setTimeout(closeModal,1500);
-}
-
-function openAlbum(){
-  const album=loadAlbum();
-  let html='';
-  for(const [key,char] of Object.entries(characters)){
-    const met=album[key];
-    html+=`
-      <div class="album-card">
-        <canvas width="50" height="50" id="album-${key}"></canvas>
-        <div class="ac-name">${char.name}</div>
-        <div class="ac-met" style="font-size:10px;color:#999;">${met?'出会った':'?'}</div>
-      </div>
-    `;
-  }
-  document.getElementById('album-grid').innerHTML=html;
-  document.getElementById('album-overlay').classList.add('show');
-  drawAlbumCharacters();
-}
-
-function closeAlbum(){
-  document.getElementById('album-overlay').classList.remove('show');
-}
-
-function openHistory(){
-  const history=loadHistory();
-  let html='';
-  if(history.length===0){
-    html='<div style="text-align:center;color:#999;padding:20px;">まだ占い履歴がありません</div>';
-  }else{
-    for(let i=history.length-1;i>=0;i--){
-      const h=history[i];
-      html+=`
-        <div class="history-item">
-          <div class="hi-title">${h.category} - ${h.level}</div>
-          <div class="hi-detail">${h.message.substring(0,40)}</div>
-          <div class="hi-time">${h.date}</div>
+    <!-- Title Screen -->
+    <div id="titleScreen" class="screen active">
+        <div class="title-screen">
+            <h1>🐕 柴犬うらないハウス 🔮</h1>
+            <p>かわいい柴犬と一緒に、24個の占い館を訪ねる冒険</p>
+            <button class="btn-start" onclick="game.startGame()">ゲームをはじめる</button>
         </div>
-      `;
-    }
-  }
-  document.getElementById('history-list').innerHTML=html;
-  document.getElementById('history-overlay').classList.add('show');
-}
+    </div>
 
-function closeHistory(){
-  document.getElementById('history-overlay').classList.remove('show');
-}
+    <!-- Game Screen -->
+    <div id="gameScreen" class="screen">
+        <div class="game-header">
+            <h2 id="areaName">エリア 1: 和の占い通り</h2>
+            <div class="header-buttons">
+                <button class="header-btn" onclick="game.showAlbum()">アルバム</button>
+                <button class="header-btn" onclick="game.showMenu()">メニュー</button>
+            </div>
+        </div>
+        <div class="game-canvas-container">
+            <canvas id="gameCanvas"></canvas>
+        </div>
+        <div class="bottom-ui">
+            <span id="bottomText">占い館をタップして占ってもらおう</span>
+        </div>
+    </div>
 
-// ==================== ゲーム初期化 ====================
-function startGame(){
-  goTo('game');
-  initCanvas();
-  startLoop();
-}
+    <!-- Modals -->
+    <div id="buildingModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title" id="modalTitle">占いの館</div>
+            <div id="modalBody"></div>
+            <button class="btn-close" onclick="game.closeModal()">閉じる</button>
+        </div>
+    </div>
 
-function goTo(n){
-  const current=document.querySelector('.screen.active');
-  const next=document.getElementById(n+'-screen');
-  if(current){current.classList.remove('active');current.classList.add('fade-out');}
-  if(next){setTimeout(()=>{next.classList.add('active');next.classList.remove('fade-out');},50);}
-}
+    <div id="npcModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="conversation-npc">
+                <div class="npc-avatar">
+                    <canvas id="npcCanvas" width="100" height="100"></canvas>
+                </div>
+                <div class="npc-info">
+                    <div class="npc-name" id="npcName">キャラ名</div>
+                    <div class="npc-personality" id="npcPersonality">性格説明</div>
+                </div>
+            </div>
+            <div id="conversationContent"></div>
+            <button class="btn-close" onclick="game.closeModal()">閉じる</button>
+        </div>
+    </div>
 
-function initCanvas(){
-  ctx=canvas.getContext('2d',{antialias:true,alpha:false});
-  resizeCanvas();
-  window.addEventListener('resize',resizeCanvas);
-  canvas.addEventListener('click',onClick);
-  canvas.addEventListener('touchstart',onTouch);
-  G.npcs=spawnNPCs();
-}
+    <div id="fortuneModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title" id="fortuneTitle">占い結果</div>
+            <div id="fortuneContent"></div>
+            <button class="btn-close" onclick="game.saveToAlbum()">アルバムに保存</button>
+            <button class="btn-close" onclick="game.closeModal()">閉じる</button>
+        </div>
+    </div>
 
-function resizeCanvas(){
-  const w=window.innerWidth;
-  const h=window.innerHeight;
-  canvas.width=w;
-  canvas.height=h;
-}
+    <div id="albumModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title">占い履歴</div>
+            <div id="albumContent"></div>
+            <button class="btn-close" onclick="game.closeModal()">閉じる</button>
+        </div>
+    </div>
 
-function onClick(e){
-  const r=canvas.getBoundingClientRect();
-  const x=(e.clientX-r.left)*(canvas.width/r.width);
-  const y=(e.clientY-r.top)*(canvas.height/r.height);
-  handleTap(x,y);
-}
+    <div id="menuModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title">メニュー</div>
+            <div id="menuContent"></div>
+            <button class="btn-close" onclick="game.closeModal()">閉じる</button>
+        </div>
+    </div>
 
-function onTouch(e){
-  e.preventDefault();
-  const r=canvas.getBoundingClientRect();
-  const t=e.touches[0];
-  const x=(t.clientX-r.left)*(canvas.width/r.width);
-  const y=(t.clientY-r.top)*(canvas.height/r.height);
-  handleTap(x,y);
-}
+    <script>
+        const AREAS = [
+            {
+                id: 1,
+                name: "和の占い通り",
+                color: "#87CEEB",
+                buildings: [
+                    { id: "w1", name: "おみくじ神社", fortuneType: "omikuji", npcId: "n2" },
+                    { id: "w2", name: "四柱推命の館", fortuneType: "shichushuminei", npcId: "n1" },
+                    { id: "w3", name: "九星気学堂", fortuneType: "kyuseikigaku", npcId: "n1" },
+                    { id: "w4", name: "花占い処", fortuneType: "hanauranai", npcId: "n3" },
+                    { id: "w5", name: "夢占い庵", fortuneType: "yumeuranai", npcId: "n1" },
+                    { id: "w6", name: "風水の間", fortuneType: "fengshui", npcId: "n4" }
+                ]
+            },
+            {
+                id: 2,
+                name: "西洋占い広場",
+                color: "#FFB347",
+                buildings: [
+                    { id: "w7", name: "タロットの館", fortuneType: "tarot", npcId: "n5" },
+                    { id: "w8", name: "数秘術の塔", fortuneType: "numerology", npcId: "n7" },
+                    { id: "w9", name: "ルーン占い小屋", fortuneType: "rune", npcId: "n6" },
+                    { id: "w10", name: "西洋占星術の館", fortuneType: "astrology", npcId: "n5" },
+                    { id: "w11", name: "オラクルカード館", fortuneType: "oracle", npcId: "n8" },
+                    { id: "w12", name: "ペンデュラム室", fortuneType: "pendulum", npcId: "n5" }
+                ]
+            },
+            {
+                id: 3,
+                name: "ふしぎ占い森",
+                color: "#90EE90",
+                buildings: [
+                    { id: "w13", name: "水晶占いの泉", fortuneType: "crystal", npcId: "n9" },
+                    { id: "w14", name: "動物占いの森", fortuneType: "animalspirit", npcId: "n10" },
+                    { id: "w15", name: "色占いの虹", fortuneType: "coloruranai", npcId: "n11" },
+                    { id: "w16", name: "前世占い洞窟", fortuneType: "pastlife", npcId: "n12" },
+                    { id: "w17", name: "相性占いの花畑", fortuneType: "compatibility", npcId: "n9" },
+                    { id: "w18", name: "妖精占いの木", fortuneType: "fairyuranai", npcId: "n12" }
+                ]
+            },
+            {
+                id: 4,
+                name: "星空占いの丘",
+                color: "#1a1a3f",
+                buildings: [
+                    { id: "w19", name: "星座占い天文台", fortuneType: "zodiac", npcId: "n13" },
+                    { id: "w20", name: "月占いの館", fortuneType: "moonuranai", npcId: "n14" },
+                    { id: "w21", name: "惑星占いの塔", fortuneType: "planeluranai", npcId: "n15" },
+                    { id: "w22", name: "誕生日占いの庭", fortuneType: "birthday", npcId: "n13" },
+                    { id: "w23", name: "曜日占い時計台", fortuneType: "dayofweek", npcId: "n13" },
+                    { id: "w24", name: "守護天使占いの教会", fortuneType: "guardian", npcId: "n16" }
+                ]
+            }
+        ];
 
-function handleTap(x,y){
-  for(const npc of G.npcs){
-    if(Math.hypot(npc.x-x,npc.y-y)<25){
-      G.currentCharacter=npc;
-      startFortune(npc);
-      return;
-    }
-  }
-}
+        const NPCs = {
+            n1: { name: "柴太郎", animal: "shiba", color: "#DAA520", personality: "和占いマスター。穏やかで知識豊富", area: 1, knowledge: ["おみくじの由来と歴史", "四柱推命で人生を読む", "九星気学の奥深さ"] },
+            n2: { name: "ミケ", animal: "calico", color: "#FF8C00", personality: "おみくじ巫女。気まぐれだが的中率高い", area: 1, knowledge: ["おみくじの引き方のコツ", "運をゲットする秘訣", "吉凶判定の不思議"] },
+            n3: { name: "ウサ姫", animal: "rabbit", color: "#FFB6C1", personality: "花占い師。可愛くて優しい", area: 1, knowledge: ["花言葉と運命の関係", "花占いの歴史", "花との相性診断"] },
+            n4: { name: "コンタ", animal: "fox", color: "#FF6347", personality: "風水師。ちょっと意地悪だが実力派", area: 1, knowledge: ["風水の五行説", "運気の流れをつかむ", "家の配置と運命"] },
+            n5: { name: "フクじい", animal: "owl", color: "#8B4513", personality: "タロット大師匠。長老で威厳がある", area: 2, knowledge: ["大アルカナの秘密", "タロットの歴史", "カードが示すメッセージ"] },
+            n6: { name: "ケロ助", animal: "frog", color: "#32CD32", personality: "ルーン占い師。のんびりだが鋭い", area: 2, knowledge: ["ルーン文字の起源", "古代の叡智", "ルーンが語る真実"] },
+            n7: { name: "パンちゃん", animal: "panda", color: "#000000", personality: "数秘術師。おっとりした天才", area: 2, knowledge: ["数字の神秘性", "人生路数の計算法", "運命数が示すもの"] },
+            n8: { name: "ハム太", animal: "hamster", color: "#FFA500", personality: "オラクルカード使い。元気いっぱい", area: 2, knowledge: ["カードからのメッセージ", "直感の大切さ", "ハイヤーセルフとの繋がり"] },
+            n9: { name: "ペンぺん", animal: "penguin", color: "#000080", personality: "水晶占い師。クールだが面倒見が良い", area: 3, knowledge: ["水晶の浄化方法", "鉱物のエネルギー", "スピリチュアルな流れ"] },
+            n10: { name: "タヌ吉", animal: "tanuki", color: "#8B7355", personality: "動物占い師。お調子者だが当たる", area: 3, knowledge: ["動物の象徴性", "あなたの守護動物", "動物が示す才能"] },
+            n11: { name: "リスリン", animal: "squirrel", color: "#CC5500", personality: "色占い師。せっかちだが的確", area: 3, knowledge: ["色の波動", "チャクラと色の関係", "運気を変える色選び"] },
+            n12: { name: "モフモフ", animal: "sheep", color: "#FFFACD", personality: "前世占い師。ふわふわして不思議ちゃん", area: 3, knowledge: ["前世の記憶", "魂の成長", "人生の目的を知る"] },
+            n13: { name: "ホシ丸", animal: "whiteshiba", color: "#F5DEB3", personality: "星座占い師。ロマンチスト", area: 4, knowledge: ["星座の神話", "惑星の影響", "天体が示す運命"] },
+            n14: { name: "ルナ", animal: "blackcat", color: "#2F4F4F", personality: "月占い師。ミステリアスで美しい", area: 4, knowledge: ["月の満ち欠けと心身", "月相とのリズム", "夜間の浄化儀式"] },
+            n15: { name: "ソラ", animal: "bluerabbit", color: "#4169E1", personality: "惑星占い師。知的で冷静", area: 4, knowledge: ["惑星の公転周期", "天体観測の歴史", "宇宙からのメッセージ"] },
+            n16: { name: "ヒカル", animal: "goldenfox", color: "#FFD700", personality: "守護天使占い師。神秘的で温かい", area: 4, knowledge: ["天使のサポート", "高い次元からのガイダンス", "スピリチュアルな道"] }
+        };
 
-// ==================== エリア遷移 ====================
-function changeArea(dir){
-  G.areaIdx=(G.areaIdx+dir+areas.length)%areas.length;
-  const a=areas[G.areaIdx];
-  document.getElementById('area-name').textContent=a.name;
-  document.getElementById('area-display').textContent=a.name;
-  G.npcs=spawnNPCs();
-}
+        class Game {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.currentArea = 1;
+                this.playerPos = { x: 0, y: 0 };
+                this.playerState = { walking: false, direction: 1 };
+                this.selectedBuilding = null;
+                this.buildingPositions = {};
+                this.npcPositions = {};
+                this.currentNPC = null;
+                this.currentFortune = null;
+                this.album = JSON.parse(localStorage.getItem('fortuneAlbum') || '[]');
+                this.playerName = localStorage.getItem('playerName') || '';
+                this.playerBirthday = localStorage.getItem('playerBirthday') || '';
+                
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+                this.canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
+                this.canvas.addEventListener('touchend', (e) => this.handleCanvasClick(e));
+                
+                this.gameLoop();
+            }
 
-function spawnNPCs(){
-  const npcs=[];
-  const w=canvas.width||window.innerWidth;
-  const h=canvas.height||window.innerHeight;
-  const area=areas[G.areaIdx];
-  
-  const charKeysInArea=Object.entries(characters).filter(([k,c])=>c.area===G.areaIdx).map(([k])=>k);
-  
-  const count=Math.min(3,charKeysInArea.length);
-  for(let i=0;i<count;i++){
-    const charKey=charKeysInArea[i];
-    const char=characters[charKey];
-    npcs.push({
-      charKey,
-      name:char.name,
-      icon:char.icon,
-      x:w*0.2+i*w*0.3,
-      y:h*0.5,
-      vx:(Math.random()-0.5)*2,
-      vy:(Math.random()-0.5)*2,
-    });
-  }
-  return npcs;
-}
+            resizeCanvas() {
+                const container = this.canvas.parentElement;
+                this.canvas.width = container.clientWidth;
+                this.canvas.height = container.clientHeight;
+                this.calculatePositions();
+            }
 
-// ==================== フォーチュンシステム ====================
-function startFortune(npc){
-  G.fortuneStep=1;
-  G.fortuneAnswers={};
-  recordCharacter(npc.charKey);
-  showFortuneStep();
-}
+            calculatePositions() {
+                const w = this.canvas.width;
+                const h = this.canvas.height;
+                const area = AREAS[this.currentArea - 1];
 
-function showFortuneStep(){
-  document.getElementById('fortune-overlay').classList.add('show');
-  document.querySelectorAll('.fortune-step').forEach(e=>e.classList.remove('active'));
-  document.getElementById('step-'+G.fortuneStep).classList.add('active');
-  document.getElementById('result').classList.remove('active');
-  
-  const prog=(G.fortuneStep-1)/5*100;
-  document.getElementById('progress-fill').style.width=prog+'%';
-  document.getElementById('step-num').textContent=G.fortuneStep;
-  
-  if(G.fortuneStep===1)buildStep1();
-  else if(G.fortuneStep===2)buildStep2();
-  else if(G.fortuneStep===3)buildStep3();
-  else if(G.fortuneStep===4)buildStep4();
-  else if(G.fortuneStep===5)buildStep5();
-}
+                this.buildingPositions = {};
+                this.npcPositions = {};
 
-function buildStep1(){
-  const opts=['恋愛','仕事','金運','健康','総合運'];
-  let html='';
-  for(const opt of opts){
-    html+=`<button class="fortune-btn" onclick="selectChoice('cat','${opt}')">${opt}</button>`;
-  }
-  document.getElementById('choices-1').innerHTML=html;
-}
+                const positions = [
+                    { x: w * 0.2, y: h * 0.2 },
+                    { x: w * 0.5, y: h * 0.2 },
+                    { x: w * 0.8, y: h * 0.2 },
+                    { x: w * 0.2, y: h * 0.5 },
+                    { x: w * 0.5, y: h * 0.5 },
+                    { x: w * 0.8, y: h * 0.5 }
+                ];
 
-function buildStep2(){
-  const cat=G.fortuneAnswers.cat;
-  document.getElementById('q2-title').textContent=`${cat}に関して、\n前向きですか？`;
-  const html=`
-    <button class="fortune-btn" onclick="selectChoice('mood','はい')">✓ はい</button>
-    <button class="fortune-btn" onclick="selectChoice('mood','いいえ')">✗ いいえ</button>
-  `;
-  document.getElementById('choices-2').innerHTML=html;
-}
+                area.buildings.forEach((building, idx) => {
+                    this.buildingPositions[building.id] = positions[idx];
+                    this.npcPositions[building.id] = {
+                        x: positions[idx].x + 40,
+                        y: positions[idx].y + 60
+                    };
+                });
 
-function buildStep3(){
-  const opts=['良いことが起きた','普通の日々','悩んでいる','期待している','決断が必要'];
-  let html='';
-  for(const opt of opts){
-    html+=`<button class="fortune-btn" onclick="selectChoice('event','${opt}')">${opt}</button>`;
-  }
-  document.getElementById('choices-3').innerHTML=html;
-}
+                this.playerPos = { x: w * 0.5, y: h * 0.8 };
+            }
 
-function buildStep4(){
-  const opts=['わくわく','落ち着き','不安','やる気','疲れた'];
-  let html='';
-  for(const opt of opts){
-    html+=`<button class="fortune-btn" onclick="selectChoice('feel','${opt}')">${opt}</button>`;
-  }
-  document.getElementById('choices-4').innerHTML=html;
-}
+            startGame() {
+                document.getElementById('titleScreen').classList.remove('active');
+                document.getElementById('gameScreen').classList.add('active');
+                
+                if (!this.playerName) {
+                    this.showProfileSetup();
+                } else {
+                    this.loadArea(1);
+                }
+            }
 
-function buildStep5(){
-  const opts=['赤','青','黄','紫'];
-  let html='';
-  for(const opt of opts){
-    const colors={赤:'#FF6B6B',青:'#4FC3F7',黄:'#FFD700',紫:'#BA68C8'};
-    html+=`<button class="fortune-btn" style="background:${colors[opt]};color:#fff;border-color:${colors[opt]};" onclick="selectChoice('color','${opt}')">${opt}</button>`;
-  }
-  document.getElementById('choices-5').innerHTML=html;
-}
+            showProfileSetup() {
+                const modalBody = document.getElementById('modalBody');
+                modalBody.innerHTML = `
+                    <div class="input-group">
+                        <label>あなたの名前：</label>
+                        <input type="text" id="inputName" placeholder="例：田中太郎" maxlength="20">
+                    </div>
+                    <div class="input-group">
+                        <label>生年月日：</label>
+                        <input type="date" id="inputBirthday">
+                    </div>
+                    <button class="btn-close" style="background: #FFB74D;" onclick="game.saveProfile()">保存する</button>
+                `;
+                document.getElementById('buildingModal').classList.add('active');
+            }
 
-function selectChoice(key,val){
-  G.fortuneAnswers[key]=val;
-  if(G.fortuneStep<5){
-    G.fortuneStep++;
-    showFortuneStep();
-  }else{
-    generateFortune();
-  }
-}
+            saveProfile() {
+                const name = document.getElementById('inputName').value || '旅人';
+                const birthday = document.getElementById('inputBirthday').value || '';
+                
+                this.playerName = name;
+                this.playerBirthday = birthday;
+                localStorage.setItem('playerName', name);
+                localStorage.setItem('playerBirthday', birthday);
+                
+                this.closeModal();
+                this.loadArea(1);
+            }
 
-function generateFortune(){
-  const cat=G.fortuneAnswers.cat;
-  const mood=G.fortuneAnswers.mood;
-  const event=G.fortuneAnswers.event;
-  const feel=G.fortuneAnswers.feel;
-  const color=G.fortuneAnswers.color;
-  
-  const levels=['大吉','中吉','小吉','吉','末吉','凶'];
-  let score=0;
-  if(mood==='はい')score+=2;
-  if(event==='良いことが起きた')score+=1;
-  if(feel==='わくわく')score+=1;
-  const levelIdx=Math.max(0,Math.min(5,5-Math.floor(score)));
-  const level=levels[levelIdx];
-  
-  const messages={
-    恋愛:{大吉:'素敵な出会いが訪れます💕',中吉:'信頼できる関係が深まります',小吉:'気になる人と繋がるかも',吉:'あせらず進めましょう',末吉:'焦りは禁物です',凶:'いったんリセットの時期'},
-    仕事:{大吉:'大きなチャンスが来ます！',中吉:'着実に成果が出ます',小吉:'新しい挑戦を始めましょう',吉:'コツコツ続けることが大事',末吉:'準備の時間が必要',凶:'視点を変えてみましょう'},
-    金運:{大吉:'予想外の収入があります！',中吉:'貯蓄が増える時期です',小吉:'小さな幸運が重なります',吉:'無駄遣いに注意です',末吉:'倹約の時期です',凶:'大事な支出が必要かも'},
-    健康:{大吉:'心身ともに好調です',中吉:'バランスの良い生活できます',小吉:'少しの改善で元気に',吉:'定期的な運動をしましょう',末吉:'無理は禁物です',凶:'検診を受けましょう'},
-    総合運:{大吉:'全てが上手くいく時期！',中吉:'各方面で好調です',小吉:'チャンスを逃さずに',吉:'焦らず確実に進めます',末吉:'次の準備をしましょう',凶:'心を磨く時期です'},
-  };
-  
-  const msg=messages[cat][level];
-  
-  const luckyItems={赤:{item:'赤いもの',num:7,dir:'南',food:'唐辛子'},青:{item:'青い石',num:3,dir:'東',food:'わかめ'},黄:{item:'黄色の花',num:8,dir:'北',food:'とうもろこし'},紫:{item:'紫のスカーフ',num:9,dir:'西',food:'ナス'}};
-  const lucky=luckyItems[color];
-  
-  const bloods=Object.keys(loadProfile().blood?{A:'A型',B:'B型',O:'O型',AB:'AB型'}:{});
-  const zodiacs=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
-  
-  const compat=`${lucky.num}月生まれ、${zodiacs[Math.floor(Math.random()*12)]}年生まれの人と相性◎`;
-  
-  const advices=['毎日笑顔を心がけましょう','人のアドバイスに耳を傾けて','感謝の気持ちを大切に','新しいことに挑戦してみて','直感を信じて行動する','周囲への気配りを忘れずに'];
-  const advice=advices[Math.floor(Math.random()*advices.length)];
-  
-  showFortuneResult(cat,level,msg,lucky,compat,advice);
-  addHistory(cat,level,msg);
-}
+            loadArea(areaNum) {
+                this.currentArea = areaNum;
+                const area = AREAS[areaNum - 1];
+                document.getElementById('areaName').textContent = `エリア ${areaNum}: ${area.name}`;
+                this.calculatePositions();
+            }
 
-function showFortuneResult(cat,level,msg,lucky,compat,advice){
-  document.querySelectorAll('.fortune-step').forEach(e=>e.classList.remove('active'));
-  document.getElementById('result').classList.add('active');
-  
-  document.getElementById('result-title').textContent=`${cat}の運勢`;
-  document.getElementById('result-level').textContent=level;
-  document.getElementById('result-message').textContent=msg;
-  document.getElementById('result-lucky').textContent=`色:${lucky.item}  番号:${lucky.num}  方向:${lucky.dir}  食べ物:${lucky.food}`;
-  document.getElementById('result-compat').textContent=compat;
-  document.getElementById('result-advice').textContent=advice;
-}
+            gameLoop() {
+                this.drawScene();
+                requestAnimationFrame(() => this.gameLoop());
+            }
 
-function closeFortuneOverlay(){
-  document.getElementById('fortune-overlay').classList.remove('show');
-}
+            drawScene() {
+                const w = this.canvas.width;
+                const h = this.canvas.height;
+                const area = AREAS[this.currentArea - 1];
 
-// ==================== 描画 ====================
-function startLoop(){
-  if(G.loopRunning)return;
-  G.loopRunning=true;
-  G.lastTime=performance.now();
-  requestAnimationFrame(gameFrame);
-}
+                // Background
+                const gradient = this.ctx.createLinearGradient(0, 0, 0, h);
+                if (this.currentArea === 4) {
+                    gradient.addColorStop(0, '#0a0e27');
+                    gradient.addColorStop(1, '#1a2a5f');
+                } else if (this.currentArea === 3) {
+                    gradient.addColorStop(0, '#90EE90');
+                    gradient.addColorStop(1, '#7CB342');
+                } else if (this.currentArea === 2) {
+                    gradient.addColorStop(0, '#FFD699');
+                    gradient.addColorStop(1, '#FFA500');
+                } else {
+                    gradient.addColorStop(0, '#87CEEB');
+                    gradient.addColorStop(1, '#E0F6FF');
+                }
+                this.ctx.fillStyle = gradient;
+                this.ctx.fillRect(0, 0, w, h);
 
-function gameFrame(now){
-  if(!G.loopRunning)return;
-  const dt=(now-G.lastTime)/16.666;
-  G.lastTime=now;
-  gameLoop();
-  requestAnimationFrame(gameFrame);
-}
+                // Draw clouds/stars based on area
+                if (this.currentArea === 4) {
+                    this.drawStars();
+                } else if (this.currentArea === 3) {
+                    this.drawTrees();
+                } else {
+                    this.drawClouds();
+                }
 
-function gameLoop(){
-  if(!ctx)return;
-  G.frame++;
-  updateNPCs();
-  drawAll();
-}
+                // Draw ground
+                this.ctx.fillStyle = '#90EE90';
+                this.ctx.fillRect(0, h * 0.65, w, h * 0.35);
 
-function updateNPCs(){
-  for(const npc of G.npcs){
-    npc.x+=npc.vx;
-    npc.y+=npc.vy;
-    const w=canvas.width||800;
-    const h=canvas.height||600;
-    if(npc.x<30||npc.x>w-30){npc.vx*=-1;npc.x=Math.max(30,Math.min(w-30,npc.x));}
-    if(npc.y<200||npc.y>h-150){npc.vy*=-1;npc.y=Math.max(200,Math.min(h-150,npc.y));}
-  }
-}
+                // Draw buildings
+                area.buildings.forEach(building => {
+                    const pos = this.buildingPositions[building.id];
+                    if (pos) {
+                        this.drawBuilding(building, pos);
+                    }
+                });
 
-function drawAll(){
-  const w=canvas.width;
-  const h=canvas.height;
-  ctx.clearRect(0,0,w,h);
-  
-  const area=areas[G.areaIdx];
-  
-  // 空のグラデーション
-  const sky=ctx.createLinearGradient(0,0,0,h*0.5);
-  sky.addColorStop(0,area.sky[0]);
-  sky.addColorStop(0.5,area.sky[1]);
-  sky.addColorStop(1,area.sky[2]);
-  ctx.fillStyle=sky;
-  ctx.fillRect(0,0,w,h*0.5);
-  
-  // 地面
-  const grd=ctx.createLinearGradient(0,h*0.5,0,h);
-  grd.addColorStop(0,area.ground[0]);
-  grd.addColorStop(0.6,area.ground[1]);
-  grd.addColorStop(1,area.ground[2]);
-  ctx.fillStyle=grd;
-  ctx.fillRect(0,h*0.5,w,h*0.5);
-  
-  // 雲
-  drawCloud(w*0.15,h*0.1,1);
-  drawCloud(w*0.7,h*0.08,0.7);
-  
-  // エリア特有の描画
-  drawAreaFeatures(area.id,w,h);
-  
-  // NPC
-  for(const npc of G.npcs){
-    drawNPC(npc,w,h);
-  }
-  
-  // プレイヤー
-  drawShibaInu(ctx,w/2,h*0.55,G.frame);
-  
-  // ナビゲーション矢印
-  ctx.globalAlpha=0.4+Math.sin(G.frame/20)*0.2;
-  ctx.fillStyle='#FFB74D';
-  ctx.font='bold 24px sans-serif';
-  ctx.textAlign='center';
-  ctx.fillText('◀',20,h/2);
-  ctx.fillText('▶',w-20,h/2);
-  ctx.globalAlpha=1;
-}
+                // Draw NPCs
+                area.buildings.forEach(building => {
+                    const npcPos = this.npcPositions[building.id];
+                    if (npcPos) {
+                        this.drawNPC(NPCs[building.npcId], npcPos);
+                    }
+                });
 
-function drawCloud(x,y,s){
-  ctx.fillStyle='rgba(255,255,255,.7)';
-  ctx.beginPath();
-  ctx.ellipse(x,y,32*s,16*s,0,0,Math.PI*2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(x-18*s,y+4*s,20*s,12*s,0,0,Math.PI*2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(x+20*s,y+3*s,18*s,11*s,0,0,Math.PI*2);
-  ctx.fill();
-}
+                // Draw player
+                this.drawPlayer();
+            }
 
-function drawAreaFeatures(id,w,h){
-  if(id==='omoi'){
-    // 占い村：テント
-    ctx.fillStyle='#FF6B6B';
-    ctx.beginPath();
-    ctx.moveTo(w*0.2,h*0.35);
-    ctx.lineTo(w*0.35,h*0.25);
-    ctx.lineTo(w*0.5,h*0.35);
-    ctx.closePath();
-    ctx.fill();
-    ctx.fillStyle='#FFB74D';
-    ctx.fillRect(w*0.2,h*0.35,w*0.3,h*0.1);
-  }else if(id==='tarot'){
-    // タロット館：建物
-    ctx.fillStyle='#8B7355';
-    ctx.fillRect(w*0.15,h*0.3,w*0.7,h*0.2);
-    ctx.fillStyle='#D7CCC8';
-    for(let i=0;i<3;i++){
-      ctx.fillRect(w*0.2+i*w*0.2,h*0.35,w*0.12,h*0.1);
-    }
-  }else if(id==='shrine'){
-    // 神社：鳥居
-    ctx.strokeStyle='#D4A574';
-    ctx.lineWidth=8;
-    ctx.beginPath();
-    ctx.moveTo(w*0.25,h*0.4);
-    ctx.lineTo(w*0.75,h*0.4);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(w*0.3,h*0.4);
-    ctx.lineTo(w*0.3,h*0.5);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(w*0.7,h*0.4);
-    ctx.lineTo(w*0.7,h*0.5);
-    ctx.stroke();
-  }else if(id==='stars'){
-    // 星読みの丘：星
-    for(let i=0;i<5;i++){
-      ctx.fillStyle='#ffd700';
-      ctx.beginPath();
-      const x=w*0.2+i*w*0.15;
-      const y=h*0.2+Math.sin(G.frame/30+i)*5;
-      ctx.arc(x,y,3,0,Math.PI*2);
-      ctx.fill();
-    }
-  }else if(id==='crystal'){
-    // 水晶：キラキラ
-    ctx.fillStyle='#87CEEB';
-    for(let i=0;i<3;i++){
-      const x=w*0.25+i*w*0.25;
-      const y=h*0.35;
-      ctx.beginPath();
-      ctx.moveTo(x,y-10);
-      ctx.lineTo(x+5,y);
-      ctx.lineTo(x,y+10);
-      ctx.lineTo(x-5,y);
-      ctx.closePath();
-      ctx.fill();
-    }
-  }else if(id==='mystery'){
-    // ふしぎ小路：月と星
-    ctx.fillStyle='rgba(255,255,200,.6)';
-    ctx.beginPath();
-    ctx.arc(w*0.2,h*0.2,15,0,Math.PI*2);
-    ctx.fill();
-  }
-}
+            drawBuilding(building, pos) {
+                const fortuneTypes = ['omikuji', 'shichushuminei', 'kyuseikigaku', 'hanauranai', 'yumeurai', 'fengshui',
+                    'tarot', 'numerology', 'rune', 'astrology', 'oracle', 'pendulum',
+                    'crystal', 'animalspirit', 'coloruranai', 'pastlife', 'compatibility', 'fairyuranai',
+                    'zodiac', 'moonuranai', 'planeluranai', 'birthday', 'dayofweek', 'guardian'];
+                
+                const typeIndex = fortuneTypes.indexOf(building.fortuneType);
+                const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F',
+                    '#BB8FCE', '#85C1E2', '#F8B88B', '#A9DFBF', '#F5B7B1', '#D5F4E6',
+                    '#FADBD8', '#D7BDE2', '#ABEBC6', '#F9E79F', '#AED6F1', '#F5B7B1',
+                    '#FCF3CF', '#D2B4DE', '#A3E4D7', '#F2D7AC', '#D5A6BD', '#FADBD8'];
 
-function drawNPC(npc,w,h){
-  ctx.fillStyle='#333';
-  ctx.beginPath();
-  ctx.arc(npc.x,npc.y,8,0,Math.PI*2);
-  ctx.fill();
-  ctx.fillStyle='#fff';
-  ctx.font='16px sans-serif';
-  ctx.textAlign='center';
-  ctx.fillText(npc.icon,npc.x,npc.y+4);
-  
-  ctx.fillStyle='#666';
-  ctx.font='10px sans-serif';
-  ctx.textAlign='center';
-  ctx.fillText(npc.name.substring(0,8),npc.x,npc.y+20);
-}
+                this.ctx.fillStyle = colors[typeIndex] || '#FFB74D';
+                this.ctx.fillRect(pos.x - 30, pos.y - 40, 60, 80);
 
-function drawShibaInu(ctx,x,y,frame){
-  ctx.fillStyle='#D4A574';
-  
-  // 体
-  ctx.beginPath();
-  ctx.ellipse(x,y,18,22,0,0,Math.PI*2);
-  ctx.fill();
-  
-  // 頭
-  ctx.beginPath();
-  ctx.arc(x,y-20,14,0,Math.PI*2);
-  ctx.fill();
-  
-  // 耳
-  ctx.fillStyle='#D4A574';
-  ctx.beginPath();
-  ctx.ellipse(x-8,y-30,5,10,Math.PI/6,0,Math.PI*2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(x+8,y-30,5,10,-Math.PI/6,0,Math.PI*2);
-  ctx.fill();
-  
-  // 耳の内側
-  ctx.fillStyle='#F5DEB3';
-  ctx.beginPath();
-  ctx.ellipse(x-8,y-29,2.5,6,Math.PI/6,0,Math.PI*2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(x+8,y-29,2.5,6,-Math.PI/6,0,Math.PI*2);
-  ctx.fill();
-  
-  // 目
-  ctx.fillStyle='#000';
-  ctx.beginPath();
-  ctx.arc(x-5,y-22,2.5,0,Math.PI*2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(x+5,y-22,2.5,0,Math.PI*2);
-  ctx.fill();
-  
-  // 目の光
-  ctx.fillStyle='#fff';
-  ctx.beginPath();
-  ctx.arc(x-4,y-23,1,0,Math.PI*2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(x+6,y-23,1,0,Math.PI*2);
-  ctx.fill();
-  
-  // 鼻
-  ctx.fillStyle='#000';
-  ctx.beginPath();
-  ctx.arc(x,y-16,2.5,0,Math.PI*2);
-  ctx.fill();
-  
-  // 口
-  ctx.strokeStyle='#000';
-  ctx.lineWidth=1.5;
-  ctx.beginPath();
-  ctx.moveTo(x,y-14);
-  ctx.quadraticCurveTo(x-3,y-11,x-4,y-9);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(x,y-14);
-  ctx.quadraticCurveTo(x+3,y-11,x+4,y-9);
-  ctx.stroke();
-  
-  // 尾
-  ctx.strokeStyle='#D4A574';
-  ctx.lineWidth=4;
-  ctx.beginPath();
-  ctx.moveTo(x+16,y+5);
-  const tailSwing=Math.sin(frame/10)*8;
-  ctx.quadraticCurveTo(x+22+tailSwing,y,x+20+tailSwing,y-15);
-  ctx.stroke();
-  
-  // 足
-  ctx.fillStyle='#D4A574';
-  const legSway=Math.sin(frame/15)*2;
-  ctx.fillRect(x-10,y+20+legSway,5,12);
-  ctx.fillRect(x-2,y+20-legSway,5,12);
-  ctx.fillRect(x+3,y+20+legSway,5,12);
-  ctx.fillRect(x+11,y+20-legSway,5,12);
-  
-  // 足の肉球
-  ctx.fillStyle='#FFB6C1';
-  ctx.beginPath();
-  ctx.arc(x-7.5,y+32,2,0,Math.PI*2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(x+0.5,y+32,2,0,Math.PI*2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(x+5.5,y+32,2,0,Math.PI*2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(x+13.5,y+32,2,0,Math.PI*2);
-  ctx.fill();
-}
+                // Roof
+                this.ctx.fillStyle = '#8B4513';
+                this.ctx.beginPath();
+                this.ctx.moveTo(pos.x - 35, pos.y - 40);
+                this.ctx.lineTo(pos.x, pos.y - 60);
+                this.ctx.lineTo(pos.x + 35, pos.y - 40);
+                this.ctx.fill();
 
-function drawAlbumCharacters(){
-  for(const [key,char] of Object.entries(characters)){
-    const canvas=document.getElementById('album-'+key);
-    if(!canvas)continue;
-    const c=canvas.getContext('2d');
-    c.clearRect(0,0,50,50);
-    drawShibaInu(c,25,25,0);
-  }
-}
+                // Door
+                this.ctx.fillStyle = '#5D4037';
+                this.ctx.fillRect(pos.x - 12, pos.y - 10, 24, 40);
 
-// ==================== 初期化 ====================
-window.addEventListener('load',function(){
-  document.getElementById('album-overlay').classList.remove('show');
-  document.getElementById('history-overlay').classList.remove('show');
-  document.getElementById('profile-overlay').classList.remove('show');
-  document.getElementById('fortune-overlay').classList.remove('show');
-  document.getElementById('modal').classList.remove('show');
-});
-</script>
+                // Window
+                this.ctx.fillStyle = '#FFD700';
+                this.ctx.fillRect(pos.x - 20, pos.y - 35, 15, 15);
+            }
+
+            drawNPC(npc, pos) {
+                const animalType = npc.animal;
+                
+                // Draw based on animal type
+                if (animalType === 'shiba' || animalType === 'whiteshiba') {
+                    this.drawShiba(pos, npc.color);
+                } else if (animalType === 'calico') {
+                    this.drawCat(pos, npc.color);
+                } else if (animalType === 'rabbit') {
+                    this.drawRabbit(pos, npc.color);
+                } else if (animalType === 'fox' || animalType === 'goldenfox') {
+                    this.drawFox(pos, npc.color);
+                } else if (animalType === 'owl') {
+                    this.drawOwl(pos, npc.color);
+                } else if (animalType === 'frog') {
+                    this.drawFrog(pos, npc.color);
+                } else if (animalType === 'panda') {
+                    this.drawPanda(pos, npc.color);
+                } else if (animalType === 'hamster') {
+                    this.drawHamster(pos, npc.color);
+                } else if (animalType === 'penguin') {
+                    this.drawPenguin(pos, npc.color);
+                } else if (animalType === 'tanuki') {
+                    this.drawTanuki(pos, npc.color);
+                } else if (animalType === 'squirrel') {
+                    this.drawSquirrel(pos, npc.color);
+                } else if (animalType === 'sheep') {
+                    this.drawSheep(pos, npc.color);
+                } else if (animalType === 'blackcat') {
+                    this.drawCat(pos, '#333333');
+                } else if (animalType === 'bluerabbit') {
+                    this.drawRabbit(pos, '#4169E1');
+                }
+            }
+
+            drawShiba(pos, color) {
+                // Body
+                this.ctx.fillStyle = color;
+                this.ctx.beginPath();
+                this.ctx.ellipse(pos.x, pos.y, 12, 10, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Head
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 8, pos.y - 12, 8, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Ears
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 14, pos.y - 18, 4, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 2, pos.y - 18, 4, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Eyes
+                this.ctx.fillStyle = 'black';
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 12, pos.y - 14, 2, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Tail
+                this.ctx.strokeStyle = color;
+                this.ctx.lineWidth = 3;
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x + 18, pos.y + 5, 8, 0, Math.PI, true);
+                this.ctx.stroke();
+            }
+
+            drawCat(pos, color) {
+                this.ctx.fillStyle = color;
+                this.ctx.beginPath();
+                this.ctx.ellipse(pos.x, pos.y, 10, 9, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x, pos.y - 10, 7, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Ears
+                this.ctx.beginPath();
+                this.ctx.moveTo(pos.x - 8, pos.y - 15);
+                this.ctx.lineTo(pos.x - 12, pos.y - 22);
+                this.ctx.lineTo(pos.x - 5, pos.y - 16);
+                this.ctx.fill();
+
+                this.ctx.beginPath();
+                this.ctx.moveTo(pos.x + 8, pos.y - 15);
+                this.ctx.lineTo(pos.x + 12, pos.y - 22);
+                this.ctx.lineTo(pos.x + 5, pos.y - 16);
+                this.ctx.fill();
+
+                this.ctx.fillStyle = 'black';
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 3, pos.y - 10, 1.5, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+
+            drawRabbit(pos, color) {
+                this.ctx.fillStyle = color;
+                this.ctx.beginPath();
+                this.ctx.ellipse(pos.x, pos.y, 9, 11, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x, pos.y - 14, 6, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Ears
+                this.ctx.beginPath();
+                this.ctx.ellipse(pos.x - 5, pos.y - 28, 3, 10, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.beginPath();
+                this.ctx.ellipse(pos.x + 5, pos.y - 28, 3, 10, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Eyes
+                this.ctx.fillStyle = 'black';
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 2, pos.y - 15, 1.5, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+
+            drawFox(pos, color) {
+                this.ctx.fillStyle = color;
+                this.ctx.beginPath();
+                this.ctx.ellipse(pos.x, pos.y, 11, 9, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 10, pos.y - 10, 7, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Ears
+                this.ctx.beginPath();
+                this.ctx.moveTo(pos.x - 15, pos.y - 15);
+                this.ctx.lineTo(pos.x - 18, pos.y - 24);
+                this.ctx.lineTo(pos.x - 12, pos.y - 13);
+                this.ctx.fill();
+                this.ctx.beginPath();
+                this.ctx.moveTo(pos.x - 5, pos.y - 15);
+                this.ctx.lineTo(pos.x - 2, pos.y - 24);
+                this.ctx.lineTo(pos.x - 8, pos.y - 13);
+                this.ctx.fill();
+
+                this.ctx.fillStyle = 'black';
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 12, pos.y - 12, 2, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+
+            drawOwl(pos, color) {
+                this.ctx.fillStyle = color;
+                this.ctx.beginPath();
+                this.ctx.ellipse(pos.x, pos.y, 9, 12, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Eyes
+                this.ctx.fillStyle = '#FFD700';
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 4, pos.y - 3, 3, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x + 4, pos.y - 3, 3, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                this.ctx.fillStyle = 'black';
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 4, pos.y - 3, 1.5, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x + 4, pos.y - 3, 1.5, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Ears
+                this.ctx.fillStyle = color;
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 6, pos.y - 12, 3, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x + 6, pos.y - 12, 3, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+
+            drawFrog(pos, color) {
+                this.ctx.fillStyle = color;
+                this.ctx.beginPath();
+                this.ctx.ellipse(pos.x, pos.y, 10, 8, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x, pos.y - 10, 6, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Eyes
+                this.ctx.fillStyle = '#FFD700';
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 3, pos.y - 12, 2, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x + 3, pos.y - 12, 2, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+
+            drawPanda(pos, color) {
+                this.ctx.fillStyle = 'white';
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x, pos.y, 10, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                this.ctx.fillStyle = 'black';
+                // Ears
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 8, pos.y - 10, 3, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x + 8, pos.y - 10, 3, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Eyes
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 4, pos.y - 3, 3, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x + 4, pos.y - 3, 3, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+
+            drawHamster(pos, color) {
+                this.ctx.fillStyle = color;
+                this.ctx.beginPath();
+                this.ctx.ellipse(pos.x, pos.y, 8, 7, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 7, pos.y - 8, 5, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Ears
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 9, pos.y - 11, 2.5, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 5, pos.y - 11, 2.5, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Eyes
+                this.ctx.fillStyle = 'black';
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 9, pos.y - 9, 1.5, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+
+            drawPenguin(pos, color) {
+                this.ctx.fillStyle = 'black';
+                this.ctx.beginPath();
+                this.ctx.ellipse(pos.x, pos.y, 7, 11, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x, pos.y - 12, 5, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Belly
+                this.ctx.fillStyle = 'white';
+                this.ctx.beginPath();
+                this.ctx.ellipse(pos.x, pos.y, 4, 8, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Eyes
+                this.ctx.fillStyle = 'white';
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 2, pos.y - 13, 1.5, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x + 2, pos.y - 13, 1.5, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+
+            drawTanuki(pos, color) {
+                this.ctx.fillStyle = color;
+                this.ctx.beginPath();
+                this.ctx.ellipse(pos.x, pos.y, 11, 9, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 8, pos.y - 12, 7, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Ears
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 13, pos.y - 15, 3, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 3, pos.y - 15, 3, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Eyes
+                this.ctx.fillStyle = 'black';
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 11, pos.y - 13, 2, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Mask marking
+                this.ctx.fillStyle = 'black';
+                this.ctx.fillRect(pos.x - 12, pos.y - 12, 4, 8);
+            }
+
+            drawSquirrel(pos, color) {
+                this.ctx.fillStyle = color;
+                this.ctx.beginPath();
+                this.ctx.ellipse(pos.x, pos.y, 8, 9, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 6, pos.y - 10, 6, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Ears
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 9, pos.y - 14, 2.5, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 3, pos.y - 14, 2.5, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Eyes
+                this.ctx.fillStyle = 'black';
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 8, pos.y - 11, 1.5, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Tail
+                this.ctx.strokeStyle = color;
+                this.ctx.lineWidth = 3;
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x + 12, pos.y - 5, 6, 0, Math.PI, false);
+                this.ctx.stroke();
+            }
+
+            drawSheep(pos, color) {
+                // Wool body
+                this.ctx.fillStyle = color;
+                this.ctx.beginPath();
+                this.ctx.ellipse(pos.x, pos.y, 11, 9, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Head
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 8, pos.y - 11, 5, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Ears
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 11, pos.y - 14, 2, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 5, pos.y - 14, 2, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Eyes
+                this.ctx.fillStyle = 'black';
+                this.ctx.beginPath();
+                this.ctx.arc(pos.x - 10, pos.y - 11, 1.5, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+
+            drawPlayer() {
+                const w = this.canvas.width;
+                const h = this.canvas.height;
+
+                this.ctx.fillStyle = '#DAA520';
+                this.ctx.beginPath();
+                this.ctx.ellipse(this.playerPos.x, this.playerPos.y, 14, 12, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Head
+                this.ctx.beginPath();
+                this.ctx.arc(this.playerPos.x - 10, this.playerPos.y - 14, 9, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Ears
+                this.ctx.beginPath();
+                this.ctx.arc(this.playerPos.x - 17, this.playerPos.y - 18, 4.5, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.beginPath();
+                this.ctx.arc(this.playerPos.x - 3, this.playerPos.y - 18, 4.5, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Eyes
+                this.ctx.fillStyle = 'black';
+                this.ctx.beginPath();
+                this.ctx.arc(this.playerPos.x - 14, this.playerPos.y - 16, 2.5, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // Tail
+                this.ctx.strokeStyle = '#DAA520';
+                this.ctx.lineWidth = 4;
+                const tailCurve = 10 + Math.sin(Date.now() / 300) * 5;
+                this.ctx.beginPath();
+                this.ctx.arc(this.playerPos.x + 20, this.playerPos.y + 5, tailCurve, 0, Math.PI, true);
+                this.ctx.stroke();
+            }
+
+            drawClouds() {
+                for (let i = 0; i < 3; i++) {
+                    const x = (i * this.canvas.width / 3) + (Date.now() % 10000) / 50;
+                    const y = this.canvas.height * 0.15;
+                    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                    this.ctx.beginPath();
+                    this.ctx.arc(x, y, 20, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    this.ctx.beginPath();
+                    this.ctx.arc(x + 20, y, 25, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    this.ctx.beginPath();
+                    this.ctx.arc(x + 40, y, 20, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+            }
+
+            drawTrees() {
+                for (let i = 0; i < 4; i++) {
+                    const x = (i * this.canvas.width / 4) + this.canvas.width / 8;
+                    const y = this.canvas.height * 0.3;
+                    
+                    // Trunk
+                    this.ctx.fillStyle = '#8B4513';
+                    this.ctx.fillRect(x - 5, y + 30, 10, 30);
+                    
+                    // Leaves
+                    this.ctx.fillStyle = '#228B22';
+                    this.ctx.beginPath();
+                    this.ctx.arc(x, y, 25, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+            }
+
+            drawStars() {
+                this.ctx.fillStyle = '#FFFF99';
+                for (let i = 0; i < 50; i++) {
+                    const x = (i * 73) % this.canvas.width;
+                    const y = (i * 97) % (this.canvas.height * 0.6);
+                    this.ctx.beginPath();
+                    this.ctx.arc(x, y, 1.5, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+            }
+
+            handleCanvasClick(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+
+                // Check building clicks
+                for (const [buildingId, pos] of Object.entries(this.buildingPositions)) {
+                    if (Math.hypot(x - pos.x, y - pos.y) < 40) {
+                        const area = AREAS[this.currentArea - 1];
+                        const building = area.buildings.find(b => b.id === buildingId);
+                        if (building) {
+                            this.showBuildingModal(building);
+                            return;
+                        }
+                    }
+                }
+
+                // Check NPC clicks
+                for (const [buildingId, pos] of Object.entries(this.npcPositions)) {
+                    if (Math.hypot(x - pos.x, y - pos.y) < 25) {
+                        const area = AREAS[this.currentArea - 1];
+                        const building = area.buildings.find(b => b.id === buildingId);
+                        if (building) {
+                            this.showNPCModal(NPCs[building.npcId]);
+                            return;
+                        }
+                    }
+                }
+            }
+
+            showBuildingModal(building) {
+                document.getElementById('modalTitle').textContent = building.name;
+                const modalBody = document.getElementById('modalBody');
+
+                if (building.fortuneType === 'tarot') {
+                    this.generateTarotFortune(modalBody);
+                } else if (building.fortuneType === 'numerology') {
+                    this.generateNumerologyFortune(modalBody);
+                } else if (building.fortuneType === 'kyuseikigaku') {
+                    this.generateKyuseiFortune(modalBody);
+                } else if (building.fortuneType === 'zodiac') {
+                    this.generateZodiacFortune(modalBody);
+                } else if (building.fortuneType === 'omikuji') {
+                    this.generateOmikujiFortune(modalBody);
+                } else if (building.fortuneType === 'moonuranai') {
+                    this.generateMoonFortune(modalBody);
+                } else if (building.fortuneType === 'animalspirit') {
+                    this.generateAnimalSpiritFortune(modalBody);
+                } else {
+                    this.generateGenericFortune(building.name, modalBody);
+                }
+
+                document.getElementById('buildingModal').classList.add('active');
+            }
+
+            generateTarotFortune(container) {
+                const majorArcana = [
+                    { name: "愚者", meaning: "新しい始まり、無邪気" },
+                    { name: "魔術師", meaning: "力、意志、才能の活用" },
+                    { name: "女祭司", meaning: "直感、謎、無意識" },
+                    { name: "女帝", meaning: "豊かさ、創造性、美" },
+                    { name: "皇帝", meaning: "権力、支配、強さ" },
+                    { name: "教皇", meaning: "精神性、知識、信仰" },
+                    { name: "恋人", meaning: "愛、関係、選択" },
+                    { name: "戦車", meaning: "勝利、制御、決断" },
+                    { name: "力", meaning: "勇気、力、自信" },
+                    { name: "隠者", meaning: "瞑想、探求、内省" },
+                    { name: "運命の輪", meaning: "運、変化、サイクル" },
+                    { name: "正義", meaning: "公平、判断、真実" },
+                    { name: "吊人", meaning: "犠牲、見方の転換" },
+                    { name: "死神", meaning: "変容、終わり、新しい始まり" },
+                    { name: "節制", meaning: "バランス、忍耐、調和" },
+                    { name: "悪魔", meaning: "束縛、欲望、制限" },
+                    { name: "塔", meaning: "破壊、変動、啓示" },
+                    { name: "星", meaning: "希望、明確、インスピレーション" },
+                    { name: "月", meaning: "不安、幻想、直感" },
+                    { name: "太陽", meaning: "幸福、成功、活力" },
+                    { name: "審判", meaning: "目覚め、呼び出し、新しい局面" },
+                    { name: "世界", meaning: "完成、達成、統合" }
+                ];
+
+                const positions = ['過去', '現在', '未来'];
+                let html = '<div class="modal-text">3枚のタロットカードが示すあなたの運命：<br><br>';
+
+                for (let i = 0; i < 3; i++) {
+                    const card = majorArcana[Math.floor(Math.random() * majorArcana.length)];
+                    const isReversed = Math.random() < 0.3;
+                    html += `<div class="fortune-result">
+                        <div class="fortune-label">${positions[i]}: ${card.name}${isReversed ? ' (逆位置)' : ''}</div>
+                        <div class="fortune-value">${isReversed ? '反転：' : ''}${card.meaning}</div>
+                    </div>`;
+                }
+
+                html += '<br><div class="fortune-result"><strong>総合解釈：</strong>あなたのタロットリーディングは、人生の転換点を示しています。カードが伝えるメッセージに耳を傾け、今この瞬間に必要な行動を起こしてください。</div>';
+
+                container.innerHTML = html + '<button class="btn-close" style="background: #FFB74D; margin-top: 15px;" onclick="game.saveCurrentFortune()">結果を保存</button>';
+            }
+
+            generateNumerologyFortune(container) {
+                if (!this.playerBirthday) {
+                    container.innerHTML = '<div class="modal-text">誕生日を登録すると、より正確な数秘術占いができます。</div>';
+                    return;
+                }
+
+                const dateStr = this.playerBirthday.replace(/-/g, '');
+                let sum = 0;
+                for (let digit of dateStr) sum += parseInt(digit);
+
+                while (sum > 9 && sum !== 11 && sum !== 22 && sum !== 33) {
+                    let newSum = 0;
+                    while (sum > 0) {
+                        newSum += sum % 10;
+                        sum = Math.floor(sum / 10);
+                    }
+                    sum = newSum;
+                }
+
+                const numerologyData = {
+                    1: { name: "リーダー", desc: "独立心が強く、パイオニア精神に溢れています。新しい道を切り開く力を持っています。" },
+                    2: { name: "調和者", desc: "バランス感覚が優れ、共感能力が高い。人間関係を大切にします。" },
+                    3: { name: "表現者", desc: "創造的で社交的。コミュニケーション能力が高く、人々を楽しませます。" },
+                    4: { name: "建設者", desc: "堅実で信頼できる。基礎を作ることが得意で、実務的なアプローチを好みます。" },
+                    5: { name: "冒険者", desc: "自由を愛し、変化を求める。好奇心旺盛で、多くの経験を積みます。" },
+                    6: { name: "奉仕者", desc: "責任感が強く、他者を助けることに喜びを感じます。家族を大切にします。" },
+                    7: { name: "探究者", desc: "深い知恵と直感力を持ち、真実を追い求めます。精神性が高い人です。" },
+                    8: { name: "指導者", desc: "力強く、野心的。物質的成功と精神的成長の両立を目指します。" },
+                    9: { name: "理想家", desc: "博愛精神に溢れ、世界平和を願う。完成と終結を示す数字です。" },
+                    11: { name: "啓発者", desc: "マスターナンバー。直感力とスピリチュアルな力を持つ特別な存在。" },
+                    22: { name: "建築家", desc: "マスターナンバー。大きなビジョンを現実化させる力を持っています。" },
+                    33: { name: "導き手", desc: "マスターナンバー。最高レベルの精神的指導者の資質を持ちます。" }
+                };
+
+                const data = numerologyData[sum];
+                container.innerHTML = `
+                    <div class="fortune-result">
+                        <div class="fortune-label">ライフパスナンバー</div>
+                        <div class="fortune-value" style="font-size: 1.5em;">${sum}</div>
+                    </div>
+                    <div class="fortune-result">
+                        <div class="fortune-label">タイプ: ${data.name}</div>
+                        <div class="fortune-value">${data.desc}</div>
+                    </div>
+                    <div class="lucky-items">
+                        <div class="lucky-item"><span class="lucky-item-label">ラッキーナンバー:</span> ${sum}</div>
+                        <div class="lucky-item"><span class="lucky-item-label">ラッキーカラー:</span> ${['赤', '黄', '紫', '緑', '青', '橙', '青紫', '黒', '白'][sum - 1] || '金色'}</div>
+                    </div>
+                    <div class="fortune-result"><strong>今日のアドバイス：</strong>あなたの生まれた数字が示す才能を信じ、その特性を活かしてください。</div>
+                    <button class="btn-close" style="background: #FFB74D; margin-top: 15px;" onclick="game.saveCurrentFortune()">結果を保存</button>
+                `;
+            }
+
+            generateKyuseiFortune(container) {
+                if (!this.playerBirthday) {
+                    container.innerHTML = '<div class="modal-text">誕生日を登録すると、より正確な九星気学占いができます。</div>';
+                    return;
+                }
+
+                const year = parseInt(this.playerBirthday.substring(0, 4));
+                const yearSum = Math.floor(year / 1000) + Math.floor((year % 1000) / 100) + Math.floor((year % 100) / 10) + (year % 10);
+                const kyusei = 11 - (yearSum % 9) || 9;
+
+                const kyuseiData = {
+                    1: { name: "一白水星", desc: "知恵と柔軟性の星。適応能力に優れ、新しい環境でも素早く対応できます。" },
+                    2: { name: "二黒土星", desc: "大地と母性の星。安定を求め、忍耐強く地道に進みます。" },
+                    3: { name: "三碧木星", desc: "雷と成長の星。活動的で生命力に溢れ、新しいことに挑戦します。" },
+                    4: { name: "四緑木星", desc: "風と調和の星。社交的で、人間関係を大切にする繋ぎ役です。" },
+                    5: { name: "五黄土星", desc: "中央と統合の星。リーダーシップがあり、人々を導く力を持ちます。" },
+                    6: { name: "六白金星", desc: "天と秩序の星。理性的で、正義感が強く道徳的です。" },
+                    7: { name: "七赤金星", desc: "沢と喜びの星。社交的で、楽しさを求め人生を楽しみます。" },
+                    8: { name: "八白土星", desc: "山と変化の星。変動を好み、新しい局面を切り開きます。" },
+                    9: { name: "九紫火星", desc: "火と完成の星。情熱的で、高い理想を目指します。完成へ向かう時期です。" }
+                };
+
+                const data = kyuseiData[kyusei];
+                container.innerHTML = `
+                    <div class="fortune-result">
+                        <div class="fortune-label">あなたの九星</div>
+                        <div class="fortune-value">${data.name}</div>
+                    </div>
+                    <div class="fortune-result">
+                        <div class="fortune-label">運勢の特徴</div>
+                        <div class="fortune-value">${data.desc}</div>
+                    </div>
+                    <div class="lucky-items">
+                        <div class="lucky-item"><span class="lucky-item-label">ラッキーカラー:</span> ['青', '黒', '緑', '緑', '黄', '白', '赤', '白', '紫'][${kyusei - 1}]</div>
+                    </div>
+                    <button class="btn-close" style="background: #FFB74D; margin-top: 15px;" onclick="game.saveCurrentFortune()">結果を保存</button>
+                `;
+            }
+
+            generateZodiacFortune(container) {
+                const zodiacData = {
+                    '牡羊座': { love: 4, work: 5, health: 3, money: 4 },
+                    '牡牛座': { love: 3, work: 4, health: 5, money: 4 },
+                    '双子座': { love: 5, work: 4, health: 3, money: 3 },
+                    '蟹座': { love: 4, work: 3, health: 4, money: 4 },
+                    '獅子座': { love: 5, work: 5, health: 4, money: 5 },
+                    '乙女座': { love: 3, work: 5, health: 5, money: 4 },
+                    '天秤座': { love: 5, work: 4, health: 3, money: 4 },
+                    '蠍座': { love: 4, work: 5, health: 4, money: 5 },
+                    '射手座': { love: 4, work: 4, health: 5, money: 3 },
+                    '山羊座': { love: 3, work: 5, health: 4, money: 5 },
+                    '水瓶座': { love: 4, work: 4, health: 3, money: 4 },
+                    '魚座': { love: 5, work: 3, health: 4, money: 3 }
+                };
+
+                const zodiac = Object.keys(zodiacData)[Math.floor(Math.random() * 12)];
+                const ratings = zodiacData[zodiac];
+
+                const renderStars = (count) => '★'.repeat(count) + '☆'.repeat(5 - count);
+
+                container.innerHTML = `
+                    <div class="fortune-result">
+                        <div class="fortune-label">本日の星座：${zodiac}</div>
+                        <div class="rating-stars">
+                            <div class="rating-label">恋愛運</div>
+                            <div class="stars">${renderStars(ratings.love)}</div>
+                        </div>
+                        <div class="rating-stars">
+                            <div class="rating-label">仕事運</div>
+                            <div class="stars">${renderStars(ratings.work)}</div>
+                        </div>
+                        <div class="rating-stars">
+                            <div class="rating-label">健康運</div>
+                            <div class="stars">${renderStars(ratings.health)}</div>
+                        </div>
+                        <div class="rating-stars">
+                            <div class="rating-label">金運</div>
+                            <div class="stars">${renderStars(ratings.money)}</div>
+                        </div>
+                    </div>
+                    <button class="btn-close" style="background: #FFB74D; margin-top: 15px;" onclick="game.saveCurrentFortune()">結果を保存</button>
+                `;
+            }
+
+            generateOmikujiFortune(container) {
+                const levels = ['大吉', '吉', '中吉', '小吉', '末吉', '凶'];
+                const level = levels[Math.floor(Math.random() * levels.length)];
+                const categories = {
+                    '願望': ['成就します', '少し時間がかかります', '努力が必要です', '神様にお祈りしましょう'],
+                    '恋愛': ['素敵な出会いが', '相手の気持ちが変わります', '自分の気持ちを伝えましょう', '焦らずに待ちましょう'],
+                    '学業': ['合格間違いなし', '勉強の成果が出ます', 'もう少し努力が必要', '基礎から学び直しましょう'],
+                    '仕事': ['大成功の兆し', '順調に進みます', '工夫が必要です', '持ち直すまで時間がかかります'],
+                    '健康': ['非常に健康的です', '良好な状態です', '注意が必要です', '医者に相談しましょう'],
+                    '旅行': ['大吉の旅になります', '楽しい旅になります', '気をつけて', 'やめておいた方が良いでしょう'],
+                    '金運': ['大きな幸運があります', '徐々に良くなります', '浪費に注意', '貯蓄を心がけましょう']
+                };
+
+                let html = `<div class="fortune-result"><div class="fortune-value" style="font-size: 2em; color: #d4791f; text-align: center;">${level}</div></div>`;
+
+                for (const [cat, messages] of Object.entries(categories)) {
+                    const idx = levels.indexOf(level);
+                    const msg = messages[Math.min(idx, messages.length - 1)];
+                    html += `<div class="lucky-item"><span class="lucky-item-label">${cat}:</span> ${msg}</div>`;
+                }
+
+                html += '<button class="btn-close" style="background: #FFB74D; margin-top: 15px;" onclick="game.saveCurrentFortune()">結果を保存</button>';
+
+                container.innerHTML = html;
+            }
+
+            generateMoonFortune(container) {
+                const phases = [
+                    { name: "新月", desc: "新���い始まり。設定した目標に向かって進む時期です。瞑想やリセットに最適。", emotion: "希望、設定、計画" },
+                    { name: "満月", desc: "完成と達成の時。感情が高まり、インスピレーションが冴えている状態です。", emotion: "充実、達成、感謝" },
+                    { name: "上弦の月", desc: "成長と挑戦の時。障害に直面するかもしれませんが、それを乗り越える力があります。", emotion: "意志、挑戦、成長" },
+                    { name: "下弦の月", desc: "内省と完成の時。手放すべきものを手放し、新しい準備をします。", emotion: "振り返り、感謝、浄化" }
+                ];
+
+                const phase = phases[Math.floor(Math.random() * phases.length)];
+                container.innerHTML = `
+                    <div class="fortune-result">
+                        <div class="fortune-label">今夜の月相：${phase.name}</div>
+                        <div class="fortune-value">${phase.desc}</div>
+                        <div class="fortune-label" style="margin-top: 10px;">心の状態：</div>
+                        <div class="fortune-value">${phase.emotion}</div>
+                    </div>
+                    <button class="btn-close" style="background: #FFB74D; margin-top: 15px;" onclick="game.saveCurrentFortune()">結果を保存</button>
+                `;
+            }
+
+            generateAnimalSpiritFortune(container) {
+                const animals = [
+                    { name: "狼", trait: "リーダーシップ、本能、自由", advice: "自分の直感を信じてください" },
+                    { name: "鹿", trait: "優雅さ、感受性、新しい視点", advice: "周りの視点を大切にしましょう" },
+                    { name: "ワシ", trait: "視野の広さ、力強さ、スピリチュアル", advice: "大きな視点から考えてください" },
+                    { name: "熊", trait: "強さ、内省、冬眠の知恵", advice: "今は休息の時かもしれません" },
+                    { name: "孤狸", trait: "知恵、狡猾さ、適応力", advice: "創意工夫を活かしてください" },
+                    { name: "ウサギ", trait: "迅速さ、注意深さ、直感", advice: "急いで判断せず、落ち着きましょう" },
+                    { name: "ヘビ", trait: "変容、再生、力", advice: "人生の転機が来ています" },
+                    { name: "ライオン", trait: "勇気、王者の風格、自信", advice: "自信を持って進みましょう" }
+                ];
+
+                const animal = animals[Math.floor(Math.random() * animals.length)];
+                container.innerHTML = `
+                    <div class="fortune-result">
+                        <div class="fortune-label">あなたの守護動物</div>
+                        <div class="fortune-value">${animal.name}</div>
+                        <div class="fortune-label">特性：</div>
+                        <div class="fortune-value">${animal.trait}</div>
+                        <div class="fortune-label">メッセージ：</div>
+                        <div class="fortune-value">${animal.advice}</div>
+                    </div>
+                    <button class="btn-close" style="background: #FFB74D; margin-top: 15px;" onclick="game.saveCurrentFortune()">結果を保存</button>
+                `;
+            }
+
+            generateGenericFortune(buildingName, container) {
+                const fortuneTexts = [
+                    "今日のあなたは運に恵まれています。積極的に行動してください。",
+                    "少し慎重になることで、より良い結果が得られるでしょう。",
+                    "誰かの言葉や助言に耳を傾けてみてください。思わぬ発見があります。",
+                    "今やっていることは正しい方向です。もう一歩進みましょう。",
+                    "休息が必要な時期です。心身をリチャージしてください。",
+                    "大きな変化が起ころうとしています。それに備えてください。",
+                    "あなたの創意工夫が評価される時期です。自分を信じてください。",
+                    "周りとのコミュニケーションを大切にしましょう。",
+                    "新しい挑戦のチャンスがやってきます。勇気を持って踏み出してください。",
+                    "今のあなたは自分の力を過小評価しています。もっと信じてください。"
+                ];
+
+                const luckyItems = [
+                    { color: "赤", number: 7, direction: "南", food: "トマト" },
+                    { color: "青", number: 3, direction: "北", food: "ブルーベリー" },
+                    { color: "黄", number: 5, direction: "東", food: "バナナ" },
+                    { color: "緑", number: 9, direction: "西", food: "キウイ" },
+                    { color: "紫", number: 4, direction: "南西", food: "ぶどう" }
+                ];
+
+                const fortune = fortuneTexts[Math.floor(Math.random() * fortuneTexts.length)];
+                const lucky = luckyItems[Math.floor(Math.random() * luckyItems.length)];
+
+                container.innerHTML = `
+                    <div class="fortune-result">
+                        <div class="fortune-label">占い結果</div>
+                        <div class="fortune-value">${fortune}</div>
+                    </div>
+                    <div class="lucky-items">
+                        <div class="lucky-item"><span class="lucky-item-label">ラッキーカラー:</span> ${lucky.color}</div>
+                        <div class="lucky-item"><span class="lucky-item-label">ラッキーナンバー:</span> ${lucky.number}</div>
+                        <div class="lucky-item"><span class="lucky-item-label">ラッキー方位:</span> ${lucky.direction}</div>
+                        <div class="lucky-item"><span class="lucky-item-label">ラッキーフード:</span> ${lucky.food}</div>
+                    </div>
+                    <button class="btn-close" style="background: #FFB74D; margin-top: 15px;" onclick="game.saveCurrentFortune()">結果を保存</button>
+                `;
+            }
+
+            showNPCModal(npc) {
+                document.getElementById('npcName').textContent = npc.name;
+                document.getElementById('npcPersonality').textContent = npc.personality;
+
+                // Draw NPC avatar
+                const canvas = document.getElementById('npcCanvas');
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#fef5e7';
+                ctx.fillRect(0, 0, 100, 100);
+                ctx.save();
+                ctx.translate(50, 50);
+
+                if (npc.animal === 'shiba' || npc.animal === 'whiteshiba') {
+                    this.drawShibaLarge(ctx, npc.color);
+                } else if (npc.animal === 'calico') {
+                    this.drawCatLarge(ctx, npc.color);
+                } else if (npc.animal === 'rabbit' || npc.animal === 'bluerabbit') {
+                    this.drawRabbitLarge(ctx, npc.color);
+                } else if (npc.animal === 'fox' || npc.animal === 'goldenfox') {
+                    this.drawFoxLarge(ctx, npc.color);
+                } else if (npc.animal === 'owl') {
+                    this.drawOwlLarge(ctx, npc.color);
+                } else if (npc.animal === 'frog') {
+                    this.drawFrogLarge(ctx, npc.color);
+                } else if (npc.animal === 'panda') {
+                    this.drawPandaLarge(ctx);
+                } else if (npc.animal === 'hamster') {
+                    this.drawHamsterLarge(ctx, npc.color);
+                } else if (npc.animal === 'penguin') {
+                    this.drawPenguinLarge(ctx);
+                } else if (npc.animal === 'tanuki') {
+                    this.drawTanukiLarge(ctx, npc.color);
+                } else if (npc.animal === 'squirrel') {
+                    this.drawSquirrelLarge(ctx, npc.color);
+                } else if (npc.animal === 'sheep') {
+                    this.drawSheepLarge(ctx, npc.color);
+                } else if (npc.animal === 'blackcat') {
+                    this.drawCatLarge(ctx, '#333333');
+                }
+
+                ctx.restore();
+
+                const conversationContent = document.getElementById('conversationContent');
+                const knowledge = npc.knowledge || [];
+
+                conversationContent.innerHTML = `
+                    <div class="conversation-options">
+                        <button class="option-btn" onclick="game.showNPCKnowledge(0, '${npc.name}')">占いの豆知識</button>
+                        <button class="option-btn" onclick="game.showNPCKnowledge(1, '${npc.name}')">今日のアドバイス</button>
+                        <button class="option-btn" onclick="game.showNPCKnowledge(2, '${npc.name}')">自己紹介</button>
+                        <button class="option-btn" onclick="game.showNPCKnowledge(3, '${npc.name}')">さよなら</button>
+                    </div>
+                `;
+
+                document.getElementById('npcModal').classList.add('active');
+            }
+
+            drawShibaLarge(ctx, color) {
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 18, 15, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(-12, -18, 12, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(-22, -26, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(-2, -26, 6, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(-16, -20, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            drawCatLarge(ctx, color) {
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 15, 14, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(0, -16, 11, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.moveTo(-12, -22);
+                ctx.lineTo(-18, -32);
+                ctx.lineTo(-8, -23);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.moveTo(12, -22);
+                ctx.lineTo(18, -32);
+                ctx.lineTo(8, -23);
+                ctx.fill();
+
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(-5, -16, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            drawRabbitLarge(ctx, color) {
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 14, 17, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(0, -22, 10, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.ellipse(-8, -42, 5, 16, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(8, -42, 5, 16, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(-3, -24, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            drawFoxLarge(ctx, color) {
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 17, 14, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(-15, -18, 11, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.moveTo(-22, -22);
+                ctx.lineTo(-27, -34);
+                ctx.lineTo(-18, -20);
+                ctx.fill();
+
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(-18, -20, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            drawOwlLarge(ctx, color) {
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 14, 18, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(-6, -5, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(6, -5, 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(-6, -5, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(6, -5, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(-10, -18, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(10, -18, 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            drawFrogLarge(ctx, color) {
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 15, 12, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(0, -16, 9, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(-5, -18, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(5, -18, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            drawPandaLarge(ctx) {
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(0, 0, 16, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(-12, -15, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(12, -15, 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(-6, -4, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(6, -4, 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            drawHamsterLarge(ctx, color) {
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 12, 11, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(-10, -15, 8, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(-13, -18, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(-7, -18, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(-13, -16, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            drawPenguinLarge(ctx) {
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 11, 17, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(0, -18, 8, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 6, 12, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(-3, -20, 2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(3, -20, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            drawTanukiLarge(ctx, color) {
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 17, 14, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(-12, -18, 10, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(-18, -22, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(-6, -22, 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(-15, -20, 3, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillRect(-17, -18, 6, 12);
+            }
+
+            drawSquirrelLarge(ctx, color) {
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 12, 14, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(-9, -16, 9, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(-13, -21, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(-5, -21, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(-11, -17, 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(18, -8, 9, 0, Math.PI, false);
+                ctx.stroke();
+            }
+
+            drawSheepLarge(ctx, color) {
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 17, 14, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(-12, -20, 8, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(-16, -24, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(-8, -24, 3, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(-14, -21, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            showNPCKnowledge(idx, npcName) {
+                const npc = Object.values(NPCs).find(n => n.name === npcName);
+                const conversationContent = document.getElementById('conversationContent');
+
+                let content = '';
+                if (idx === 0) {
+                    content = `<div class="fortune-result"><strong>占いの豆知識</strong><br><br>${npc.knowledge[0] || '占いについての興味深い話を聞くことができました。'}</div>`;
+                } else if (idx === 1) {
+                    content = `<div class="fortune-result"><strong>今日のアドバイス</strong><br><br>${npc.knowledge[1] || 'あなたの直感を信じ、今この瞬間を大切にしてください。'}</div>`;
+                } else if (idx === 2) {
+                    content = `<div class="fortune-result"><strong>自己紹介</strong><br><br>私は${npc.name}。${npc.personality}。 いつでも占ってあげます。</div>`;
+                } else {
+                    document.getElementById('npcModal').classList.remove('active');
+                    return;
+                }
+
+                content += `
+                    <div class="conversation-options" style="margin-top: 20px;">
+                        <button class="option-btn" onclick="game.showNPCKnowledge(0, '${npc.name}')">占いの豆知識</button>
+                        <button class="option-btn" onclick="game.showNPCKnowledge(1, '${npc.name}')">今日のアドバイス</button>
+                        <button class="option-btn" onclick="game.showNPCKnowledge(2, '${npc.name}')">自己紹介</button>
+                        <button class="option-btn" onclick="game.showNPCKnowledge(3, '${npc.name}')">さよなら</button>
+                    </div>
+                `;
+
+                conversationContent.innerHTML = content;
+            }
+
+            saveCurrentFortune() {
+                const fortune = {
+                    id: Date.now(),
+                    date: new Date().toLocaleString('ja-JP'),
+                    content: document.getElementById('fortuneContent').innerHTML
+                };
+                this.album.push(fortune);
+                localStorage.setItem('fortuneAlbum', JSON.stringify(this.album));
+                this.closeModal();
+            }
+
+            showAlbum() {
+                const albumContent = document.getElementById('albumContent');
+                if (this.album.length === 0) {
+                    albumContent.innerHTML = '<div class="modal-text">まだ占い結果がありません。占い館を訪ねて占ってもらいましょう。</div>';
+                } else {
+                    let html = '<div class="modal-text">';
+                    this.album.forEach((item, idx) => {
+                        html += `<div class="fortune-result"><strong>占い ${idx + 1}</strong><br>${item.date}<br><small>${item.content.substring(0, 50)}...</small></div>`;
+                    });
+                    html += '</div>';
+                    albumContent.innerHTML = html;
+                }
+                document.getElementById('albumModal').classList.add('active');
+            }
+
+            showMenu() {
+                const menuContent = document.getElementById('menuContent');
+                menuContent.innerHTML = `
+                    <div class="modal-text">
+                        <div class="input-group">
+                            <label>プレイヤー名：${this.playerName}</label>
+                            <button class="btn-close" style="background: #FFB74D;" onclick="game.editProfile()">プロフィール編集</button>
+                        </div>
+                        <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
+                        <div class="input-group">
+                            <button class="btn-close" style="background: #FFB74D;" onclick="game.goToArea(1)">エリア 1: 和の占い通り</button>
+                        </div>
+                        <div class="input-group">
+                            <button class="btn-close" style="background: #FFB74D;" onclick="game.goToArea(2)">エリア 2: 西洋占い広場</button>
+                        </div>
+                        <div class="input-group">
+                            <button class="btn-close" style="background: #FFB74D;" onclick="game.goToArea(3)">エリア 3: ふしぎ占い森</button>
+                        </div>
+                        <div class="input-group">
+                            <button class="btn-close" style="background: #FFB74D;" onclick="game.goToArea(4)">エリア 4: 星空占いの丘</button>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('menuModal').classList.add('active');
+            }
+
+            editProfile() {
+                this.closeModal();
+                this.showProfileSetup();
+            }
+
+            goToArea(areaNum) {
+                this.closeModal();
+                this.loadArea(areaNum);
+            }
+
+            closeModal() {
+                document.getElementById('buildingModal').classList.remove('active');
+                document.getElementById('npcModal').classList.remove('active');
+                document.getElementById('fortuneModal').classList.remove('active');
+                document.getElementById('albumModal').classList.remove('active');
+                document.getElementById('menuModal').classList.remove('active');
+            }
+        }
+
+        const game = new Game();
+    </script>
 </body>
 </html>
