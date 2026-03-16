@@ -2,2001 +2,2177 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
     <title>柴犬うらないハウス</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #fffef0;
-            color: #333;
-            overflow: hidden;
-            height: 100vh;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { width: 100%; height: 100%; overflow: hidden; background: #fffef0; font-family: 'Hiragino Maru Gothic ProN', 'Hiragino Sans', 'Meiryo', sans-serif; touch-action: none; }
+        
+        #app { width: 100%; height: 100%; position: relative; overflow: hidden; }
+        
         /* Screen System */
-        .screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            background: #fffef0;
-        }
-
-        .screen.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
+        .screen { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; flex-direction: column; opacity: 0; transition: opacity 0.35s ease-in-out; }
+        .screen.active { display: flex; opacity: 1; pointer-events: auto; }
+        .screen.fade-out { opacity: 0; }
+        
         /* Title Screen */
-        .title-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        #title-screen {
+            background: linear-gradient(180deg, #1a1230 0%, #2d2255 35%, #3d2a6a 65%, #1a1230 100%);
             justify-content: center;
+            align-items: center;
+            gap: 32px;
+            overflow: hidden;
+        }
+        
+        .title-stars { position: absolute; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
+        .star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle 2s infinite alternate; }
+        @keyframes twinkle { from { opacity: 0.2; transform: scale(1); } to { opacity: 1; transform: scale(1.3); } }
+        
+        .title-logo { text-align: center; z-index: 1; }
+        .title-dog-emoji { font-size: 90px; display: block; animation: bounce 1.5s ease-in-out infinite; filter: drop-shadow(0 0 24px rgba(255,183,77,.6)); }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+        .title-text { color: #FFB74D; font-size: 28px; font-weight: bold; margin-top: 10px; text-shadow: 0 0 20px rgba(255,183,77,.5); letter-spacing: 3px; }
+        .title-sub { color: #FFCC80; font-size: 14px; margin-top: 6px; }
+        
+        .title-desc {
+            background: rgba(0,0,0,.45);
+            border: 1px solid rgba(255,183,77,.3);
+            border-radius: 14px;
+            padding: 14px 20px;
+            max-width: 320px;
+            text-align: center;
+            z-index: 1;
+        }
+        .title-desc p { color: #fff; font-size: 13px; line-height: 1.7; }
+        
+        .btn-p {
+            background: linear-gradient(135deg, #FFB74D, #FF8F00);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: 16px 52px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1;
+            box-shadow: 0 4px 24px rgba(255,143,0,.5);
+            transition: transform .1s;
+            font-family: inherit;
+        }
+        .btn-p:active { transform: scale(.95); }
+        
+        /* Profile Screen */
+        #profile-screen {
+            background: linear-gradient(180deg, #FEFBF3 0%, #FFF8E8 40%, #F5EFE0 100%);
+            justify-content: center;
+            align-items: center;
             padding: 20px;
+        }
+        
+        .profile-card {
+            background: #fff;
+            border-radius: 24px;
+            padding: 28px 22px;
+            max-width: 340px;
+            width: 100%;
+            box-shadow: 0 4px 20px rgba(0,0,0,.1);
+        }
+        
+        .profile-card h2 {
+            color: #d4791f;
+            font-size: 20px;
+            margin-bottom: 20px;
             text-align: center;
         }
-
-        .title-screen h1 {
-            font-size: 3em;
-            color: #d4791f;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(212, 121, 31, 0.1);
-        }
-
-        .title-screen p {
-            font-size: 1.2em;
-            color: #666;
-            margin-bottom: 40px;
-        }
-
-        .btn-start {
-            background: #FFB74D;
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.2em;
-            border-radius: 30px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 183, 77, 0.3);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .btn-start:active {
-            transform: scale(0.95);
-            box-shadow: 0 2px 8px rgba(255, 183, 77, 0.3);
-        }
-
-        /* Game Screen */
-        .game-screen {
+        
+        .input-group {
+            margin-bottom: 16px;
             display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .input-group label {
+            color: #333;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        
+        .input-group input {
+            padding: 12px;
+            border: 2px solid #FFB74D;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        
+        .btn-wide {
+            background: #FFB74D;
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn-wide:active { transform: scale(.98); }
+        
+        /* Game Screen */
+        #game-screen {
+            background: #111;
             flex-direction: column;
             width: 100%;
             height: 100%;
         }
-
-        .game-header {
-            padding: 15px;
-            background: rgba(255, 255, 240, 0.95);
-            border-bottom: 2px solid #FFB74D;
+        
+        #gcanvas {
+            display: block;
+            width: 100%;
+            flex: 1;
+            touch-action: none;
+            cursor: pointer;
+        }
+        
+        #bottom-ui {
+            background: linear-gradient(180deg, rgba(26,26,48,.95), rgba(18,18,42,.98));
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            border-top: 1px solid rgba(255,183,77,.2);
+            flex-shrink: 0;
+            backdrop-filter: blur(12px);
+        }
+        
+        .area-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-
-        .game-header h2 {
-            color: #d4791f;
-            font-size: 1.5em;
+        
+        .area-nm {
+            color: #FFB74D;
+            font-size: 12px;
+            font-weight: bold;
         }
-
-        .header-buttons {
+        
+        .area-nav {
             display: flex;
-            gap: 10px;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
         }
-
-        .header-btn {
-            background: #FFB74D;
-            color: white;
+        
+        .nav-btn {
+            background: rgba(255,255,255,.1);
+            color: #FFB74D;
             border: none;
-            padding: 8px 15px;
-            border-radius: 15px;
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-size: 13px;
+            font-weight: bold;
             cursor: pointer;
-            font-size: 0.9em;
-            transition: transform 0.2s;
+            font-family: inherit;
         }
-
-        .header-btn:active {
-            transform: scale(0.95);
+        .nav-btn:active { background: rgba(255,183,77,.3); }
+        
+        #ctrl {
+            display: flex;
+            gap: 6px;
+            padding: 4px 0 2px;
         }
-
-        .game-canvas-container {
+        
+        .cb {
             flex: 1;
-            position: relative;
-            overflow: hidden;
+            background: rgba(255,255,255,.1);
+            color: #e0e0e0;
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 12px;
+            padding: 10px 4px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+            text-align: center;
+            transition: all .15s ease;
+            backdrop-filter: blur(4px);
         }
-
-        #gameCanvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Modal Overlay */
-        .modal-overlay {
+        .cb:active { background: rgba(255,183,77,.3); transform: scale(.96); }
+        
+        /* Modal */
+        #modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-            display: flex;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,.85);
+            z-index: 200;
             align-items: center;
             justify-content: center;
-            z-index: 100;
         }
-
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 90%;
+        
+        #modal.show { display: flex; }
+        
+        #mbox {
+            background: #fff;
+            border-radius: 24px;
+            padding: 28px 22px;
+            max-width: 340px;
+            width: 92%;
+            text-align: center;
             max-height: 85vh;
             overflow-y: auto;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            animation: slideUp 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0,0,0,.3);
+            animation: modalPop .3s ease-out;
         }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(20px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .modal-title {
-            font-size: 1.8em;
-            color: #d4791f;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .modal-subtitle {
-            font-size: 1.2em;
-            color: #666;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .modal-text {
-            color: #555;
-            line-height: 1.8;
-            margin-bottom: 20px;
-            font-size: 0.95em;
-        }
-
-        .fortune-result {
-            background: #fef5e7;
-            padding: 20px;
-            border-left: 4px solid #FFB74D;
-            margin: 15px 0;
-            border-radius: 8px;
-        }
-
-        .fortune-label {
-            color: #d4791f;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .fortune-value {
-            color: #333;
-            font-size: 1.1em;
-            margin-bottom: 10px;
-        }
-
-        .lucky-items {
-            margin: 15px 0;
-        }
-
-        .lucky-item {
-            background: white;
-            padding: 10px;
-            margin: 8px 0;
-            border-radius: 8px;
-            border: 1px solid #FFB74D;
-        }
-
-        .lucky-item-label {
-            color: #d4791f;
-            font-weight: bold;
-            display: inline-block;
-            min-width: 80px;
-        }
-
-        .rating-stars {
-            margin: 10px 0;
-        }
-
-        .rating-label {
-            color: #d4791f;
-            font-weight: bold;
-            display: inline-block;
-            min-width: 80px;
-        }
-
-        .stars {
-            display: inline-block;
-            color: #FFB74D;
-            font-size: 1.2em;
-            letter-spacing: 2px;
-        }
-
-        .conversation-npc {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .npc-avatar {
-            width: 100px;
-            height: 100px;
-            margin: 0 auto 15px;
-            border-radius: 50%;
-            background: #fef5e7;
-            border: 3px solid #FFB74D;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .npc-avatar canvas {
-            width: 100%;
-            height: 100%;
-        }
-
-        .npc-info {
-            margin-bottom: 20px;
-        }
-
-        .npc-name {
-            font-size: 1.3em;
-            color: #d4791f;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .npc-personality {
-            font-size: 0.9em;
-            color: #666;
-            font-style: italic;
-        }
-
-        .conversation-options {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .option-btn {
+        
+        @keyframes modalPop { 0% { transform: scale(.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        
+        #mbox .me { font-size: 50px; margin-bottom: 8px; }
+        #mbox h3 { font-size: 18px; color: #333; margin-bottom: 6px; }
+        #mbox p { font-size: 12px; color: #666; line-height: 1.6; margin-bottom: 14px; }
+        
+        .mbtn {
             background: #FFB74D;
-            color: white;
+            color: #fff;
             border: none;
-            padding: 12px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 0.95em;
-            transition: transform 0.2s, background 0.2s;
-        }
-
-        .option-btn:active {
-            transform: scale(0.98);
-            background: #d4791f;
-        }
-
-        .btn-close {
-            background: #999;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            margin-top: 20px;
-            width: 100%;
-            transition: transform 0.2s;
-        }
-
-        .btn-close:active {
-            transform: scale(0.98);
-        }
-
-        /* Bottom UI */
-        .bottom-ui {
-            padding: 8px;
-            background: rgba(255, 255, 240, 0.95);
-            border-top: 2px solid #FFB74D;
-            text-align: center;
-            color: #666;
-            font-size: 0.85em;
-        }
-
-        .input-group {
-            margin: 15px 0;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #d4791f;
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-size: 14px;
             font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+            margin: 4px;
         }
-
-        .input-group input,
-        .input-group select {
+        
+        .mbtn.gr { background: #4CAF50; }
+        .mbtn.bl { background: #2196F3; }
+        .mbtn.rd { background: #e53935; }
+        
+        .option-btn {
+            display: block;
             width: 100%;
-            padding: 10px;
+            padding: 12px;
+            margin: 8px 0;
+            background: #FFF8E1;
             border: 2px solid #FFB74D;
             border-radius: 8px;
-            font-size: 1em;
-        }
-
-        .input-group input:focus,
-        .input-group select:focus {
-            outline: none;
-            border-color: #d4791f;
-        }
-
-        /* Area Screen */
-        .area-screen {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            height: 100%;
-        }
-
-        .area-info {
-            padding: 15px;
-            background: rgba(255, 255, 240, 0.95);
-            border-bottom: 2px solid #FFB74D;
-            font-size: 1.1em;
             color: #d4791f;
             font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
         }
-
-        /* Responsive */
-        @media (max-width: 600px) {
-            .title-screen h1 {
-                font-size: 2em;
-            }
-
-            .modal-content {
-                max-width: 95%;
-                padding: 20px;
-            }
-
-            .modal-title {
-                font-size: 1.5em;
-            }
+        .option-btn:active { transform: scale(.98); }
+        
+        .fortune-result {
+            background: #FFF8E1;
+            border: 2px solid #FFB74D;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 12px 0;
+            text-align: left;
+            color: #333;
+            line-height: 1.7;
+            font-size: 13px;
+        }
+        
+        .fortune-result strong {
+            color: #d4791f;
+            display: block;
+            margin-bottom: 8px;
         }
     </style>
 </head>
 <body>
-    <!-- Title Screen -->
-    <div id="titleScreen" class="screen active">
-        <div class="title-screen">
-            <h1>🐕 柴犬うらないハウス 🔮</h1>
-            <p>かわいい柴犬と一緒に、24個の占い館を訪ねる冒険</p>
-            <button class="btn-start" onclick="game.startGame()">ゲームをはじめる</button>
-        </div>
-    </div>
+<div id="app">
 
-    <!-- Game Screen -->
-    <div id="gameScreen" class="screen">
-        <div class="game-header">
-            <h2 id="areaName">エリア 1: 和の占い通り</h2>
-            <div class="header-buttons">
-                <button class="header-btn" onclick="game.showAlbum()">アルバム</button>
-                <button class="header-btn" onclick="game.showMenu()">メニュー</button>
+<!-- Title Screen -->
+<div id="title-screen" class="screen active">
+    <div class="title-stars" id="stars-ct"></div>
+    <div class="title-logo">
+        <span class="title-dog-emoji">🐕</span>
+        <div class="title-text">柴犬うらないハウス</div>
+        <div class="title-sub">占いの不思議な世界へ</div>
+    </div>
+    <button class="btn-p" onclick="game.showProfileSetup()">ゲーム開始</button>
+    <div class="title-desc">
+        <p>占い館を訪ねて、<br>12の動物たちに占ってもらおう！<br>4つのエリアを探索し、<br>運命の出会いを待っている...</p>
+    </div>
+</div>
+
+<!-- Profile Setup Screen -->
+<div id="profile-screen" class="screen">
+    <div class="profile-card">
+        <h2>🌟 プロフィール設定</h2>
+        <div class="input-group">
+            <label>あなたのお名前</label>
+            <input type="text" id="playerNameInput" placeholder="例：太郎" maxlength="10">
+        </div>
+        <div class="input-group">
+            <label>占う内容を選んでね</label>
+            <select id="fortuneTypeInput" style="padding: 12px; border: 2px solid #FFB74D; border-radius: 8px; font-family: inherit; font-size: 14px;">
+                <option value="love">恋愛運</option>
+                <option value="fortune">財運</option>
+                <option value="health">健康運</option>
+                <option value="career">仕事運</option>
+                <option value="general">総合運</option>
+            </select>
+        </div>
+        <button class="btn-wide" onclick="game.startGame()">占いを開始</button>
+        <button class="btn-wide" style="background: #999; margin-top: 6px;" onclick="game.goToTitle()">戻る</button>
+    </div>
+</div>
+
+<!-- Game Screen -->
+<div id="game-screen" class="screen">
+    <canvas id="gcanvas"></canvas>
+    <div id="bottom-ui">
+        <div class="area-row">
+            <div class="area-nm" id="area-name">エリア 1: 和の占い通り</div>
+            <div class="area-nav">
+                <button class="nav-btn" onclick="game.prevArea()">◀</button>
+                <button class="nav-btn" onclick="game.nextArea()">▶</button>
             </div>
         </div>
-        <div class="game-canvas-container">
-            <canvas id="gameCanvas"></canvas>
-        </div>
-        <div class="bottom-ui">
-            <span id="bottomText">占い館をタップして占ってもらおう</span>
-        </div>
-    </div>
-
-    <!-- Modals -->
-    <div id="buildingModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-title" id="modalTitle">占いの館</div>
-            <div id="modalBody"></div>
-            <button class="btn-close" onclick="game.closeModal()">閉じる</button>
+        <div id="ctrl">
+            <button class="cb" onclick="game.showHistory()">履歴</button>
+            <button class="cb" onclick="game.showAlbum()">図鑑</button>
+            <button class="cb" onclick="game.goToTitle()">終了</button>
         </div>
     </div>
-
-    <div id="npcModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="conversation-npc">
-                <div class="npc-avatar">
-                    <canvas id="npcCanvas" width="100" height="100"></canvas>
-                </div>
-                <div class="npc-info">
-                    <div class="npc-name" id="npcName">キャラ名</div>
-                    <div class="npc-personality" id="npcPersonality">性格説明</div>
-                </div>
-            </div>
-            <div id="conversationContent"></div>
-            <button class="btn-close" onclick="game.closeModal()">閉じる</button>
-        </div>
-    </div>
-
-    <div id="fortuneModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-title" id="fortuneTitle">占い結果</div>
-            <div id="fortuneContent"></div>
-            <button class="btn-close" onclick="game.saveToAlbum()">アルバムに保存</button>
-            <button class="btn-close" onclick="game.closeModal()">閉じる</button>
-        </div>
-    </div>
-
-    <div id="albumModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-title">占い履歴</div>
-            <div id="albumContent"></div>
-            <button class="btn-close" onclick="game.closeModal()">閉じる</button>
-        </div>
-    </div>
-
-    <div id="menuModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-title">メニュー</div>
-            <div id="menuContent"></div>
-            <button class="btn-close" onclick="game.closeModal()">閉じる</button>
-        </div>
-    </div>
-
-    <script>
-        const AREAS = [
-            {
-                id: 1,
-                name: "和の占い通り",
-                color: "#87CEEB",
-                buildings: [
-                    { id: "w1", name: "おみくじ神社", fortuneType: "omikuji", npcId: "n2" },
-                    { id: "w2", name: "四柱推命の館", fortuneType: "shichushuminei", npcId: "n1" },
-                    { id: "w3", name: "九星気学堂", fortuneType: "kyuseikigaku", npcId: "n1" },
-                    { id: "w4", name: "花占い処", fortuneType: "hanauranai", npcId: "n3" },
-                    { id: "w5", name: "夢占い庵", fortuneType: "yumeuranai", npcId: "n1" },
-                    { id: "w6", name: "風水の間", fortuneType: "fengshui", npcId: "n4" }
-                ]
-            },
-            {
-                id: 2,
-                name: "西洋占い広場",
-                color: "#FFB347",
-                buildings: [
-                    { id: "w7", name: "タロットの館", fortuneType: "tarot", npcId: "n5" },
-                    { id: "w8", name: "数秘術の塔", fortuneType: "numerology", npcId: "n7" },
-                    { id: "w9", name: "ルーン占い小屋", fortuneType: "rune", npcId: "n6" },
-                    { id: "w10", name: "西洋占星術の館", fortuneType: "astrology", npcId: "n5" },
-                    { id: "w11", name: "オラクルカード館", fortuneType: "oracle", npcId: "n8" },
-                    { id: "w12", name: "ペンデュラム室", fortuneType: "pendulum", npcId: "n5" }
-                ]
-            },
-            {
-                id: 3,
-                name: "ふしぎ占い森",
-                color: "#90EE90",
-                buildings: [
-                    { id: "w13", name: "水晶占いの泉", fortuneType: "crystal", npcId: "n9" },
-                    { id: "w14", name: "動物占いの森", fortuneType: "animalspirit", npcId: "n10" },
-                    { id: "w15", name: "色占いの虹", fortuneType: "coloruranai", npcId: "n11" },
-                    { id: "w16", name: "前世占い洞窟", fortuneType: "pastlife", npcId: "n12" },
-                    { id: "w17", name: "相性占いの花畑", fortuneType: "compatibility", npcId: "n9" },
-                    { id: "w18", name: "妖精占いの木", fortuneType: "fairyuranai", npcId: "n12" }
-                ]
-            },
-            {
-                id: 4,
-                name: "星空占いの丘",
-                color: "#1a1a3f",
-                buildings: [
-                    { id: "w19", name: "星座占い天文台", fortuneType: "zodiac", npcId: "n13" },
-                    { id: "w20", name: "月占いの館", fortuneType: "moonuranai", npcId: "n14" },
-                    { id: "w21", name: "惑星占いの塔", fortuneType: "planeluranai", npcId: "n15" },
-                    { id: "w22", name: "誕生日占いの庭", fortuneType: "birthday", npcId: "n13" },
-                    { id: "w23", name: "曜日占い時計台", fortuneType: "dayofweek", npcId: "n13" },
-                    { id: "w24", name: "守護天使占いの教会", fortuneType: "guardian", npcId: "n16" }
-                ]
-            }
-        ];
-
-        const NPCs = {
-            n1: { name: "柴太郎", animal: "shiba", color: "#DAA520", personality: "和占いマスター。穏やかで知識豊富", area: 1, knowledge: ["おみくじの由来と歴史", "四柱推命で人生を読む", "九星気学の奥深さ"] },
-            n2: { name: "ミケ", animal: "calico", color: "#FF8C00", personality: "おみくじ巫女。気まぐれだが的中率高い", area: 1, knowledge: ["おみくじの引き方のコツ", "運をゲットする秘訣", "吉凶判定の不思議"] },
-            n3: { name: "ウサ姫", animal: "rabbit", color: "#FFB6C1", personality: "花占い師。可愛くて優しい", area: 1, knowledge: ["花言葉と運命の関係", "花占いの歴史", "花との相性診断"] },
-            n4: { name: "コンタ", animal: "fox", color: "#FF6347", personality: "風水師。ちょっと意地悪だが実力派", area: 1, knowledge: ["風水の五行説", "運気の流れをつかむ", "家の配置と運命"] },
-            n5: { name: "フクじい", animal: "owl", color: "#8B4513", personality: "タロット大師匠。長老で威厳がある", area: 2, knowledge: ["大アルカナの秘密", "タロットの歴史", "カードが示すメッセージ"] },
-            n6: { name: "ケロ助", animal: "frog", color: "#32CD32", personality: "ルーン占い師。のんびりだが鋭い", area: 2, knowledge: ["ルーン文字の起源", "古代の叡智", "ルーンが語る真実"] },
-            n7: { name: "パンちゃん", animal: "panda", color: "#000000", personality: "数秘術師。おっとりした天才", area: 2, knowledge: ["数字の神秘性", "人生路数の計算法", "運命数が示すもの"] },
-            n8: { name: "ハム太", animal: "hamster", color: "#FFA500", personality: "オラクルカード使い。元気いっぱい", area: 2, knowledge: ["カードからのメッセージ", "直感の大切さ", "ハイヤーセルフとの繋がり"] },
-            n9: { name: "ペンぺん", animal: "penguin", color: "#000080", personality: "水晶占い師。クールだが面倒見が良い", area: 3, knowledge: ["水晶の浄化方法", "鉱物のエネルギー", "スピリチュアルな流れ"] },
-            n10: { name: "タヌ吉", animal: "tanuki", color: "#8B7355", personality: "動物占い師。お調子者だが当たる", area: 3, knowledge: ["動物の象徴性", "あなたの守護動物", "動物が示す才能"] },
-            n11: { name: "リスリン", animal: "squirrel", color: "#CC5500", personality: "色占い師。せっかちだが的確", area: 3, knowledge: ["色の波動", "チャクラと色の関係", "運気を変える色選び"] },
-            n12: { name: "モフモフ", animal: "sheep", color: "#FFFACD", personality: "前世占い師。ふわふわして不思議ちゃん", area: 3, knowledge: ["前世の記憶", "魂の成長", "人生の目的を知る"] },
-            n13: { name: "ホシ丸", animal: "whiteshiba", color: "#F5DEB3", personality: "星座占い師。ロマンチスト", area: 4, knowledge: ["星座の神話", "惑星の影響", "天体が示す運命"] },
-            n14: { name: "ルナ", animal: "blackcat", color: "#2F4F4F", personality: "月占い師。ミステリアスで美しい", area: 4, knowledge: ["月の満ち欠けと心身", "月相とのリズム", "夜間の浄化儀式"] },
-            n15: { name: "ソラ", animal: "bluerabbit", color: "#4169E1", personality: "惑星占い師。知的で冷静", area: 4, knowledge: ["惑星の公転周期", "天体観測の歴史", "宇宙からのメッセージ"] },
-            n16: { name: "ヒカル", animal: "goldenfox", color: "#FFD700", personality: "守護天使占い師。神秘的で温かい", area: 4, knowledge: ["天使のサポート", "高い次元からのガイダンス", "スピリチュアルな道"] }
-        };
-
-        class Game {
-            constructor() {
-                this.canvas = document.getElementById('gameCanvas');
-                this.ctx = this.canvas.getContext('2d');
-                this.currentArea = 1;
-                this.playerPos = { x: 0, y: 0 };
-                this.playerState = { walking: false, direction: 1 };
-                this.selectedBuilding = null;
-                this.buildingPositions = {};
-                this.npcPositions = {};
-                this.currentNPC = null;
-                this.currentFortune = null;
-                this.album = JSON.parse(localStorage.getItem('fortuneAlbum') || '[]');
-                this.playerName = localStorage.getItem('playerName') || '';
-                this.playerBirthday = localStorage.getItem('playerBirthday') || '';
-                
-                this.resizeCanvas();
-                window.addEventListener('resize', () => this.resizeCanvas());
-                this.canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
-                this.canvas.addEventListener('touchend', (e) => this.handleCanvasClick(e));
-                
-                this.gameLoop();
-            }
-
-            resizeCanvas() {
-                const container = this.canvas.parentElement;
-                this.canvas.width = container.clientWidth;
-                this.canvas.height = container.clientHeight;
-                this.calculatePositions();
-            }
-
-            calculatePositions() {
-                const w = this.canvas.width;
-                const h = this.canvas.height;
-                const area = AREAS[this.currentArea - 1];
-
-                this.buildingPositions = {};
-                this.npcPositions = {};
-
-                const positions = [
-                    { x: w * 0.17, y: h * 0.18 },
-                    { x: w * 0.50, y: h * 0.18 },
-                    { x: w * 0.83, y: h * 0.18 },
-                    { x: w * 0.17, y: h * 0.43 },
-                    { x: w * 0.50, y: h * 0.43 },
-                    { x: w * 0.83, y: h * 0.43 }
-                ];
-
-                area.buildings.forEach((building, idx) => {
-                    this.buildingPositions[building.id] = positions[idx];
-                    this.npcPositions[building.id] = {
-                        x: positions[idx].x + 40,
-                        y: positions[idx].y + 60
-                    };
-                });
-
-                this.playerPos = { x: w * 0.5, y: h * 0.82 };
-            }
-
-            startGame() {
-                document.getElementById('titleScreen').classList.remove('active');
-                document.getElementById('gameScreen').classList.add('active');
-                
-                if (!this.playerName) {
-                    this.showProfileSetup();
-                } else {
-                    this.loadArea(1);
-                }
-            }
-
-            showProfileSetup() {
-                const modalBody = document.getElementById('modalBody');
-                modalBody.innerHTML = `
-                    <div class="input-group">
-                        <label>あなたの名前：</label>
-                        <input type="text" id="inputName" placeholder="例：田中太郎" maxlength="20">
-                    </div>
-                    <div class="input-group">
-                        <label>生年月日：</label>
-                        <input type="date" id="inputBirthday">
-                    </div>
-                    <button class="btn-close" style="background: #FFB74D;" onclick="game.saveProfile()">保存する</button>
-                `;
-                document.getElementById('buildingModal').classList.add('active');
-            }
-
-            saveProfile() {
-                const name = document.getElementById('inputName').value || '旅人';
-                const birthday = document.getElementById('inputBirthday').value || '';
-                
-                this.playerName = name;
-                this.playerBirthday = birthday;
-                localStorage.setItem('playerName', name);
-                localStorage.setItem('playerBirthday', birthday);
-                
-                this.closeModal();
-                this.loadArea(1);
-            }
-
-            loadArea(areaNum) {
-                this.currentArea = areaNum;
-                const area = AREAS[areaNum - 1];
-                document.getElementById('areaName').textContent = `エリア ${areaNum}: ${area.name}`;
-                this.calculatePositions();
-            }
-
-            gameLoop() {
-                this.drawScene();
-                requestAnimationFrame(() => this.gameLoop());
-            }
-
-            drawScene() {
-                const w = this.canvas.width;
-                const h = this.canvas.height;
-                const area = AREAS[this.currentArea - 1];
-
-                // Background
-                const gradient = this.ctx.createLinearGradient(0, 0, 0, h);
-                if (this.currentArea === 4) {
-                    gradient.addColorStop(0, '#0a0e27');
-                    gradient.addColorStop(1, '#1a2a5f');
-                } else if (this.currentArea === 3) {
-                    gradient.addColorStop(0, '#90EE90');
-                    gradient.addColorStop(1, '#7CB342');
-                } else if (this.currentArea === 2) {
-                    gradient.addColorStop(0, '#FFD699');
-                    gradient.addColorStop(1, '#FFA500');
-                } else {
-                    gradient.addColorStop(0, '#87CEEB');
-                    gradient.addColorStop(1, '#E0F6FF');
-                }
-                this.ctx.fillStyle = gradient;
-                this.ctx.fillRect(0, 0, w, h);
-
-                // Draw clouds/stars based on area
-                if (this.currentArea === 4) {
-                    this.drawStars();
-                } else if (this.currentArea === 3) {
-                    this.drawTrees();
-                } else {
-                    this.drawClouds();
-                }
-
-                // Draw ground
-                this.ctx.fillStyle = '#90EE90';
-                this.ctx.fillRect(0, h * 0.72, w, h * 0.28);
-
-                // Draw buildings
-                area.buildings.forEach(building => {
-                    const pos = this.buildingPositions[building.id];
-                    if (pos) {
-                        this.drawBuilding(building, pos);
-                    }
-                });
-
-                // Draw NPCs
-                area.buildings.forEach(building => {
-                    const npcPos = this.npcPositions[building.id];
-                    if (npcPos) {
-                        this.drawNPC(NPCs[building.npcId], npcPos);
-                    }
-                });
-
-                // Draw player
-                this.drawPlayer();
-            }
-
-            drawBuilding(building, pos) {
-                const fortuneTypes = ['omikuji', 'shichushuminei', 'kyuseikigaku', 'hanauranai', 'yumeurai', 'fengshui',
-                    'tarot', 'numerology', 'rune', 'astrology', 'oracle', 'pendulum',
-                    'crystal', 'animalspirit', 'coloruranai', 'pastlife', 'compatibility', 'fairyuranai',
-                    'zodiac', 'moonuranai', 'planeluranai', 'birthday', 'dayofweek', 'guardian'];
-                
-                const typeIndex = fortuneTypes.indexOf(building.fortuneType);
-                const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F',
-                    '#BB8FCE', '#85C1E2', '#F8B88B', '#A9DFBF', '#F5B7B1', '#D5F4E6',
-                    '#FADBD8', '#D7BDE2', '#ABEBC6', '#F9E79F', '#AED6F1', '#F5B7B1',
-                    '#FCF3CF', '#D2B4DE', '#A3E4D7', '#F2D7AC', '#D5A6BD', '#FADBD8'];
-
-                this.ctx.fillStyle = colors[typeIndex] || '#FFB74D';
-                this.ctx.fillRect(pos.x - 30, pos.y - 40, 60, 80);
-
-                // Roof
-                this.ctx.fillStyle = '#8B4513';
-                this.ctx.beginPath();
-                this.ctx.moveTo(pos.x - 35, pos.y - 40);
-                this.ctx.lineTo(pos.x, pos.y - 60);
-                this.ctx.lineTo(pos.x + 35, pos.y - 40);
-                this.ctx.fill();
-
-                // Door
-                this.ctx.fillStyle = '#5D4037';
-                this.ctx.fillRect(pos.x - 12, pos.y - 10, 24, 40);
-
-                // Window
-                this.ctx.fillStyle = '#FFD700';
-                this.ctx.fillRect(pos.x - 20, pos.y - 35, 15, 15);
-            }
-
-            drawNPC(npc, pos) {
-                const animalType = npc.animal;
-                
-                // Draw based on animal type
-                if (animalType === 'shiba' || animalType === 'whiteshiba') {
-                    this.drawShiba(pos, npc.color);
-                } else if (animalType === 'calico') {
-                    this.drawCat(pos, npc.color);
-                } else if (animalType === 'rabbit') {
-                    this.drawRabbit(pos, npc.color);
-                } else if (animalType === 'fox' || animalType === 'goldenfox') {
-                    this.drawFox(pos, npc.color);
-                } else if (animalType === 'owl') {
-                    this.drawOwl(pos, npc.color);
-                } else if (animalType === 'frog') {
-                    this.drawFrog(pos, npc.color);
-                } else if (animalType === 'panda') {
-                    this.drawPanda(pos, npc.color);
-                } else if (animalType === 'hamster') {
-                    this.drawHamster(pos, npc.color);
-                } else if (animalType === 'penguin') {
-                    this.drawPenguin(pos, npc.color);
-                } else if (animalType === 'tanuki') {
-                    this.drawTanuki(pos, npc.color);
-                } else if (animalType === 'squirrel') {
-                    this.drawSquirrel(pos, npc.color);
-                } else if (animalType === 'sheep') {
-                    this.drawSheep(pos, npc.color);
-                } else if (animalType === 'blackcat') {
-                    this.drawCat(pos, '#333333');
-                } else if (animalType === 'bluerabbit') {
-                    this.drawRabbit(pos, '#4169E1');
-                }
-            }
-
-            drawShiba(pos, color) {
-                // Body
-                this.ctx.fillStyle = color;
-                this.ctx.beginPath();
-                this.ctx.ellipse(pos.x, pos.y, 12, 10, 0, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Head
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 8, pos.y - 12, 8, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Ears
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 14, pos.y - 18, 4, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 2, pos.y - 18, 4, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Eyes
-                this.ctx.fillStyle = 'black';
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 12, pos.y - 14, 2, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Tail
-                this.ctx.strokeStyle = color;
-                this.ctx.lineWidth = 3;
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x + 18, pos.y + 5, 8, 0, Math.PI, true);
-                this.ctx.stroke();
-            }
-
-            drawCat(pos, color) {
-                this.ctx.fillStyle = color;
-                this.ctx.beginPath();
-                this.ctx.ellipse(pos.x, pos.y, 10, 9, 0, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x, pos.y - 10, 7, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Ears
-                this.ctx.beginPath();
-                this.ctx.moveTo(pos.x - 8, pos.y - 15);
-                this.ctx.lineTo(pos.x - 12, pos.y - 22);
-                this.ctx.lineTo(pos.x - 5, pos.y - 16);
-                this.ctx.fill();
-
-                this.ctx.beginPath();
-                this.ctx.moveTo(pos.x + 8, pos.y - 15);
-                this.ctx.lineTo(pos.x + 12, pos.y - 22);
-                this.ctx.lineTo(pos.x + 5, pos.y - 16);
-                this.ctx.fill();
-
-                this.ctx.fillStyle = 'black';
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 3, pos.y - 10, 1.5, 0, Math.PI * 2);
-                this.ctx.fill();
-            }
-
-            drawRabbit(pos, color) {
-                this.ctx.fillStyle = color;
-                this.ctx.beginPath();
-                this.ctx.ellipse(pos.x, pos.y, 9, 11, 0, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x, pos.y - 14, 6, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Ears
-                this.ctx.beginPath();
-                this.ctx.ellipse(pos.x - 5, pos.y - 28, 3, 10, 0, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.beginPath();
-                this.ctx.ellipse(pos.x + 5, pos.y - 28, 3, 10, 0, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Eyes
-                this.ctx.fillStyle = 'black';
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 2, pos.y - 15, 1.5, 0, Math.PI * 2);
-                this.ctx.fill();
-            }
-
-            drawFox(pos, color) {
-                this.ctx.fillStyle = color;
-                this.ctx.beginPath();
-                this.ctx.ellipse(pos.x, pos.y, 11, 9, 0, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 10, pos.y - 10, 7, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Ears
-                this.ctx.beginPath();
-                this.ctx.moveTo(pos.x - 15, pos.y - 15);
-                this.ctx.lineTo(pos.x - 18, pos.y - 24);
-                this.ctx.lineTo(pos.x - 12, pos.y - 13);
-                this.ctx.fill();
-                this.ctx.beginPath();
-                this.ctx.moveTo(pos.x - 5, pos.y - 15);
-                this.ctx.lineTo(pos.x - 2, pos.y - 24);
-                this.ctx.lineTo(pos.x - 8, pos.y - 13);
-                this.ctx.fill();
-
-                this.ctx.fillStyle = 'black';
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 12, pos.y - 12, 2, 0, Math.PI * 2);
-                this.ctx.fill();
-            }
-
-            drawOwl(pos, color) {
-                this.ctx.fillStyle = color;
-                this.ctx.beginPath();
-                this.ctx.ellipse(pos.x, pos.y, 9, 12, 0, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Eyes
-                this.ctx.fillStyle = '#FFD700';
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 4, pos.y - 3, 3, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x + 4, pos.y - 3, 3, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                this.ctx.fillStyle = 'black';
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 4, pos.y - 3, 1.5, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x + 4, pos.y - 3, 1.5, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Ears
-                this.ctx.fillStyle = color;
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 6, pos.y - 12, 3, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x + 6, pos.y - 12, 3, 0, Math.PI * 2);
-                this.ctx.fill();
-            }
-
-            drawFrog(pos, color) {
-                this.ctx.fillStyle = color;
-                this.ctx.beginPath();
-                this.ctx.ellipse(pos.x, pos.y, 10, 8, 0, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x, pos.y - 10, 6, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Eyes
-                this.ctx.fillStyle = '#FFD700';
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 3, pos.y - 12, 2, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x + 3, pos.y - 12, 2, 0, Math.PI * 2);
-                this.ctx.fill();
-            }
-
-            drawPanda(pos, color) {
-                this.ctx.fillStyle = 'white';
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x, pos.y, 10, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                this.ctx.fillStyle = 'black';
-                // Ears
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 8, pos.y - 10, 3, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x + 8, pos.y - 10, 3, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Eyes
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 4, pos.y - 3, 3, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x + 4, pos.y - 3, 3, 0, Math.PI * 2);
-                this.ctx.fill();
-            }
-
-            drawHamster(pos, color) {
-                this.ctx.fillStyle = color;
-                this.ctx.beginPath();
-                this.ctx.ellipse(pos.x, pos.y, 8, 7, 0, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 7, pos.y - 8, 5, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Ears
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 9, pos.y - 11, 2.5, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 5, pos.y - 11, 2.5, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Eyes
-                this.ctx.fillStyle = 'black';
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 9, pos.y - 9, 1.5, 0, Math.PI * 2);
-                this.ctx.fill();
-            }
-
-            drawPenguin(pos, color) {
-                this.ctx.fillStyle = 'black';
-                this.ctx.beginPath();
-                this.ctx.ellipse(pos.x, pos.y, 7, 11, 0, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x, pos.y - 12, 5, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Belly
-                this.ctx.fillStyle = 'white';
-                this.ctx.beginPath();
-                this.ctx.ellipse(pos.x, pos.y, 4, 8, 0, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Eyes
-                this.ctx.fillStyle = 'white';
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 2, pos.y - 13, 1.5, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x + 2, pos.y - 13, 1.5, 0, Math.PI * 2);
-                this.ctx.fill();
-            }
-
-            drawTanuki(pos, color) {
-                this.ctx.fillStyle = color;
-                this.ctx.beginPath();
-                this.ctx.ellipse(pos.x, pos.y, 11, 9, 0, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 8, pos.y - 12, 7, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Ears
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 13, pos.y - 15, 3, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 3, pos.y - 15, 3, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Eyes
-                this.ctx.fillStyle = 'black';
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 11, pos.y - 13, 2, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Mask marking
-                this.ctx.fillStyle = 'black';
-                this.ctx.fillRect(pos.x - 12, pos.y - 12, 4, 8);
-            }
-
-            drawSquirrel(pos, color) {
-                this.ctx.fillStyle = color;
-                this.ctx.beginPath();
-                this.ctx.ellipse(pos.x, pos.y, 8, 9, 0, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 6, pos.y - 10, 6, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Ears
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 9, pos.y - 14, 2.5, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 3, pos.y - 14, 2.5, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Eyes
-                this.ctx.fillStyle = 'black';
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 8, pos.y - 11, 1.5, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Tail
-                this.ctx.strokeStyle = color;
-                this.ctx.lineWidth = 3;
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x + 12, pos.y - 5, 6, 0, Math.PI, false);
-                this.ctx.stroke();
-            }
-
-            drawSheep(pos, color) {
-                // Wool body
-                this.ctx.fillStyle = color;
-                this.ctx.beginPath();
-                this.ctx.ellipse(pos.x, pos.y, 11, 9, 0, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Head
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 8, pos.y - 11, 5, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Ears
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 11, pos.y - 14, 2, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 5, pos.y - 14, 2, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Eyes
-                this.ctx.fillStyle = 'black';
-                this.ctx.beginPath();
-                this.ctx.arc(pos.x - 10, pos.y - 11, 1.5, 0, Math.PI * 2);
-                this.ctx.fill();
-            }
-
-            drawPlayer() {
-                const w = this.canvas.width;
-                const h = this.canvas.height;
-
-                this.ctx.fillStyle = '#DAA520';
-                this.ctx.beginPath();
-                this.ctx.ellipse(this.playerPos.x, this.playerPos.y, 14, 12, 0, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Head
-                this.ctx.beginPath();
-                this.ctx.arc(this.playerPos.x - 10, this.playerPos.y - 14, 9, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Ears
-                this.ctx.beginPath();
-                this.ctx.arc(this.playerPos.x - 17, this.playerPos.y - 18, 4.5, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.beginPath();
-                this.ctx.arc(this.playerPos.x - 3, this.playerPos.y - 18, 4.5, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Eyes
-                this.ctx.fillStyle = 'black';
-                this.ctx.beginPath();
-                this.ctx.arc(this.playerPos.x - 14, this.playerPos.y - 16, 2.5, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Tail
-                this.ctx.strokeStyle = '#DAA520';
-                this.ctx.lineWidth = 4;
-                const tailCurve = 10 + Math.sin(Date.now() / 300) * 5;
-                this.ctx.beginPath();
-                this.ctx.arc(this.playerPos.x + 20, this.playerPos.y + 5, tailCurve, 0, Math.PI, true);
-                this.ctx.stroke();
-            }
-
-            drawClouds() {
-                for (let i = 0; i < 3; i++) {
-                    const x = (i * this.canvas.width / 3) + (Date.now() % 10000) / 50;
-                    const y = this.canvas.height * 0.15;
-                    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-                    this.ctx.beginPath();
-                    this.ctx.arc(x, y, 20, 0, Math.PI * 2);
-                    this.ctx.fill();
-                    this.ctx.beginPath();
-                    this.ctx.arc(x + 20, y, 25, 0, Math.PI * 2);
-                    this.ctx.fill();
-                    this.ctx.beginPath();
-                    this.ctx.arc(x + 40, y, 20, 0, Math.PI * 2);
-                    this.ctx.fill();
-                }
-            }
-
-            drawTrees() {
-                for (let i = 0; i < 4; i++) {
-                    const x = (i * this.canvas.width / 4) + this.canvas.width / 8;
-                    const y = this.canvas.height * 0.3;
-                    
-                    // Trunk
-                    this.ctx.fillStyle = '#8B4513';
-                    this.ctx.fillRect(x - 5, y + 30, 10, 30);
-                    
-                    // Leaves
-                    this.ctx.fillStyle = '#228B22';
-                    this.ctx.beginPath();
-                    this.ctx.arc(x, y, 25, 0, Math.PI * 2);
-                    this.ctx.fill();
-                }
-            }
-
-            drawStars() {
-                this.ctx.fillStyle = '#FFFF99';
-                for (let i = 0; i < 50; i++) {
-                    const x = (i * 73) % this.canvas.width;
-                    const y = (i * 97) % (this.canvas.height * 0.6);
-                    this.ctx.beginPath();
-                    this.ctx.arc(x, y, 1.5, 0, Math.PI * 2);
-                    this.ctx.fill();
-                }
-            }
-
-            handleCanvasClick(e) {
-                const rect = this.canvas.getBoundingClientRect();
-                const x = (e.clientX || e.touches[0].clientX) - rect.left;
-                const y = (e.clientY || e.touches[0].clientY) - rect.top;
-
-                // Check building clicks
-                for (const [buildingId, pos] of Object.entries(this.buildingPositions)) {
-                    if (Math.hypot(x - pos.x, y - pos.y) < 40) {
-                        const area = AREAS[this.currentArea - 1];
-                        const building = area.buildings.find(b => b.id === buildingId);
-                        if (building) {
-                            this.showBuildingModal(building);
-                            return;
-                        }
-                    }
-                }
-
-                // Check NPC clicks
-                for (const [buildingId, pos] of Object.entries(this.npcPositions)) {
-                    if (Math.hypot(x - pos.x, y - pos.y) < 25) {
-                        const area = AREAS[this.currentArea - 1];
-                        const building = area.buildings.find(b => b.id === buildingId);
-                        if (building) {
-                            this.showNPCModal(NPCs[building.npcId]);
-                            return;
-                        }
-                    }
-                }
-            }
-
-            showBuildingModal(building) {
-                document.getElementById('modalTitle').textContent = building.name;
-                const modalBody = document.getElementById('modalBody');
-
-                if (building.fortuneType === 'tarot') {
-                    this.generateTarotFortune(modalBody);
-                } else if (building.fortuneType === 'numerology') {
-                    this.generateNumerologyFortune(modalBody);
-                } else if (building.fortuneType === 'kyuseikigaku') {
-                    this.generateKyuseiFortune(modalBody);
-                } else if (building.fortuneType === 'zodiac') {
-                    this.generateZodiacFortune(modalBody);
-                } else if (building.fortuneType === 'omikuji') {
-                    this.generateOmikujiFortune(modalBody);
-                } else if (building.fortuneType === 'moonuranai') {
-                    this.generateMoonFortune(modalBody);
-                } else if (building.fortuneType === 'animalspirit') {
-                    this.generateAnimalSpiritFortune(modalBody);
-                } else {
-                    this.generateGenericFortune(building.name, modalBody);
-                }
-
-                document.getElementById('buildingModal').classList.add('active');
-            }
-
-            generateTarotFortune(container) {
-                const majorArcana = [
-                    { name: "愚者", meaning: "新しい始まり、無邪気" },
-                    { name: "魔術師", meaning: "力、意志、才能の活用" },
-                    { name: "女祭司", meaning: "直感、謎、無意識" },
-                    { name: "女帝", meaning: "豊かさ、創造性、美" },
-                    { name: "皇帝", meaning: "権力、支配、強さ" },
-                    { name: "教皇", meaning: "精神性、知識、信仰" },
-                    { name: "恋人", meaning: "愛、関係、選択" },
-                    { name: "戦車", meaning: "勝利、制御、決断" },
-                    { name: "力", meaning: "勇気、力、自信" },
-                    { name: "隠者", meaning: "瞑想、探求、内省" },
-                    { name: "運命の輪", meaning: "運、変化、サイクル" },
-                    { name: "正義", meaning: "公平、判断、真実" },
-                    { name: "吊人", meaning: "犠牲、見方の転換" },
-                    { name: "死神", meaning: "変容、終わり、新しい始まり" },
-                    { name: "節制", meaning: "バランス、忍耐、調和" },
-                    { name: "悪魔", meaning: "束縛、欲望、制限" },
-                    { name: "塔", meaning: "破壊、変動、啓示" },
-                    { name: "星", meaning: "希望、明確、インスピレーション" },
-                    { name: "月", meaning: "不安、幻想、直感" },
-                    { name: "太陽", meaning: "幸福、成功、活力" },
-                    { name: "審判", meaning: "目覚め、呼び出し、新しい局面" },
-                    { name: "世界", meaning: "完成、達成、統合" }
-                ];
-
-                const positions = ['過去', '現在', '未来'];
-                let html = '<div class="modal-text">3枚のタロットカードが示すあなたの運命：<br><br>';
-
-                for (let i = 0; i < 3; i++) {
-                    const card = majorArcana[Math.floor(Math.random() * majorArcana.length)];
-                    const isReversed = Math.random() < 0.3;
-                    html += `<div class="fortune-result">
-                        <div class="fortune-label">${positions[i]}: ${card.name}${isReversed ? ' (逆位置)' : ''}</div>
-                        <div class="fortune-value">${isReversed ? '反転：' : ''}${card.meaning}</div>
-                    </div>`;
-                }
-
-                html += '<br><div class="fortune-result"><strong>総合解釈：</strong>あなたのタロットリーディングは、人生の転換点を示しています。カードが伝えるメッセージに耳を傾け、今この瞬間に必要な行動を起こしてください。</div>';
-
-                container.innerHTML = html + '<button class="btn-close" style="background: #FFB74D; margin-top: 15px;" onclick="game.saveCurrentFortune()">結果を保存</button>';
-            }
-
-            generateNumerologyFortune(container) {
-                if (!this.playerBirthday) {
-                    container.innerHTML = '<div class="modal-text">誕生日を登録すると、より正確な数秘術占いができます。</div>';
-                    return;
-                }
-
-                const dateStr = this.playerBirthday.replace(/-/g, '');
-                let sum = 0;
-                for (let digit of dateStr) sum += parseInt(digit);
-
-                while (sum > 9 && sum !== 11 && sum !== 22 && sum !== 33) {
-                    let newSum = 0;
-                    while (sum > 0) {
-                        newSum += sum % 10;
-                        sum = Math.floor(sum / 10);
-                    }
-                    sum = newSum;
-                }
-
-                const numerologyData = {
-                    1: { name: "リーダー", desc: "独立心が強く、パイオニア精神に溢れています。新しい道を切り開く力を持っています。" },
-                    2: { name: "調和者", desc: "バランス感覚が優れ、共感能力が高い。人間関係を大切にします。" },
-                    3: { name: "表現者", desc: "創造的で社交的。コミュニケーション能力が高く、人々を楽しませます。" },
-                    4: { name: "建設者", desc: "堅実で信頼できる。基礎を作ることが得意で、実務的なアプローチを好みます。" },
-                    5: { name: "冒険者", desc: "自由を愛し、変化を求める。好奇心旺盛で、多くの経験を積みます。" },
-                    6: { name: "奉仕者", desc: "責任感が強く、他者を助けることに喜びを感じます。家族を大切にします。" },
-                    7: { name: "探究者", desc: "深い知恵と直感力を持ち、真実を追い求めます。精神性が高い人です。" },
-                    8: { name: "指導者", desc: "力強く、野心的。物質的成功と精神的成長の両立を目指します。" },
-                    9: { name: "理想家", desc: "博愛精神に溢れ、世界平和を願う。完成と終結を示す数字です。" },
-                    11: { name: "啓発者", desc: "マスターナンバー。直感力とスピリチュアルな力を持つ特別な存在。" },
-                    22: { name: "建築家", desc: "マスターナンバー。大きなビジョンを現実化させる力を持っています。" },
-                    33: { name: "導き手", desc: "マスターナンバー。最高レベルの精神的指導者の資質を持ちます。" }
-                };
-
-                const data = numerologyData[sum];
-                container.innerHTML = `
-                    <div class="fortune-result">
-                        <div class="fortune-label">ライフパスナンバー</div>
-                        <div class="fortune-value" style="font-size: 1.5em;">${sum}</div>
-                    </div>
-                    <div class="fortune-result">
-                        <div class="fortune-label">タイプ: ${data.name}</div>
-                        <div class="fortune-value">${data.desc}</div>
-                    </div>
-                    <div class="lucky-items">
-                        <div class="lucky-item"><span class="lucky-item-label">ラッキーナンバー:</span> ${sum}</div>
-                        <div class="lucky-item"><span class="lucky-item-label">ラッキーカラー:</span> ${['赤', '黄', '紫', '緑', '青', '橙', '青紫', '黒', '白'][sum - 1] || '金色'}</div>
-                    </div>
-                    <div class="fortune-result"><strong>今日のアドバイス：</strong>あなたの生まれた数字が示す才能を信じ、その特性を活かしてください。</div>
-                    <button class="btn-close" style="background: #FFB74D; margin-top: 15px;" onclick="game.saveCurrentFortune()">結果を保存</button>
-                `;
-            }
-
-            generateKyuseiFortune(container) {
-                if (!this.playerBirthday) {
-                    container.innerHTML = '<div class="modal-text">誕生日を登録すると、より正確な九星気学占いができます。</div>';
-                    return;
-                }
-
-                const year = parseInt(this.playerBirthday.substring(0, 4));
-                const yearSum = Math.floor(year / 1000) + Math.floor((year % 1000) / 100) + Math.floor((year % 100) / 10) + (year % 10);
-                const kyusei = 11 - (yearSum % 9) || 9;
-
-                const kyuseiData = {
-                    1: { name: "一白水星", desc: "知恵と柔軟性の星。適応能力に優れ、新しい環境でも素早く対応できます。" },
-                    2: { name: "二黒土星", desc: "大地と母性の星。安定を求め、忍耐強く地道に進みます。" },
-                    3: { name: "三碧木星", desc: "雷と成長の星。活動的で生命力に溢れ、新しいことに挑戦します。" },
-                    4: { name: "四緑木星", desc: "風と調和の星。社交的で、人間関係を大切にする繋ぎ役です。" },
-                    5: { name: "五黄土星", desc: "中央と統合の星。リーダーシップがあり、人々を導く力を持ちます。" },
-                    6: { name: "六白金星", desc: "天と秩序の星。理性的で、正義感が強く道徳的です。" },
-                    7: { name: "七赤金星", desc: "沢と喜びの星。社交的で、楽しさを求め人生を楽しみます。" },
-                    8: { name: "八白土星", desc: "山と変化の星。変動を好み、新しい局面を切り開きます。" },
-                    9: { name: "九紫火星", desc: "火と完成の星。情熱的で、高い理想を目指します。完成へ向かう時期です。" }
-                };
-
-                const data = kyuseiData[kyusei];
-                container.innerHTML = `
-                    <div class="fortune-result">
-                        <div class="fortune-label">あなたの九星</div>
-                        <div class="fortune-value">${data.name}</div>
-                    </div>
-                    <div class="fortune-result">
-                        <div class="fortune-label">運勢の特徴</div>
-                        <div class="fortune-value">${data.desc}</div>
-                    </div>
-                    <div class="lucky-items">
-                        <div class="lucky-item"><span class="lucky-item-label">ラッキーカラー:</span> ['青', '黒', '緑', '緑', '黄', '白', '赤', '白', '紫'][${kyusei - 1}]</div>
-                    </div>
-                    <button class="btn-close" style="background: #FFB74D; margin-top: 15px;" onclick="game.saveCurrentFortune()">結果を保存</button>
-                `;
-            }
-
-            generateZodiacFortune(container) {
-                const zodiacData = {
-                    '牡羊座': { love: 4, work: 5, health: 3, money: 4 },
-                    '牡牛座': { love: 3, work: 4, health: 5, money: 4 },
-                    '双子座': { love: 5, work: 4, health: 3, money: 3 },
-                    '蟹座': { love: 4, work: 3, health: 4, money: 4 },
-                    '獅子座': { love: 5, work: 5, health: 4, money: 5 },
-                    '乙女座': { love: 3, work: 5, health: 5, money: 4 },
-                    '天秤座': { love: 5, work: 4, health: 3, money: 4 },
-                    '蠍座': { love: 4, work: 5, health: 4, money: 5 },
-                    '射手座': { love: 4, work: 4, health: 5, money: 3 },
-                    '山羊座': { love: 3, work: 5, health: 4, money: 5 },
-                    '水瓶座': { love: 4, work: 4, health: 3, money: 4 },
-                    '魚座': { love: 5, work: 3, health: 4, money: 3 }
-                };
-
-                const zodiac = Object.keys(zodiacData)[Math.floor(Math.random() * 12)];
-                const ratings = zodiacData[zodiac];
-
-                const renderStars = (count) => '★'.repeat(count) + '☆'.repeat(5 - count);
-
-                container.innerHTML = `
-                    <div class="fortune-result">
-                        <div class="fortune-label">本日の星座：${zodiac}</div>
-                        <div class="rating-stars">
-                            <div class="rating-label">恋愛運</div>
-                            <div class="stars">${renderStars(ratings.love)}</div>
-                        </div>
-                        <div class="rating-stars">
-                            <div class="rating-label">仕事運</div>
-                            <div class="stars">${renderStars(ratings.work)}</div>
-                        </div>
-                        <div class="rating-stars">
-                            <div class="rating-label">健康運</div>
-                            <div class="stars">${renderStars(ratings.health)}</div>
-                        </div>
-                        <div class="rating-stars">
-                            <div class="rating-label">金運</div>
-                            <div class="stars">${renderStars(ratings.money)}</div>
-                        </div>
-                    </div>
-                    <button class="btn-close" style="background: #FFB74D; margin-top: 15px;" onclick="game.saveCurrentFortune()">結果を保存</button>
-                `;
-            }
-
-            generateOmikujiFortune(container) {
-                const levels = ['大吉', '吉', '中吉', '小吉', '末吉', '凶'];
-                const level = levels[Math.floor(Math.random() * levels.length)];
-                const categories = {
-                    '願望': ['成就します', '少し時間がかかります', '努力が必要です', '神様にお祈りしましょう'],
-                    '恋愛': ['素敵な出会いが', '相手の気持ちが変わります', '自分の気持ちを伝えましょう', '焦らずに待ちましょう'],
-                    '学業': ['合格間違いなし', '勉強の成果が出ます', 'もう少し努力が必要', '基礎から学び直しましょう'],
-                    '仕事': ['大成功の兆し', '順調に進みます', '工夫が必要です', '持ち直すまで時間がかかります'],
-                    '健康': ['非常に健康的です', '良好な状態です', '注意が必要です', '医者に相談しましょう'],
-                    '旅行': ['大吉の旅になります', '楽しい旅になります', '気をつけて', 'やめておいた方が良いでしょう'],
-                    '金運': ['大きな幸運があります', '徐々に良くなります', '浪費に注意', '貯蓄を心がけましょう']
-                };
-
-                let html = `<div class="fortune-result"><div class="fortune-value" style="font-size: 2em; color: #d4791f; text-align: center;">${level}</div></div>`;
-
-                for (const [cat, messages] of Object.entries(categories)) {
-                    const idx = levels.indexOf(level);
-                    const msg = messages[Math.min(idx, messages.length - 1)];
-                    html += `<div class="lucky-item"><span class="lucky-item-label">${cat}:</span> ${msg}</div>`;
-                }
-
-                html += '<button class="btn-close" style="background: #FFB74D; margin-top: 15px;" onclick="game.saveCurrentFortune()">結果を保存</button>';
-
-                container.innerHTML = html;
-            }
-
-            generateMoonFortune(container) {
-                const phases = [
-                    { name: "新月", desc: "新���い始まり。設定した目標に向かって進む時期です。瞑想やリセットに最適。", emotion: "希望、設定、計画" },
-                    { name: "満月", desc: "完成と達成の時。感情が高まり、インスピレーションが冴えている状態です。", emotion: "充実、達成、感謝" },
-                    { name: "上弦の月", desc: "成長と挑戦の時。障害に直面するかもしれませんが、それを乗り越える力があります。", emotion: "意志、挑戦、成長" },
-                    { name: "下弦の月", desc: "内省と完成の時。手放すべきものを手放し、新しい準備をします。", emotion: "振り返り、感謝、浄化" }
-                ];
-
-                const phase = phases[Math.floor(Math.random() * phases.length)];
-                container.innerHTML = `
-                    <div class="fortune-result">
-                        <div class="fortune-label">今夜の月相：${phase.name}</div>
-                        <div class="fortune-value">${phase.desc}</div>
-                        <div class="fortune-label" style="margin-top: 10px;">心の状態：</div>
-                        <div class="fortune-value">${phase.emotion}</div>
-                    </div>
-                    <button class="btn-close" style="background: #FFB74D; margin-top: 15px;" onclick="game.saveCurrentFortune()">結果を保存</button>
-                `;
-            }
-
-            generateAnimalSpiritFortune(container) {
-                const animals = [
-                    { name: "狼", trait: "リーダーシップ、本能、自由", advice: "自分の直感を信じてください" },
-                    { name: "鹿", trait: "優雅さ、感受性、新しい視点", advice: "周りの視点を大切にしましょう" },
-                    { name: "ワシ", trait: "視野の広さ、力強さ、スピリチュアル", advice: "大きな視点から考えてください" },
-                    { name: "熊", trait: "強さ、内省、冬眠の知恵", advice: "今は休息の時かもしれません" },
-                    { name: "孤狸", trait: "知恵、狡猾さ、適応力", advice: "創意工夫を活かしてください" },
-                    { name: "ウサギ", trait: "迅速さ、注意深さ、直感", advice: "急いで判断せず、落ち着きましょう" },
-                    { name: "ヘビ", trait: "変容、再生、力", advice: "人生の転機が来ています" },
-                    { name: "ライオン", trait: "勇気、王者の風格、自信", advice: "自信を持って進みましょう" }
-                ];
-
-                const animal = animals[Math.floor(Math.random() * animals.length)];
-                container.innerHTML = `
-                    <div class="fortune-result">
-                        <div class="fortune-label">あなたの守護動物</div>
-                        <div class="fortune-value">${animal.name}</div>
-                        <div class="fortune-label">特性：</div>
-                        <div class="fortune-value">${animal.trait}</div>
-                        <div class="fortune-label">メッセージ：</div>
-                        <div class="fortune-value">${animal.advice}</div>
-                    </div>
-                    <button class="btn-close" style="background: #FFB74D; margin-top: 15px;" onclick="game.saveCurrentFortune()">結果を保存</button>
-                `;
-            }
-
-            generateGenericFortune(buildingName, container) {
-                const fortuneTexts = [
-                    "今日のあなたは運に恵まれています。積極的に行動してください。",
-                    "少し慎重になることで、より良い結果が得られるでしょう。",
-                    "誰かの言葉や助言に耳を傾けてみてください。思わぬ発見があります。",
-                    "今やっていることは正しい方向です。もう一歩進みましょう。",
-                    "休息が必要な時期です。心身をリチャージしてください。",
-                    "大きな変化が起ころうとしています。それに備えてください。",
-                    "あなたの創意工夫が評価される時期です。自分を信じてください。",
-                    "周りとのコミュニケーションを大切にしましょう。",
-                    "新しい挑戦のチャンスがやってきます。勇気を持って踏み出してください。",
-                    "今のあなたは自分の力を過小評価しています。もっと信じてください。"
-                ];
-
-                const luckyItems = [
-                    { color: "赤", number: 7, direction: "南", food: "トマト" },
-                    { color: "青", number: 3, direction: "北", food: "ブルーベリー" },
-                    { color: "黄", number: 5, direction: "東", food: "バナナ" },
-                    { color: "緑", number: 9, direction: "西", food: "キウイ" },
-                    { color: "紫", number: 4, direction: "南西", food: "ぶどう" }
-                ];
-
-                const fortune = fortuneTexts[Math.floor(Math.random() * fortuneTexts.length)];
-                const lucky = luckyItems[Math.floor(Math.random() * luckyItems.length)];
-
-                container.innerHTML = `
-                    <div class="fortune-result">
-                        <div class="fortune-label">占い結果</div>
-                        <div class="fortune-value">${fortune}</div>
-                    </div>
-                    <div class="lucky-items">
-                        <div class="lucky-item"><span class="lucky-item-label">ラッキーカラー:</span> ${lucky.color}</div>
-                        <div class="lucky-item"><span class="lucky-item-label">ラッキーナンバー:</span> ${lucky.number}</div>
-                        <div class="lucky-item"><span class="lucky-item-label">ラッキー方位:</span> ${lucky.direction}</div>
-                        <div class="lucky-item"><span class="lucky-item-label">ラッキーフード:</span> ${lucky.food}</div>
-                    </div>
-                    <button class="btn-close" style="background: #FFB74D; margin-top: 15px;" onclick="game.saveCurrentFortune()">結果を保存</button>
-                `;
-            }
-
-            showNPCModal(npc) {
-                document.getElementById('npcName').textContent = npc.name;
-                document.getElementById('npcPersonality').textContent = npc.personality;
-
-                // Draw NPC avatar
-                const canvas = document.getElementById('npcCanvas');
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = '#fef5e7';
-                ctx.fillRect(0, 0, 100, 100);
-                ctx.save();
-                ctx.translate(50, 50);
-
-                if (npc.animal === 'shiba' || npc.animal === 'whiteshiba') {
-                    this.drawShibaLarge(ctx, npc.color);
-                } else if (npc.animal === 'calico') {
-                    this.drawCatLarge(ctx, npc.color);
-                } else if (npc.animal === 'rabbit' || npc.animal === 'bluerabbit') {
-                    this.drawRabbitLarge(ctx, npc.color);
-                } else if (npc.animal === 'fox' || npc.animal === 'goldenfox') {
-                    this.drawFoxLarge(ctx, npc.color);
-                } else if (npc.animal === 'owl') {
-                    this.drawOwlLarge(ctx, npc.color);
-                } else if (npc.animal === 'frog') {
-                    this.drawFrogLarge(ctx, npc.color);
-                } else if (npc.animal === 'panda') {
-                    this.drawPandaLarge(ctx);
-                } else if (npc.animal === 'hamster') {
-                    this.drawHamsterLarge(ctx, npc.color);
-                } else if (npc.animal === 'penguin') {
-                    this.drawPenguinLarge(ctx);
-                } else if (npc.animal === 'tanuki') {
-                    this.drawTanukiLarge(ctx, npc.color);
-                } else if (npc.animal === 'squirrel') {
-                    this.drawSquirrelLarge(ctx, npc.color);
-                } else if (npc.animal === 'sheep') {
-                    this.drawSheepLarge(ctx, npc.color);
-                } else if (npc.animal === 'blackcat') {
-                    this.drawCatLarge(ctx, '#333333');
-                }
-
-                ctx.restore();
-
-                const conversationContent = document.getElementById('conversationContent');
-                const knowledge = npc.knowledge || [];
-
-                conversationContent.innerHTML = `
-                    <div class="conversation-options">
-                        <button class="option-btn" onclick="game.showNPCKnowledge(0, '${npc.name}')">占いの豆知識</button>
-                        <button class="option-btn" onclick="game.showNPCKnowledge(1, '${npc.name}')">今日のアドバイス</button>
-                        <button class="option-btn" onclick="game.showNPCKnowledge(2, '${npc.name}')">自己紹介</button>
-                        <button class="option-btn" onclick="game.showNPCKnowledge(3, '${npc.name}')">さよなら</button>
-                    </div>
-                `;
-
-                document.getElementById('npcModal').classList.add('active');
-            }
-
-            drawShibaLarge(ctx, color) {
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.ellipse(0, 0, 18, 15, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.arc(-12, -18, 12, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.arc(-22, -26, 6, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(-2, -26, 6, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = 'black';
-                ctx.beginPath();
-                ctx.arc(-16, -20, 3, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            drawCatLarge(ctx, color) {
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.ellipse(0, 0, 15, 14, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.arc(0, -16, 11, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.moveTo(-12, -22);
-                ctx.lineTo(-18, -32);
-                ctx.lineTo(-8, -23);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.moveTo(12, -22);
-                ctx.lineTo(18, -32);
-                ctx.lineTo(8, -23);
-                ctx.fill();
-
-                ctx.fillStyle = 'black';
-                ctx.beginPath();
-                ctx.arc(-5, -16, 2, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            drawRabbitLarge(ctx, color) {
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.ellipse(0, 0, 14, 17, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.arc(0, -22, 10, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.ellipse(-8, -42, 5, 16, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.ellipse(8, -42, 5, 16, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = 'black';
-                ctx.beginPath();
-                ctx.arc(-3, -24, 2, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            drawFoxLarge(ctx, color) {
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.ellipse(0, 0, 17, 14, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.arc(-15, -18, 11, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.moveTo(-22, -22);
-                ctx.lineTo(-27, -34);
-                ctx.lineTo(-18, -20);
-                ctx.fill();
-
-                ctx.fillStyle = 'black';
-                ctx.beginPath();
-                ctx.arc(-18, -20, 3, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            drawOwlLarge(ctx, color) {
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.ellipse(0, 0, 14, 18, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = '#FFD700';
-                ctx.beginPath();
-                ctx.arc(-6, -5, 5, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(6, -5, 5, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = 'black';
-                ctx.beginPath();
-                ctx.arc(-6, -5, 2.5, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(6, -5, 2.5, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.arc(-10, -18, 4, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(10, -18, 4, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            drawFrogLarge(ctx, color) {
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.ellipse(0, 0, 15, 12, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.arc(0, -16, 9, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = '#FFD700';
-                ctx.beginPath();
-                ctx.arc(-5, -18, 3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(5, -18, 3, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            drawPandaLarge(ctx) {
-                ctx.fillStyle = 'white';
-                ctx.beginPath();
-                ctx.arc(0, 0, 16, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = 'black';
-                ctx.beginPath();
-                ctx.arc(-12, -15, 5, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(12, -15, 5, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.arc(-6, -4, 5, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(6, -4, 5, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            drawHamsterLarge(ctx, color) {
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.ellipse(0, 0, 12, 11, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.arc(-10, -15, 8, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.arc(-13, -18, 4, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(-7, -18, 4, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = 'black';
-                ctx.beginPath();
-                ctx.arc(-13, -16, 2, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            drawPenguinLarge(ctx) {
-                ctx.fillStyle = 'black';
-                ctx.beginPath();
-                ctx.ellipse(0, 0, 11, 17, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.arc(0, -18, 8, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = 'white';
-                ctx.beginPath();
-                ctx.ellipse(0, 0, 6, 12, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = 'white';
-                ctx.beginPath();
-                ctx.arc(-3, -20, 2, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(3, -20, 2, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            drawTanukiLarge(ctx, color) {
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.ellipse(0, 0, 17, 14, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.arc(-12, -18, 10, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.arc(-18, -22, 5, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(-6, -22, 5, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = 'black';
-                ctx.beginPath();
-                ctx.arc(-15, -20, 3, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillRect(-17, -18, 6, 12);
-            }
-
-            drawSquirrelLarge(ctx, color) {
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.ellipse(0, 0, 12, 14, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.arc(-9, -16, 9, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.arc(-13, -21, 4, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(-5, -21, 4, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = 'black';
-                ctx.beginPath();
-                ctx.arc(-11, -17, 2, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.strokeStyle = color;
-                ctx.lineWidth = 4;
-                ctx.beginPath();
-                ctx.arc(18, -8, 9, 0, Math.PI, false);
-                ctx.stroke();
-            }
-
-            drawSheepLarge(ctx, color) {
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.ellipse(0, 0, 17, 14, 0, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.arc(-12, -20, 8, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.arc(-16, -24, 3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(-8, -24, 3, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = 'black';
-                ctx.beginPath();
-                ctx.arc(-14, -21, 2, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            showNPCKnowledge(idx, npcName) {
-                const npc = Object.values(NPCs).find(n => n.name === npcName);
-                const conversationContent = document.getElementById('conversationContent');
-
-                let content = '';
-                if (idx === 0) {
-                    content = `<div class="fortune-result"><strong>占いの豆知識</strong><br><br>${npc.knowledge[0] || '占いについての興味深い話を聞くことができました。'}</div>`;
-                } else if (idx === 1) {
-                    content = `<div class="fortune-result"><strong>今日のアドバイス</strong><br><br>${npc.knowledge[1] || 'あなたの直感を信じ、今この瞬間を大切にしてください。'}</div>`;
-                } else if (idx === 2) {
-                    content = `<div class="fortune-result"><strong>自己紹介</strong><br><br>私は${npc.name}。${npc.personality}。 いつでも占ってあげます。</div>`;
-                } else {
-                    document.getElementById('npcModal').classList.remove('active');
-                    return;
-                }
-
-                content += `
-                    <div class="conversation-options" style="margin-top: 20px;">
-                        <button class="option-btn" onclick="game.showNPCKnowledge(0, '${npc.name}')">占いの豆知識</button>
-                        <button class="option-btn" onclick="game.showNPCKnowledge(1, '${npc.name}')">今日のアドバイス</button>
-                        <button class="option-btn" onclick="game.showNPCKnowledge(2, '${npc.name}')">自己紹介</button>
-                        <button class="option-btn" onclick="game.showNPCKnowledge(3, '${npc.name}')">さよなら</button>
-                    </div>
-                `;
-
-                conversationContent.innerHTML = content;
-            }
-
-            saveCurrentFortune() {
-                const fortune = {
-                    id: Date.now(),
-                    date: new Date().toLocaleString('ja-JP'),
-                    content: document.getElementById('fortuneContent').innerHTML
-                };
-                this.album.push(fortune);
-                localStorage.setItem('fortuneAlbum', JSON.stringify(this.album));
-                this.closeModal();
-            }
-
-            showAlbum() {
-                const albumContent = document.getElementById('albumContent');
-                if (this.album.length === 0) {
-                    albumContent.innerHTML = '<div class="modal-text">まだ占い結果がありません。占い館を訪ねて占ってもらいましょう。</div>';
-                } else {
-                    let html = '<div class="modal-text">';
-                    this.album.forEach((item, idx) => {
-                        html += `<div class="fortune-result"><strong>占い ${idx + 1}</strong><br>${item.date}<br><small>${item.content.substring(0, 50)}...</small></div>`;
-                    });
-                    html += '</div>';
-                    albumContent.innerHTML = html;
-                }
-                document.getElementById('albumModal').classList.add('active');
-            }
-
-            showMenu() {
-                const menuContent = document.getElementById('menuContent');
-                menuContent.innerHTML = `
-                    <div class="modal-text">
-                        <div class="input-group">
-                            <label>プレイヤー名：${this.playerName}</label>
-                            <button class="btn-close" style="background: #FFB74D;" onclick="game.editProfile()">プロフィール編集</button>
-                        </div>
-                        <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
-                        <div class="input-group">
-                            <button class="btn-close" style="background: #FFB74D;" onclick="game.goToArea(1)">エリア 1: 和の占い通り</button>
-                        </div>
-                        <div class="input-group">
-                            <button class="btn-close" style="background: #FFB74D;" onclick="game.goToArea(2)">エリア 2: 西洋占い広場</button>
-                        </div>
-                        <div class="input-group">
-                            <button class="btn-close" style="background: #FFB74D;" onclick="game.goToArea(3)">エリア 3: ふしぎ占い森</button>
-                        </div>
-                        <div class="input-group">
-                            <button class="btn-close" style="background: #FFB74D;" onclick="game.goToArea(4)">エリア 4: 星空占いの丘</button>
-                        </div>
-                    </div>
-                `;
-                document.getElementById('menuModal').classList.add('active');
-            }
-
-            editProfile() {
-                this.closeModal();
-                this.showProfileSetup();
-            }
-
-            goToArea(areaNum) {
-                this.closeModal();
-                this.loadArea(areaNum);
-            }
-
-            closeModal() {
-                document.getElementById('buildingModal').classList.remove('active');
-                document.getElementById('npcModal').classList.remove('active');
-                document.getElementById('fortuneModal').classList.remove('active');
-                document.getElementById('albumModal').classList.remove('active');
-                document.getElementById('menuModal').classList.remove('active');
-            }
-        }
-
-        const game = new Game();
-    </script>
+</div>
+
+</div>
+
+<!-- Modal -->
+<div id="modal">
+    <div id="mbox"></div>
+</div>
+
+<script>
+// ============================================================
+// PART 3: Canvas2D Drawing Functions
+// ============================================================
+
+function drawShiba(ctx, x, y, oY, color) {
+  const BG = color || '#D4905A';
+  const WH = '#FFF8E1';
+  const OL = '#222';
+  const LW = 3;
+  
+  ctx.fillStyle = 'rgba(0,0,0,.08)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 16, 14, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = BG;
+  ctx.strokeStyle = OL;
+  ctx.lineWidth = LW;
+  ctx.beginPath();
+  ctx.ellipse(x - 12, y + 14 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 12, y + 14 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.ellipse(x, y + 2 + oY, 16, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.ellipse(x, y + 4 + oY, 10, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.ellipse(x - 9, y + 12 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 9, y + 12 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.arc(x + 16, y - 2 + oY, 5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.arc(x, y - 10 + oY, 11, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.ellipse(x - 8, y - 18 + oY, 4, 6, -0.3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 8, y - 18 + oY, 4, 6, 0.3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.ellipse(x, y - 8 + oY, 7, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = '#1a1a1a';
+  ctx.beginPath();
+  ctx.arc(x - 4, y - 12 + oY, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + 4, y - 12 + oY, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.beginPath();
+  ctx.arc(x, y - 7 + oY, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawCat(ctx, x, y, oY, color) {
+  const BG = color || '#F4A460';
+  const WH = '#FFE4C4';
+  const OL = '#222';
+  const LW = 3;
+  
+  ctx.fillStyle = 'rgba(0,0,0,.08)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 16, 13, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = BG;
+  ctx.strokeStyle = OL;
+  ctx.lineWidth = LW;
+  ctx.beginPath();
+  ctx.ellipse(x - 11, y + 14 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 11, y + 14 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.ellipse(x, y + 2 + oY, 15, 11, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.ellipse(x, y + 4 + oY, 9, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.ellipse(x - 8, y + 12 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 8, y + 12 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.strokeStyle = OL;
+  ctx.lineWidth = LW;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.quadraticCurveTo(x + 18, y + oY, x + 20, y - 8 + oY);
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.arc(x, y - 10 + oY, 10, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.moveTo(x - 7, y - 18 + oY);
+  ctx.lineTo(x - 9, y - 24 + oY);
+  ctx.lineTo(x - 4, y - 16 + oY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x + 7, y - 18 + oY);
+  ctx.lineTo(x + 9, y - 24 + oY);
+  ctx.lineTo(x + 4, y - 16 + oY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = '#FFB6C1';
+  ctx.beginPath();
+  ctx.moveTo(x - 6.5, y - 19 + oY);
+  ctx.lineTo(x - 8, y - 23 + oY);
+  ctx.lineTo(x - 5, y - 17 + oY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(x + 6.5, y - 19 + oY);
+  ctx.lineTo(x + 8, y - 23 + oY);
+  ctx.lineTo(x + 5, y - 17 + oY);
+  ctx.closePath();
+  ctx.fill();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.ellipse(x, y - 8 + oY, 6, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = '#1a1a1a';
+  ctx.beginPath();
+  ctx.arc(x - 4, y - 11 + oY, 1.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + 4, y - 11 + oY, 1.2, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.strokeStyle = OL;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(x - 6, y - 7 + oY);
+  ctx.lineTo(x - 12, y - 8 + oY);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x + 6, y - 7 + oY);
+  ctx.lineTo(x + 12, y - 8 + oY);
+  ctx.stroke();
+  
+  ctx.fillStyle = '#FFB6C1';
+  ctx.beginPath();
+  ctx.arc(x, y - 6 + oY, 1.2, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawRabbit(ctx, x, y, oY, color) {
+  const BG = color || '#C5A572';
+  const WH = '#FFF';
+  const OL = '#222';
+  const LW = 3;
+  
+  ctx.fillStyle = 'rgba(0,0,0,.08)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 16, 12, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = BG;
+  ctx.strokeStyle = OL;
+  ctx.lineWidth = LW;
+  ctx.beginPath();
+  ctx.ellipse(x - 10, y + 14 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 10, y + 14 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.ellipse(x, y + 2 + oY, 14, 11, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.ellipse(x, y + 4 + oY, 9, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.ellipse(x - 7, y + 12 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 7, y + 12 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.arc(x + 14, y + 2 + oY, 6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.arc(x, y - 10 + oY, 10, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.ellipse(x - 5, y - 22 + oY, 3, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 5, y - 22 + oY, 3, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = '#FFB6C1';
+  ctx.beginPath();
+  ctx.ellipse(x - 5, y - 20 + oY, 1.5, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(x + 5, y - 20 + oY, 1.5, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.ellipse(x, y - 8 + oY, 6, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = '#1a1a1a';
+  ctx.beginPath();
+  ctx.arc(x - 3, y - 10 + oY, 1.3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + 3, y - 10 + oY, 1.3, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.beginPath();
+  ctx.arc(x, y - 6 + oY, 1.3, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawFox(ctx, x, y, oY, color) {
+  const BG = color || '#FF6B35';
+  const WH = '#FFE5CC';
+  const OL = '#222';
+  const LW = 3;
+  
+  ctx.fillStyle = 'rgba(0,0,0,.08)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 16, 14, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = BG;
+  ctx.strokeStyle = OL;
+  ctx.lineWidth = LW;
+  ctx.beginPath();
+  ctx.ellipse(x - 12, y + 14 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 12, y + 14 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.ellipse(x, y + 2 + oY, 16, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.ellipse(x, y + 4 + oY, 10, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.ellipse(x - 9, y + 12 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 9, y + 12 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.strokeStyle = OL;
+  ctx.lineWidth = LW;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.quadraticCurveTo(x + 20, y + 4 + oY, x + 22, y - 6 + oY);
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.arc(x, y - 11 + oY, 11, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.moveTo(x - 8, y - 19 + oY);
+  ctx.lineTo(x - 10, y - 26 + oY);
+  ctx.lineTo(x - 5, y - 17 + oY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x + 8, y - 19 + oY);
+  ctx.lineTo(x + 10, y - 26 + oY);
+  ctx.lineTo(x + 5, y - 17 + oY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.moveTo(x - 7, y - 20 + oY);
+  ctx.lineTo(x - 9, y - 25 + oY);
+  ctx.lineTo(x - 5, y - 18 + oY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(x + 7, y - 20 + oY);
+  ctx.lineTo(x + 9, y - 25 + oY);
+  ctx.lineTo(x + 5, y - 18 + oY);
+  ctx.closePath();
+  ctx.fill();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.ellipse(x, y - 8 + oY, 7, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = '#1a1a1a';
+  ctx.beginPath();
+  ctx.arc(x - 4, y - 12 + oY, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + 4, y - 12 + oY, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.beginPath();
+  ctx.arc(x, y - 7 + oY, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawOwl(ctx, x, y, oY, color) {
+  const BG = color || '#8B4513';
+  const WH = '#FFE5CC';
+  const OL = '#222';
+  const LW = 3;
+  
+  ctx.fillStyle = 'rgba(0,0,0,.08)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 16, 11, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = BG;
+  ctx.strokeStyle = OL;
+  ctx.lineWidth = LW;
+  ctx.beginPath();
+  ctx.ellipse(x, y + 4 + oY, 12, 13, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.ellipse(x, y + 6 + oY, 8, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.arc(x, y - 10 + oY, 11, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.moveTo(x - 7, y - 19 + oY);
+  ctx.lineTo(x - 8, y - 26 + oY);
+  ctx.lineTo(x - 3, y - 19 + oY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x + 7, y - 19 + oY);
+  ctx.lineTo(x + 8, y - 26 + oY);
+  ctx.lineTo(x + 3, y - 19 + oY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.ellipse(x, y - 9 + oY, 8, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = '#FFD700';
+  ctx.beginPath();
+  ctx.ellipse(x - 4, y - 11 + oY, 2.5, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 4, y - 11 + oY, 2.5, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = '#1a1a1a';
+  ctx.beginPath();
+  ctx.arc(x - 4, y - 10 + oY, 1.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + 4, y - 10 + oY, 1.2, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = '#FFA500';
+  ctx.beginPath();
+  ctx.moveTo(x, y - 6 + oY);
+  ctx.lineTo(x - 2, y - 4 + oY);
+  ctx.lineTo(x + 2, y - 4 + oY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.strokeStyle = OL;
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(x - 5, y + 16 + oY);
+  ctx.lineTo(x - 5, y + 20 + oY);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x + 5, y + 16 + oY);
+  ctx.lineTo(x + 5, y + 20 + oY);
+  ctx.stroke();
+}
+
+function drawFrog(ctx, x, y, oY, color) {
+  const BG = color || '#6BA84D';
+  const WH = '#FFE5CC';
+  const OL = '#222';
+  const LW = 3;
+  
+  ctx.fillStyle = 'rgba(0,0,0,.08)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 16, 13, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = BG;
+  ctx.strokeStyle = OL;
+  ctx.lineWidth = LW;
+  ctx.beginPath();
+  ctx.ellipse(x, y + 4 + oY, 15, 13, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.ellipse(x, y + 6 + oY, 10, 9, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.arc(x, y - 10 + oY, 10, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = '#FFD700';
+  ctx.beginPath();
+  ctx.arc(x - 5, y - 12 + oY, 3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(x + 5, y - 12 + oY, 3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = '#1a1a1a';
+  ctx.beginPath();
+  ctx.arc(x - 5, y - 11 + oY, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + 5, y - 11 + oY, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.strokeStyle = OL;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(x, y - 6 + oY, 5, 0, Math.PI);
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.ellipse(x - 8, y + 14 + oY, 5, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 8, y + 14 + oY, 5, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.ellipse(x - 11, y + 12 + oY, 6, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 11, y + 12 + oY, 6, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+}
+
+function drawPanda(ctx, x, y, oY, color) {
+  const BG = '#FFF';
+  const BLACK = '#1a1a1a';
+  const OL = '#222';
+  const LW = 3;
+  
+  ctx.fillStyle = 'rgba(0,0,0,.08)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 16, 14, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = BLACK;
+  ctx.strokeStyle = OL;
+  ctx.lineWidth = LW;
+  ctx.beginPath();
+  ctx.ellipse(x - 11, y + 14 + oY, 5, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 11, y + 14 + oY, 5, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.ellipse(x, y + 2 + oY, 16, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = BLACK;
+  ctx.beginPath();
+  ctx.ellipse(x - 9, y + 12 + oY, 5, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 9, y + 12 + oY, 5, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.arc(x + 15, y + oY, 4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.arc(x, y - 11 + oY, 11, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = BLACK;
+  ctx.beginPath();
+  ctx.arc(x - 8, y - 19 + oY, 4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(x + 8, y - 19 + oY, 4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.ellipse(x - 4, y - 12 + oY, 3.5, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 4, y - 12 + oY, 3.5, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.arc(x - 4, y - 12 + oY, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + 4, y - 12 + oY, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = '#1a1a1a';
+  ctx.beginPath();
+  ctx.arc(x - 4, y - 12 + oY, 0.8, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + 4, y - 12 + oY, 0.8, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.beginPath();
+  ctx.arc(x, y - 7 + oY, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawHamster(ctx, x, y, oY, color) {
+  const BG = color || '#C9926D';
+  const WH = '#FFF';
+  const OL = '#222';
+  const LW = 3;
+  
+  ctx.fillStyle = 'rgba(0,0,0,.08)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 14, 11, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = BG;
+  ctx.strokeStyle = OL;
+  ctx.lineWidth = LW;
+  ctx.beginPath();
+  ctx.ellipse(x - 9, y + 12 + oY, 3, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 9, y + 12 + oY, 3, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.ellipse(x, y + 2 + oY, 14, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.ellipse(x, y + 4 + oY, 9, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.ellipse(x - 7, y + 10 + oY, 3, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 7, y + 10 + oY, 3, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = '#FFB6C1';
+  ctx.beginPath();
+  ctx.ellipse(x - 8, y - 2 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 8, y - 2 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.arc(x, y - 9 + oY, 9, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.arc(x - 6, y - 16 + oY, 3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(x + 6, y - 16 + oY, 3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = '#FFB6C1';
+  ctx.beginPath();
+  ctx.arc(x - 6, y - 16 + oY, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + 6, y - 16 + oY, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.ellipse(x, y - 8 + oY, 5, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = '#1a1a1a';
+  ctx.beginPath();
+  ctx.arc(x - 2, y - 10 + oY, 1, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + 2, y - 10 + oY, 1, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.beginPath();
+  ctx.arc(x, y - 6 + oY, 0.8, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawPenguin(ctx, x, y, oY, color) {
+  const BG = '#1a1a1a';
+  const WH = '#FFF';
+  const OL = '#222';
+  const LW = 3;
+  
+  ctx.fillStyle = 'rgba(0,0,0,.08)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 16, 12, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = BG;
+  ctx.strokeStyle = OL;
+  ctx.lineWidth = LW;
+  ctx.beginPath();
+  ctx.ellipse(x, y + 4 + oY, 13, 14, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.ellipse(x, y + 6 + oY, 8, 11, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.arc(x, y - 10 + oY, 10, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.ellipse(x - 4, y - 11 + oY, 2.5, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 4, y - 11 + oY, 2.5, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.arc(x - 4, y - 11 + oY, 1.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + 4, y - 11 + oY, 1.2, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = '#FFD700';
+  ctx.beginPath();
+  ctx.arc(x - 4, y - 11 + oY, 0.6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + 4, y - 11 + oY, 0.6, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = '#FFA500';
+  ctx.beginPath();
+  ctx.moveTo(x, y - 6 + oY);
+  ctx.lineTo(x - 1.5, y - 4 + oY);
+  ctx.lineTo(x + 1.5, y - 4 + oY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.ellipse(x - 10, y + oY, 3, 8, -0.3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 10, y + oY, 3, 8, 0.3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.ellipse(x - 6, y + 18 + oY, 4, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 6, y + 18 + oY, 4, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+}
+
+function drawTanuki(ctx, x, y, oY, color) {
+  const BG = color || '#8B6F47';
+  const WH = '#E5D5C8';
+  const OL = '#222';
+  const LW = 3;
+  
+  ctx.fillStyle = 'rgba(0,0,0,.08)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 16, 14, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = BG;
+  ctx.strokeStyle = OL;
+  ctx.lineWidth = LW;
+  ctx.beginPath();
+  ctx.ellipse(x - 12, y + 14 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 12, y + 14 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.ellipse(x, y + 2 + oY, 16, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.ellipse(x, y + 4 + oY, 10, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.ellipse(x - 9, y + 12 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 9, y + 12 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.strokeStyle = OL;
+  ctx.lineWidth = LW;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.quadraticCurveTo(x + 18, y - 2 + oY, x + 20, y - 8 + oY);
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.arc(x, y - 11 + oY, 11, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.arc(x - 7, y - 19 + oY, 3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(x + 7, y - 19 + oY, 3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = '#A0826D';
+  ctx.beginPath();
+  ctx.arc(x - 7, y - 19 + oY, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + 7, y - 19 + oY, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = OL;
+  ctx.beginPath();
+  ctx.ellipse(x - 4, y - 11 + oY, 3, 3.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(x + 4, y - 11 + oY, 3, 3.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.ellipse(x, y - 8 + oY, 6, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = '#FFF';
+  ctx.beginPath();
+  ctx.arc(x - 4, y - 12 + oY, 1, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + 4, y - 12 + oY, 1, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = '#1a1a1a';
+  ctx.beginPath();
+  ctx.arc(x - 4, y - 12 + oY, 0.6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + 4, y - 12 + oY, 0.6, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.beginPath();
+  ctx.arc(x, y - 7 + oY, 1.2, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawSquirrel(ctx, x, y, oY, color) {
+  const BG = color || '#D2691E';
+  const WH = '#FFF';
+  const OL = '#222';
+  const LW = 3;
+  
+  ctx.fillStyle = 'rgba(0,0,0,.08)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 16, 12, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = BG;
+  ctx.strokeStyle = OL;
+  ctx.lineWidth = LW;
+  ctx.beginPath();
+  ctx.ellipse(x - 10, y + 14 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 10, y + 14 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.ellipse(x, y + 2 + oY, 14, 11, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.ellipse(x, y + 4 + oY, 8, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.ellipse(x - 7, y + 11 + oY, 3, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 7, y + 11 + oY, 3, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.strokeStyle = OL;
+  ctx.lineWidth = LW;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.quadraticCurveTo(x + 16, y - 6 + oY, x + 14, y - 16 + oY);
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.arc(x, y - 10 + oY, 9, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.moveTo(x - 6, y - 17 + oY);
+  ctx.lineTo(x - 7, y - 24 + oY);
+  ctx.lineTo(x - 3, y - 16 + oY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x + 6, y - 17 + oY);
+  ctx.lineTo(x + 7, y - 24 + oY);
+  ctx.lineTo(x + 3, y - 16 + oY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.ellipse(x - 6.5, y - 19 + oY, 1, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(x + 6.5, y - 19 + oY, 1, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.ellipse(x, y - 8 + oY, 5, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = '#1a1a1a';
+  ctx.beginPath();
+  ctx.arc(x - 2, y - 10 + oY, 1.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + 2, y - 10 + oY, 1.2, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.beginPath();
+  ctx.arc(x, y - 6 + oY, 1, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawSheep(ctx, x, y, oY, color) {
+  const BG = '#FFF';
+  const WOOL = '#FFE5E5';
+  const OL = '#222';
+  const LW = 3;
+  
+  ctx.fillStyle = 'rgba(0,0,0,.08)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 16, 13, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = '#C9A881';
+  ctx.strokeStyle = OL;
+  ctx.lineWidth = LW;
+  ctx.beginPath();
+  ctx.ellipse(x - 10, y + 14 + oY, 3, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 10, y + 14 + oY, 3, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = WOOL;
+  ctx.beginPath();
+  ctx.ellipse(x, y + 2 + oY, 17, 13, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = '#C9A881';
+  ctx.beginPath();
+  ctx.ellipse(x - 8, y + 13 + oY, 3, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 8, y + 13 + oY, 3, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.arc(x, y - 11 + oY, 10, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.arc(x - 6, y - 18 + oY, 2.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(x + 6, y - 18 + oY, 2.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = '#FFE5E5';
+  ctx.beginPath();
+  ctx.ellipse(x, y - 7 + oY, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = '#1a1a1a';
+  ctx.beginPath();
+  ctx.arc(x - 3, y - 12 + oY, 1, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + 3, y - 12 + oY, 1, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.beginPath();
+  ctx.arc(x, y - 6 + oY, 0.8, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawPlayerShiba(ctx, x, y, frame) {
+  const BG = '#D4905A';
+  const WH = '#FFF8E1';
+  const OL = '#222';
+  const LW = 3;
+  
+  const bounce = Math.sin((frame % 20) / 20 * Math.PI) * 2;
+  const legSwing = Math.sin((frame % 20) / 20 * Math.PI) * 3;
+  const tailWag = Math.sin((frame % 20) / 20 * Math.PI * 2) * 2;
+  const earBounce = Math.sin((frame % 15) / 15 * Math.PI) * 1.5;
+  
+  const oY = y + bounce;
+  
+  ctx.fillStyle = 'rgba(0,0,0,.08)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 16, 14, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillStyle = BG;
+  ctx.strokeStyle = OL;
+  ctx.lineWidth = LW;
+  ctx.beginPath();
+  ctx.ellipse(x - 12, oY + 14 + legSwing * 0.3, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 12, oY + 14 - legSwing * 0.3, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.ellipse(x, oY + 2, 16, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.ellipse(x, oY + 4, 10, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = BG;
+  ctx.beginPath();
+  ctx.ellipse(x - 9, oY + 12 - legSwing * 0.3, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 9, oY + 12 + legSwing * 0.3, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.arc(x + 16 + tailWag, oY - 2, 5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.arc(x, oY - 10, 11, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.ellipse(x - 8, oY - 18 + earBounce, 4, 6, -0.3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + 8, oY - 18 + earBounce, 4, 6, 0.3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = WH;
+  ctx.beginPath();
+  ctx.ellipse(x, oY - 8, 7, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  
+  ctx.fillStyle = '#1a1a1a';
+  ctx.beginPath();
+  ctx.arc(x - 4, oY - 12, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + 4, oY - 12, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.beginPath();
+  ctx.arc(x, oY - 7, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawBuilding(ctx, x, y, type, areaId) {
+  const OL = '#222';
+  const LW = 3;
+  
+  ctx.fillStyle = 'rgba(0,0,0,.12)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + 28, 22, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+  
+  if (type === 'shrine' || areaId === 1) {
+    ctx.fillStyle = '#C0C0C0';
+    ctx.strokeStyle = OL;
+    ctx.lineWidth = LW;
+    
+    ctx.fillStyle = '#DC143C';
+    ctx.fillRect(x - 20, y - 8, 40, 6);
+    ctx.stroke();
+    
+    ctx.fillStyle = '#8B8B83';
+    ctx.fillRect(x - 18, y + 2, 5, 20);
+    ctx.stroke();
+    ctx.fillRect(x + 13, y + 2, 5, 20);
+    ctx.stroke();
+    
+    ctx.fillStyle = '#DC143C';
+    ctx.beginPath();
+    ctx.moveTo(x - 18, y - 2);
+    ctx.lineTo(x, y - 15);
+    ctx.lineTo(x + 18, y - 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    
+    ctx.fillStyle = '#8B4513';
+    ctx.fillRect(x - 14, y + 2, 28, 16);
+    ctx.stroke();
+    
+    ctx.fillStyle = '#654321';
+    ctx.fillRect(x - 6, y + 8, 12, 10);
+    ctx.stroke();
+    
+    ctx.fillStyle = '#FFD700';
+    ctx.beginPath();
+    ctx.arc(x + 4, y + 13, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+    
+  } else if (type === 'tower' || areaId === 2) {
+    ctx.fillStyle = '#A9A9A9';
+    ctx.strokeStyle = OL;
+    ctx.lineWidth = LW;
+    
+    ctx.fillRect(x - 12, y - 8, 24, 28);
+    ctx.stroke();
+    
+    ctx.fillStyle = '#8B6914';
+    ctx.beginPath();
+    ctx.moveTo(x - 14, y - 8);
+    ctx.lineTo(x, y - 22);
+    ctx.lineTo(x + 14, y - 8);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    
+    ctx.fillStyle = '#87CEEB';
+    ctx.lineWidth = 1;
+    for (let row = 0; row < 3; row++) {
+      for (let col = 0; col < 2; col++) {
+        const wx = x - 6 + col * 10;
+        const wy = y - 2 + row * 8;
+        ctx.fillRect(wx, wy, 4, 4);
+        ctx.strokeStyle = OL;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(wx, wy, 4, 4);
+      }
+    }
+    
+    ctx.fillStyle = '#654321';
+    ctx.fillRect(x - 4, y + 14, 8, 10);
+    ctx.strokeStyle = OL;
+    ctx.lineWidth = LW;
+    ctx.strokeRect(x - 4, y + 14, 8, 10);
+    
+  } else if (type === 'cottage' || areaId === 3) {
+    ctx.fillStyle = '#D4A574';
+    ctx.strokeStyle = OL;
+    ctx.lineWidth = LW;
+    
+    ctx.beginPath();
+    ctx.ellipse(x, y + 4, 18, 14, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    
+    ctx.fillStyle = '#8B4513';
+    ctx.beginPath();
+    ctx.ellipse(x, y - 8, 20, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    
+    ctx.fillStyle = '#654321';
+    ctx.beginPath();
+    ctx.ellipse(x - 4, y + 8, 4, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    
+    ctx.fillStyle = '#FFD700';
+    ctx.beginPath();
+    ctx.arc(x - 2, y + 8, 1, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = '#87CEEB';
+    ctx.beginPath();
+    ctx.arc(x + 6, y, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = OL;
+    ctx.lineWidth = LW;
+    ctx.stroke();
+    
+    ctx.fillStyle = '#654321';
+    ctx.fillRect(x + 14, y - 12, 3, 10);
+    ctx.stroke();
+    
+  } else if (type === 'observatory' || areaId === 4) {
+    ctx.fillStyle = '#FFF';
+    ctx.strokeStyle = OL;
+    ctx.lineWidth = LW;
+    
+    ctx.fillRect(x - 14, y + 2, 28, 14);
+    ctx.stroke();
+    
+    ctx.fillStyle = '#DDD';
+    ctx.beginPath();
+    ctx.ellipse(x, y - 6, 16, 12, 0, 0, Math.PI);
+    ctx.fill();
+    ctx.stroke();
+    
+    ctx.fillStyle = '#AAA';
+    ctx.beginPath();
+    ctx.ellipse(x, y - 8, 12, 6, 0, 0, Math.PI);
+    ctx.fill();
+    ctx.stroke();
+    
+    ctx.fillStyle = '#333';
+    ctx.beginPath();
+    ctx.ellipse(x, y - 10, 2, 2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = '#87CEEB';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 3; i++) {
+      const wx = x - 10 + i * 10;
+      ctx.fillRect(wx, y + 4, 4, 4);
+      ctx.strokeStyle = OL;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(wx, y + 4, 4, 4);
+    }
+    
+    ctx.fillStyle = '#654321';
+    ctx.fillRect(x - 4, y + 10, 8, 8);
+    ctx.strokeStyle = OL;
+    ctx.lineWidth = LW;
+    ctx.strokeRect(x - 4, y + 10, 8, 8);
+  }
+}
+
+function drawBackground(ctx, w, h, areaId, frame) {
+  
+  if (areaId === 1) {
+    const skyGradient = ctx.createLinearGradient(0, 0, 0, h);
+    skyGradient.addColorStop(0, '#87CEEB');
+    skyGradient.addColorStop(1, '#E0F6FF');
+    ctx.fillStyle = skyGradient;
+    ctx.fillRect(0, 0, w, h);
+    
+    const cloudOffset = (frame % 200) / 200 * w;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    
+    ctx.beginPath();
+    ctx.ellipse(cloudOffset + 50, 40, 35, 15, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(cloudOffset + 30, 50, 25, 12, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(cloudOffset + 70, 50, 25, 12, 0, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.beginPath();
+    ctx.ellipse(cloudOffset + 200, 80, 40, 18, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(cloudOffset + 175, 95, 28, 14, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(cloudOffset + 225, 95, 28, 14, 0, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = 'rgba(255, 192, 203, 0.6)';
+    for (let i = 0; i < 8; i++) {
+      const px = (frame * 0.5 + i * 40) % w;
+      const py = (50 + i * 20 + Math.sin(frame * 0.05 + i) * 10) % h;
+      ctx.beginPath();
+      ctx.ellipse(px, py, 3, 2, Math.PI / 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+  } else if (areaId === 2) {
+    const sunsetGradient = ctx.createLinearGradient(0, 0, 0, h);
+    sunsetGradient.addColorStop(0, '#FFB347');
+    sunsetGradient.addColorStop(0.5, '#FF8C69');
+    sunsetGradient.addColorStop(1, '#FF6347');
+    ctx.fillStyle = sunsetGradient;
+    ctx.fillRect(0, 0, w, h);
+    
+    ctx.fillStyle = '#FFD700';
+    ctx.beginPath();
+    ctx.arc(w - 80, h - 100, 40, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.strokeStyle = 'rgba(255, 215, 0, 0.4)';
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 8; i++) {
+      const angle = (i / 8) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.moveTo(w - 80 + Math.cos(angle) * 45, h - 100 + Math.sin(angle) * 45);
+      ctx.lineTo(w - 80 + Math.cos(angle) * 65, h - 100 + Math.sin(angle) * 65);
+      ctx.stroke();
+    }
+    
+    ctx.fillStyle = '#8B7355';
+    ctx.fillRect(0, h - 60, w, 60);
+    
+    ctx.strokeStyle = '#6BA84D';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < w; i += 8) {
+      ctx.beginPath();
+      ctx.moveTo(i, h - 60);
+      ctx.lineTo(i + 3, h - 70);
+      ctx.stroke();
+    }
+    
+  } else if (areaId === 3) {
+    ctx.fillStyle = '#2D5016';
+    ctx.fillRect(0, 0, w, h * 0.6);
+    
+    ctx.fillStyle = '#1B4D0E';
+    ctx.fillRect(0, h * 0.6, w, h * 0.4);
+    
+    ctx.fillStyle = '#0D3D00';
+    for (let i = 0; i < 5; i++) {
+      const tx = i * (w / 4.5) + 20;
+      ctx.fillRect(tx, h * 0.5, 8, 30);
+      ctx.beginPath();
+      ctx.moveTo(tx + 4, h * 0.3);
+      ctx.lineTo(tx - 15, h * 0.5);
+      ctx.lineTo(tx + 23, h * 0.5);
+      ctx.closePath();
+      ctx.fill();
+    }
+    
+    ctx.fillStyle = 'rgba(255, 255, 0, 0.8)';
+    for (let i = 0; i < 6; i++) {
+      const fx = 60 + i * 120 + Math.sin(frame * 0.1 + i) * 20;
+      const fy = 100 + i * 40 + Math.cos(frame * 0.08 + i) * 15;
+      const alpha = 0.3 + Math.sin(frame * 0.15 + i) * 0.5;
+      ctx.globalAlpha = alpha;
+      ctx.beginPath();
+      ctx.arc(fx, fy, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    
+  } else if (areaId === 4) {
+    const nightGradient = ctx.createLinearGradient(0, 0, 0, h);
+    nightGradient.addColorStop(0, '#001a4d');
+    nightGradient.addColorStop(1, '#0d0033');
+    ctx.fillStyle = nightGradient;
+    ctx.fillRect(0, 0, w, h);
+    
+    ctx.fillStyle = '#FFF8DC';
+    ctx.beginPath();
+    ctx.arc(w - 80, 60, 30, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = '#E8E8D0';
+    ctx.beginPath();
+    ctx.arc(w - 75, 45, 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(w - 90, 65, 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(w - 65, 70, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = '#FFF';
+    for (let i = 0; i < 30; i++) {
+      const sx = (i * 73) % w;
+      const sy = (i * 47) % (h * 0.6);
+      const brightness = 0.3 + Math.sin(frame * 0.05 + i) * 0.7;
+      ctx.globalAlpha = brightness;
+      ctx.beginPath();
+      ctx.arc(sx, sy, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    
+    ctx.fillStyle = '#1a1a2e';
+    ctx.fillRect(0, h - 40, w, 40);
+  }
+}
+
+// ============================================================
+// PART 2: Game Engine
+// ============================================================
+
+const ANIMALS = [
+  { name: 'シバイヌ', emoji: '🐕', draw: drawShiba, color: '#D4905A' },
+  { name: 'ネコ', emoji: '🐱', draw: drawCat, color: '#F4A460' },
+  { name: 'ウサギ', emoji: '🐰', draw: drawRabbit, color: '#C5A572' },
+  { name: 'キツネ', emoji: '🦊', draw: drawFox, color: '#FF6B35' },
+  { name: 'フクロウ', emoji: '🦉', draw: drawOwl, color: '#8B4513' },
+  { name: 'カエル', emoji: '🐸', draw: drawFrog, color: '#6BA84D' },
+  { name: 'パンダ', emoji: '🐼', draw: drawPanda, color: '#FFF' },
+  { name: 'ハムスター', emoji: '🐹', draw: drawHamster, color: '#C9926D' },
+  { name: 'ペンギン', emoji: '🐧', draw: drawPenguin, color: '#1a1a1a' },
+  { name: 'タヌキ', emoji: '🦝', draw: drawTanuki, color: '#8B6F47' },
+  { name: 'リス', emoji: '🐿️', draw: drawSquirrel, color: '#D2691E' },
+  { name: 'ヒツジ', emoji: '🐑', draw: drawSheep, color: '#FFF' },
+];
+
+const AREAS = [
+  { id: 1, name: '和の占い通り', emoji: '⛩️' },
+  { id: 2, name: '西洋占い広場', emoji: '🏛️' },
+  { id: 3, name: 'ふしぎ占い森', emoji: '🌲' },
+  { id: 4, name: '星空占いの丘', emoji: '⭐' },
+];
+
+class Game {
+  constructor() {
+    this.canvas = document.getElementById('gcanvas');
+    this.ctx = this.canvas.getContext('2d');
+    this.playerName = '';
+    this.fortuneType = 'general';
+    this.currentArea = 1;
+    this.frame = 0;
+    this.history = [];
+    this.album = [];
+    this.playerX = 0;
+    this.playerY = 0;
+    this.buildings = [];
+    this.npcs = [];
+    
+    this.resizeCanvas();
+    window.addEventListener('resize', () => this.resizeCanvas());
+  }
+  
+  resizeCanvas() {
+    this.canvas.width = this.canvas.clientWidth * window.devicePixelRatio;
+    this.canvas.height = this.canvas.clientHeight * window.devicePixelRatio;
+    this.ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  }
+  
+  showProfileSetup() {
+    this.switchScreen('profile-screen');
+  }
+  
+  startGame() {
+    const nameInput = document.getElementById('playerNameInput');
+    const typeInput = document.getElementById('fortuneTypeInput');
+    this.playerName = nameInput.value || 'さん';
+    this.fortuneType = typeInput.value;
+    this.loadArea(1);
+    this.switchScreen('game-screen');
+  }
+  
+  loadArea(areaNum) {
+    this.currentArea = areaNum;
+    this.buildings = this.generateBuildings(areaNum);
+    this.npcs = this.generateNPCs(areaNum);
+    this.playerX = this.canvas.clientWidth / 2;
+    this.playerY = this.canvas.clientHeight * 0.5;
+    document.getElementById('area-name').textContent = AREAS[areaNum - 1].name;
+  }
+  
+  generateBuildings(areaId) {
+    const w = this.canvas.clientWidth;
+    const h = this.canvas.clientHeight;
+    const groundY = h * 0.62;
+    const row1Y = h * 0.15;
+    const row2Y = h * 0.40;
+    
+    return [
+      { x: w * 0.17, y: row1Y, type: areaId === 1 ? 'shrine' : areaId === 2 ? 'tower' : areaId === 3 ? 'cottage' : 'observatory', npcIdx: 0 },
+      { x: w * 0.50, y: row1Y, type: areaId === 1 ? 'shrine' : areaId === 2 ? 'tower' : areaId === 3 ? 'cottage' : 'observatory', npcIdx: 1 },
+      { x: w * 0.83, y: row1Y, type: areaId === 1 ? 'shrine' : areaId === 2 ? 'tower' : areaId === 3 ? 'cottage' : 'observatory', npcIdx: 2 },
+      { x: w * 0.17, y: row2Y, type: areaId === 1 ? 'shrine' : areaId === 2 ? 'tower' : areaId === 3 ? 'cottage' : 'observatory', npcIdx: 3 },
+      { x: w * 0.50, y: row2Y, type: areaId === 1 ? 'shrine' : areaId === 2 ? 'tower' : areaId === 3 ? 'cottage' : 'observatory', npcIdx: 4 },
+      { x: w * 0.83, y: row2Y, type: areaId === 1 ? 'shrine' : areaId === 2 ? 'tower' : areaId === 3 ? 'cottage' : 'observatory', npcIdx: 5 },
+    ];
+  }
+  
+  generateNPCs(areaId) {
+    return ANIMALS.slice(0, 12).map((animal, idx) => {
+      const building = this.buildings[idx % 6];
+      return {
+        animal: animal,
+        x: building.x + 30,
+        y: building.y + 20,
+        buildingIdx: idx % 6,
+      };
+    });
+  }
+  
+  switchScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+  }
+  
+  gameLoop() {
+    const w = this.canvas.clientWidth;
+    const h = this.canvas.clientHeight;
+    
+    drawBackground(this.ctx, w, h, this.currentArea, this.frame);
+    
+    for (let b of this.buildings) {
+      drawBuilding(this.ctx, b.x, b.y, b.type, this.currentArea);
+    }
+    
+    for (let npc of this.npcs) {
+      this.ctx.save();
+      this.ctx.translate(npc.x, npc.y);
+      const legSwing = Math.sin((this.frame % 20) / 20 * Math.PI) * 1;
+      npc.animal.draw(this.ctx, 0, 0, legSwing, npc.animal.color);
+      this.ctx.restore();
+    }
+    
+    drawPlayerShiba(this.ctx, this.playerX, h * 0.72, this.frame);
+    
+    this.frame++;
+    requestAnimationFrame(() => this.gameLoop());
+  }
+  
+  handleCanvasClick(e) {
+    const rect = this.canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    for (let npc of this.npcs) {
+      if (Math.hypot(npc.x - x, npc.y - y) < 30) {
+        this.showNPCModal(npc);
+        return;
+      }
+    }
+    
+    for (let b of this.buildings) {
+      if (Math.hypot(b.x - x, b.y - y) < 40) {
+        this.showBuildingModal(b);
+        return;
+      }
+    }
+  }
+  
+  showBuildingModal(building) {
+    const modal = document.getElementById('modal');
+    const mbox = document.getElementById('mbox');
+    mbox.innerHTML = `
+      <div class="me">✨</div>
+      <h3>${AREAS[this.currentArea - 1].name}</h3>
+      <p>占いの館へようこそ</p>
+      <button class="mbtn" onclick="game.showFortune()">占ってもらう</button>
+      <button class="mbtn" style="background: #999;" onclick="game.closeModal()">もどる</button>
+    `;
+    modal.classList.add('show');
+  }
+  
+  showNPCModal(npc) {
+    const modal = document.getElementById('modal');
+    const mbox = document.getElementById('mbox');
+    mbox.innerHTML = `
+      <div class="me">${npc.animal.emoji}</div>
+      <h3>${npc.animal.name}</h3>
+      <p>こんにちは！</p>
+      <button class="option-btn" onclick="game.showNPCConversation('${npc.animal.name}', 0)">豆知識</button>
+      <button class="option-btn" onclick="game.showNPCConversation('${npc.animal.name}', 1)">アドバイス</button>
+      <button class="option-btn" onclick="game.showNPCConversation('${npc.animal.name}', 2)">自己紹介</button>
+      <button class="option-btn" style="background: #999; color: #fff; border-color: #999;" onclick="game.closeModal()">さよなら</button>
+    `;
+    modal.classList.add('show');
+  }
+  
+  showNPCConversation(name, type) {
+    const modal = document.getElementById('modal');
+    const mbox = document.getElementById('mbox');
+    let content = '';
+    
+    if (type === 0) {
+      content = `<strong>占いの豆知識</strong><br><br>${name}から占いについての興味深い話を聞きました。`;
+    } else if (type === 1) {
+      content = `<strong>今日のアドバイス</strong><br><br>あなたの直感を信じ、今この瞬間を大切にしてください。${name}より`;
+    } else if (type === 2) {
+      content = `<strong>自己紹介</strong><br><br>私は${name}。占いを通じて多くの人を導いてきました。`;
+    }
+    
+    mbox.innerHTML = `
+      <div class="fortune-result">${content}</div>
+      <button class="mbtn" onclick="game.closeModal()">もどる</button>
+    `;
+  }
+  
+  showFortune() {
+    const fortunes = [
+      '大吉：素晴らしい運に恵まれます',
+      '中吉：良い流れが来ています',
+      '小吉：少しずつ運が向いています',
+      '吉：努力が実ります',
+      '凶：今は準備の時。焦らず待ちましょう',
+    ];
+    
+    const result = fortunes[Math.floor(Math.random() * fortunes.length)];
+    const today = new Date().toLocaleString('ja-JP');
+    
+    this.history.push({ date: today, result: result });
+    localStorage.setItem('fortuneHistory', JSON.stringify(this.history));
+    
+    const modal = document.getElementById('modal');
+    const mbox = document.getElementById('mbox');
+    mbox.innerHTML = `
+      <div class="me">🔮</div>
+      <h3>占い結果</h3>
+      <div class="fortune-result">
+        <strong>${this.playerName}さんの${this.fortuneType === 'love' ? '恋愛' : this.fortuneType === 'fortune' ? '金' : this.fortuneType === 'health' ? '健康' : this.fortuneType === 'career' ? '仕事' : '総合'}運</strong><br><br>
+        ${result}<br><br>
+        <small>${today}</small>
+      </div>
+      <button class="mbtn" onclick="game.closeModal()">わかりました</button>
+    `;
+    modal.classList.add('show');
+  }
+  
+  showHistory() {
+    const modal = document.getElementById('modal');
+    const mbox = document.getElementById('mbox');
+    
+    if (this.history.length === 0) {
+      mbox.innerHTML = '<p>まだ占い結果がありません</p><button class="mbtn" onclick="game.closeModal()">もどる</button>';
+    } else {
+      let html = '<h3>占い履歴</h3>';
+      this.history.forEach((item, idx) => {
+        html += `<div class="fortune-result"><strong>占い ${idx + 1}</strong><br>${item.date}<br>${item.result}</div>`;
+      });
+      html += '<button class="mbtn" onclick="game.closeModal()">もどる</button>';
+      mbox.innerHTML = html;
+    }
+    modal.classList.add('show');
+  }
+  
+  showAlbum() {
+    const modal = document.getElementById('modal');
+    const mbox = document.getElementById('mbox');
+    mbox.innerHTML = `
+      <h3>📚 図鑑</h3>
+      <p>12の動物たちに会いました：</p>
+      ${ANIMALS.map((a, i) => `<div style="margin: 8px 0;">${a.emoji} ${a.name}</div>`).join('')}
+      <button class="mbtn" onclick="game.closeModal()">もどる</button>
+    `;
+    modal.classList.add('show');
+  }
+  
+  closeModal() {
+    document.getElementById('modal').classList.remove('show');
+  }
+  
+  prevArea() {
+    this.currentArea = this.currentArea === 1 ? 4 : this.currentArea - 1;
+    this.loadArea(this.currentArea);
+  }
+  
+  nextArea() {
+    this.currentArea = this.currentArea === 4 ? 1 : this.currentArea + 1;
+    this.loadArea(this.currentArea);
+  }
+  
+  goToTitle() {
+    this.switchScreen('title-screen');
+    this.frame = 0;
+  }
+}
+
+const game = new Game();
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', () => {
+  game.canvas.addEventListener('click', (e) => game.handleCanvasClick(e));
+  game.gameLoop();
+  
+  // Generate stars
+  const starsContainer = document.getElementById('stars-ct');
+  if (starsContainer) {
+    for (let i = 0; i < 50; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.top = Math.random() * 100 + '%';
+      star.style.width = Math.random() * 2 + 'px';
+      star.style.height = star.style.width;
+      star.style.animationDelay = Math.random() * 2 + 's';
+      starsContainer.appendChild(star);
+    }
+  }
+});
+</script>
 </body>
 </html>
