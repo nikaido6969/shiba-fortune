@@ -333,12 +333,12 @@
 
         /* Bottom UI */
         .bottom-ui {
-            padding: 15px;
+            padding: 8px;
             background: rgba(255, 255, 240, 0.95);
             border-top: 2px solid #FFB74D;
             text-align: center;
             color: #666;
-            font-size: 0.9em;
+            font-size: 0.85em;
         }
 
         .input-group {
@@ -593,12 +593,12 @@
                 this.npcPositions = {};
 
                 const positions = [
-                    { x: w * 0.2, y: h * 0.2 },
-                    { x: w * 0.5, y: h * 0.2 },
-                    { x: w * 0.8, y: h * 0.2 },
-                    { x: w * 0.2, y: h * 0.5 },
-                    { x: w * 0.5, y: h * 0.5 },
-                    { x: w * 0.8, y: h * 0.5 }
+                    { x: w * 0.17, y: h * 0.18 },
+                    { x: w * 0.50, y: h * 0.18 },
+                    { x: w * 0.83, y: h * 0.18 },
+                    { x: w * 0.17, y: h * 0.43 },
+                    { x: w * 0.50, y: h * 0.43 },
+                    { x: w * 0.83, y: h * 0.43 }
                 ];
 
                 area.buildings.forEach((building, idx) => {
@@ -609,7 +609,7 @@
                     };
                 });
 
-                this.playerPos = { x: w * 0.5, y: h * 0.8 };
+                this.playerPos = { x: w * 0.5, y: h * 0.82 };
             }
 
             startGame() {
@@ -698,7 +698,7 @@
 
                 // Draw ground
                 this.ctx.fillStyle = '#90EE90';
-                this.ctx.fillRect(0, h * 0.65, w, h * 0.35);
+                this.ctx.fillRect(0, h * 0.72, w, h * 0.28);
 
                 // Draw buildings
                 area.buildings.forEach(building => {
