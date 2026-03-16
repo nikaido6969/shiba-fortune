@@ -1,1890 +1,933 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>柴犬うらないハウス</title>
-    <style>
-        * {
-            margin: 0; padding: 0; box-sizing: border-box;
-            -webkit-user-select: none; user-select: none;
-        }
-        html, body {
-            width: 100%; height: 100%; overflow: hidden;
-            font-family: 'Hiragino Maru Gothic ProN','Hiragino Sans','Meiryo',sans-serif;
-        }
-        #game-container {
-            width: 100%; height: 100%; display: flex; flex-direction: column;
-            background: #f5f5f0;
-        }
-        .screen {
-            position: absolute; width: 100%; height: 100%; display: none; z-index: 1;
-            opacity: 0; transition: opacity 0.4s ease;
-        }
-        .screen.active {
-            display: flex; opacity: 1;
-        }
-        #title-screen {
-            background: linear-gradient(135deg, #fffef0 0%, #fef5e7 100%);
-            justify-content: center; align-items: center; flex-direction: column;
-        }
-        #profile-screen {
-            background: linear-gradient(135deg, #fffef0 0%, #fef5e7 100%);
-            overflow-y: auto; padding: 2vmin;
-            flex-direction: column; align-items: center;
-        }
-        #game-screen {
-            flex-direction: column; background: #f5f5f0;
-        }
-        #gcanvas {
-            flex: 1; min-height: 0; display: block; cursor: pointer;
-            background: linear-gradient(180deg, #d4e8f0 0%, #e8f4f8 50%, #c9dfe8 100%);
-        }
-        #bottom-ui {
-            flex-shrink: 0; background: linear-gradient(180deg, #f5deb3 0%, #f0daa5 100%);
-            color: #333; padding: 1.2vmin 1.5vmin;
-            display: flex; justify-content: space-between; align-items: center;
-            border-top: 3px solid #d4791f;
-            box-shadow: 0 -3px 10px rgba(0,0,0,0.1);
-        }
-        .ui-info {
-            font-size: 1.5vmin; flex: 1; display: flex; gap: 2vmin; align-items: center;
-        }
-        .area-nav {
-            display: flex; gap: 1vmin; align-items: center; margin: 0 2vmin;
-        }
-        .area-nav-btn {
-            background: #d4791f; color: #fff; border: none; padding: 0.7vmin 1.3vmin;
-            font-size: 2.2vmin; cursor: pointer; border-radius: 0.4vmin;
-            transition: all 0.2s; font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-        }
-        .area-nav-btn:active {
-            background: #a85f15; transform: scale(0.95);
-        }
-        .area-name-display {
-            font-weight: bold; color: #d4791f; font-size: 1.8vmin; min-width: 14vmin;
-            text-align: center; text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
-        }
-        .ui-buttons {
-            display: flex; gap: 0.8vmin;
-        }
-        .ui-btn {
-            background: #d4791f; border: none; color: #fff; cursor: pointer;
-            padding: 0.8vmin 1.6vmin; border-radius: 0.4vmin; font-size: 1.8vmin;
-            transition: all 0.2s; font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-        }
-        .ui-btn:active {
-            background: #a85f15; transform: scale(0.95);
-        }
-        
-        .title-logo {
-            font-size: 5.5vmin; font-weight: bold; color: #d4791f;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.15); animation: bounce 0.6s infinite;
-            margin: 1vmin;
-        }
-        .title-subtitle {
-            font-size: 2.2vmin; color: #8b6f47; margin-bottom: 2vmin; letter-spacing: 0.1em;
-        }
-        .title-btn {
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            border: 3px solid #d4791f;
-            color: #333; padding: 2vmin 4.5vmin; font-size: 2.5vmin;
-            border-radius: 1vmin; cursor: pointer; font-weight: bold;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
-            transition: all 0.3s;
-        }
-        .title-btn:active {
-            transform: scale(0.95); box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-        }
-        
-        .profile-container {
-            max-width: 55vmin; width: 100%;
-            background: rgba(255,255,255,0.95); padding: 3vmin; border-radius: 1.2vmin;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
-        }
-        .profile-title {
-            font-size: 3.5vmin; color: #d4791f; text-align: center; margin-bottom: 2.5vmin;
-            font-weight: bold;
-        }
-        .form-group {
-            margin-bottom: 2.5vmin;
-        }
-        .form-group label {
-            display: block; font-size: 1.8vmin; color: #333; font-weight: 600;
-            margin-bottom: 0.8vmin;
-        }
-        .form-group input,
-        .form-group select {
-            width: 100%; padding: 1.2vmin; font-size: 1.8vmin; border: 2px solid #e0e0e0;
-            border-radius: 0.6vmin; font-family: inherit;
-            transition: border-color 0.3s;
-        }
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none; border-color: #d4791f;
-        }
-        .profile-start-btn {
-            width: 100%; padding: 1.8vmin; font-size: 2.2vmin; background: linear-gradient(135deg, #ffd700, #ffed4e);
-            color: #333; border: 2px solid #d4791f; border-radius: 0.8vmin;
-            cursor: pointer; font-weight: bold; transition: all 0.3s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        .profile-start-btn:active {
-            transform: scale(0.97); box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 100; display: none;
-            justify-content: center; align-items: center; opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        .overlay.active {
-            display: flex; opacity: 1;
-        }
-        .overlay-content {
-            background: linear-gradient(135deg, #fffef0 0%, #fef5e7 100%);
-            border-radius: 1.2vmin; padding: 2.5vmin; max-height: 80vh;
-            overflow-y: auto; max-width: 70vmin; width: 90vmin;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            transform: scale(0.9); transition: transform 0.3s ease;
-        }
-        .overlay.active .overlay-content {
-            transform: scale(1);
-        }
-        .overlay-title {
-            font-size: 2.8vmin; font-weight: bold; color: #d4791f; margin-bottom: 1.5vmin;
-        }
-        .overlay-close-btn {
-            position: absolute; top: 1.5vmin; right: 1.5vmin; background: #d4791f;
-            color: #fff; border: none; width: 4vmin; height: 4vmin;
-            border-radius: 50%; font-size: 2.5vmin; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s;
-        }
-        .overlay-close-btn:active {
-            background: #a85f15; transform: scale(0.9);
-        }
-        
-        .fortune-step {
-            margin-bottom: 2.5vmin; opacity: 0; animation: fadeIn 0.5s ease forwards;
-        }
-        .fortune-step:nth-child(1) { animation-delay: 0s; }
-        .fortune-step:nth-child(2) { animation-delay: 0.2s; }
-        .fortune-step:nth-child(3) { animation-delay: 0.4s; }
-        .fortune-step:nth-child(4) { animation-delay: 0.6s; }
-        .fortune-step:nth-child(5) { animation-delay: 0.8s; }
-        
-        .step-question {
-            font-size: 1.8vmin; font-weight: 600; color: #333; margin-bottom: 1vmin;
-        }
-        .step-options {
-            display: flex; gap: 0.8vmin; flex-wrap: wrap;
-        }
-        .step-option {
-            flex: 1; min-width: 18vmin; padding: 1.2vmin; background: #fff;
-            border: 2px solid #e0e0e0; border-radius: 0.6vmin;
-            cursor: pointer; text-align: center; font-size: 1.6vmin;
-            transition: all 0.3s;
-        }
-        .step-option:active {
-            transform: scale(0.95);
-        }
-        .step-option.selected {
-            background: #ffd700; border-color: #d4791f; font-weight: bold;
-        }
-        
-        .result-section {
-            background: rgba(255,255,255,0.8); padding: 1.8vmin; border-radius: 0.8vmin;
-            margin-bottom: 1.8vmin; border-left: 4px solid #ffd700;
-        }
-        .result-section-title {
-            font-size: 1.8vmin; font-weight: bold; color: #d4791f; margin-bottom: 0.8vmin;
-        }
-        .result-content {
-            font-size: 1.6vmin; color: #333; line-height: 1.6;
-        }
-        .lucky-item {
-            display: inline-block; background: #f5deb3; padding: 0.6vmin 1vmin;
-            border-radius: 0.4vmin; margin: 0.4vmin 0.4vmin 0.4vmin 0;
-            font-size: 1.5vmin;
-        }
-        .compat-item {
-            display: inline-block; background: #ffe8d0; padding: 0.6vmin 1vmin;
-            border-radius: 0.4vmin; margin: 0.4vmin 0.4vmin 0.4vmin 0;
-            font-size: 1.5vmin;
-        }
-        
-        .building-canvas-container {
-            text-align: center; margin-bottom: 2vmin;
-        }
-        #building-char-canvas {
-            max-width: 100%; height: auto; border-radius: 1vmin;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-1.5vmin); }
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(0.5vmin); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 1; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>柴犬うらないハウス</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;overflow:hidden;background:#fffef0;font-family:'Hiragino Maru Gothic ProN','Hiragino Sans','Meiryo',sans-serif;touch-action:none;}
+#app{width:100%;height:100%;position:relative;overflow:hidden;display:flex;flex-direction:column;}
+.screen{display:none;width:100%;height:100%;position:absolute;top:0;left:0;flex-direction:column;opacity:0;transition:opacity 0.35s ease-in-out;}
+.screen.active{display:flex;opacity:1;}
+.screen.fade-out{opacity:0;}
+
+/* タイトル */
+#title-screen{background:linear-gradient(180deg,#fef5e7 0%,#fffef0 50%,#f5f1e8 100%);justify-content:center;align-items:center;gap:24px;overflow:hidden;}
+.title-logo{text-align:center;z-index:1;}
+.title-dog{font-size:80px;display:block;animation:bounce 1.5s ease-in-out infinite;filter:drop-shadow(0 0 24px rgba(255,183,77,.3));}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.title-text{color:#d4791f;font-size:26px;font-weight:bold;margin-top:8px;letter-spacing:2px;}
+.title-sub{color:#FFB74D;font-size:13px;margin-top:4px;}
+.title-desc{background:rgba(255,255,255,.7);border:2px solid #FFB74D;border-radius:16px;padding:16px 18px;max-width:320px;text-align:center;z-index:1;box-shadow:0 4px 16px rgba(0,0,0,.08);}
+.title-desc p{color:#5D4037;font-size:12px;line-height:1.6;}
+.btn-p{background:linear-gradient(135deg,#FFB74D,#d4791f);color:#fff;border:none;border-radius:50px;padding:14px 48px;font-size:16px;font-weight:bold;cursor:pointer;z-index:1;box-shadow:0 4px 16px rgba(212,121,31,.3);transition:transform .1s;font-family:inherit;}
+.btn-p:active{transform:scale(.95);}
+
+/* ゲーム画面 */
+#game-screen{background:#fffef0;flex:1;position:relative;overflow:hidden;}
+#gcanvas{display:block;width:100%;height:100%;touch-action:none;cursor:pointer;position:absolute;top:0;left:0;}
+
+/* HUD */
+#hud{position:absolute;top:env(safe-area-inset-top,8px);left:8px;z-index:10;display:flex;flex-direction:column;gap:5px;}
+.hud-pill{background:rgba(255,183,77,.2);border:1px solid #FFB74D;border-radius:12px;padding:5px 12px;font-size:11px;color:#d4791f;display:flex;align-items:center;gap:5px;font-weight:bold;}
+#menu-btn{position:absolute;top:env(safe-area-inset-top,8px);right:8px;background:linear-gradient(135deg,#FFB74D,#d4791f);color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit;z-index:10;font-weight:bold;}
+
+/* 下部UI */
+#bottom-ui{background:linear-gradient(180deg,#fef5e7,#fffef0);padding:8px 12px env(safe-area-inset-bottom,8px);display:flex;flex-direction:column;gap:6px;border-top:2px solid #FFB74D;flex-shrink:0;box-shadow:0 -2px 8px rgba(0,0,0,.05);}
+.area-nav{display:flex;justify-content:space-between;align-items:center;padding:0 4px;}
+.area-nav button{background:#FFB74D;color:#fff;border:none;border-radius:20px;padding:6px 10px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:bold;}
+.area-nav button:active{transform:scale(.95);}
+.area-name{color:#d4791f;font-size:13px;font-weight:bold;text-align:center;flex:1;}
+.bottom-controls{display:flex;gap:8px;}
+.ctrl-btn{flex:1;background:#fff;border:2px solid #FFB74D;color:#d4791f;border-radius:12px;padding:8px 4px;font-size:11px;font-weight:bold;cursor:pointer;font-family:inherit;text-align:center;transition:all .15s;}
+.ctrl-btn:active{background:#fef5e7;transform:scale(.96);}
+
+/* モーダル */
+#modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;}
+#modal.show{display:flex;}
+#mbox{background:#fffef0;border-radius:20px;padding:24px 20px;max-width:340px;width:92%;text-align:center;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:modalPop .3s ease-out;border:2px solid #FFB74D;}
+@keyframes modalPop{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
+#mbox h3{font-size:18px;color:#5D4037;margin-bottom:8px;font-weight:bold;}
+#mbox p{font-size:13px;color:#666;line-height:1.6;margin-bottom:12px;}
+.mbtn{background:#FFB74D;color:#fff;border:none;border-radius:50px;padding:10px 28px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;margin:4px;transition:all .1s;}
+.mbtn:active{transform:scale(.95);}
+.mbtn.gr{background:#4CAF50;}
+.mbtn.bl{background:#2196F3;}
+.mbtn.rd{background:#e53935;}
+
+/* フォーチュンフロー */
+#fortune-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:250;align-items:center;justify-content:center;flex-direction:column;padding:16px;}
+#fortune-overlay.show{display:flex;}
+#fortune-box{background:linear-gradient(180deg,#fffef0,#fef5e7);border-radius:20px;padding:22px 18px;max-width:360px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:modalPop .3s ease-out;border:2px solid #FFB74D;}
+.fortune-step{display:none;animation:fadeIn .3s ease-out;}
+.fortune-step.active{display:block;}
+@keyframes fadeIn{0%{opacity:0}100%{opacity:1}}
+.fortune-step h4{font-size:16px;color:#d4791f;margin-bottom:12px;font-weight:bold;}
+.fortune-choices{display:grid;grid-template-columns:1fr;gap:8px;}
+.fortune-btn{background:#fff;border:2px solid #FFB74D;color:#5D4037;border-radius:12px;padding:12px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;transition:all .15s;}
+.fortune-btn:active{background:#fef5e7;transform:scale(.96);}
+.fortune-btn.sel{background:#FFB74D;color:#fff;}
+.progress-bar{width:100%;height:8px;background:#e0d5c0;border-radius:4px;overflow:hidden;margin-bottom:14px;}
+.progress-fill{height:100%;background:linear-gradient(90deg,#FFB74D,#d4791f);border-radius:4px;transition:width .3s;}
+.step-counter{font-size:11px;color:#999;margin-top:8px;text-align:center;}
+
+/* 結果画面 */
+.fortune-result{display:none;text-align:center;animation:fadeIn .4s ease-out;}
+.fortune-result.active{display:block;}
+.result-title{font-size:20px;color:#d4791f;font-weight:bold;margin:12px 0 8px;}
+.result-level{font-size:32px;color:#FFB74D;font-weight:bold;margin:8px 0;}
+.result-message{font-size:13px;color:#5D4037;line-height:1.8;margin:12px 0;padding:12px;background:#fff;border-radius:12px;border-left:4px solid #FFB74D;}
+.result-detail{font-size:12px;color:#666;margin:8px 0;padding:8px;background:rgba(255,183,77,.1);border-radius:8px;}
+.result-detail b{color:#d4791f;}
+.result-close-btn{background:linear-gradient(135deg,#FFB74D,#d4791f);color:#fff;border:none;border-radius:50px;padding:12px 40px;font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit;margin-top:16px;}
+
+/* 図鑑 */
+#album-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:200;overflow-y:auto;padding:20px;}
+#album-overlay.show{display:flex;flex-direction:column;align-items:center;}
+.album-header{color:#d4791f;font-size:20px;font-weight:bold;margin:16px 0 12px;text-align:center;}
+.album-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-width:360px;width:100%;}
+.album-card{background:#fffef0;border:2px solid #FFB74D;border-radius:14px;padding:12px;text-align:center;cursor:pointer;transition:all .2s;}
+.album-card canvas{width:50px;height:50px;margin:0 auto 6px;display:block;}
+.album-card .ac-name{font-size:12px;font-weight:bold;color:#5D4037;}
+.album-close{background:#FFB74D;color:#fff;border:none;border-radius:50px;padding:10px 36px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;margin:16px 0 20px;}
+
+/* 履歴 */
+#history-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:200;overflow-y:auto;padding:20px;}
+#history-overlay.show{display:flex;flex-direction:column;align-items:center;}
+.history-header{color:#d4791f;font-size:20px;font-weight:bold;margin:16px 0 12px;text-align:center;}
+.history-list{max-width:360px;width:100%;display:flex;flex-direction:column;gap:8px;}
+.history-item{background:#fffef0;border:2px solid #FFB74D;border-radius:12px;padding:12px;text-align:left;}
+.history-item .hi-title{font-size:13px;font-weight:bold;color:#d4791f;}
+.history-item .hi-detail{font-size:11px;color:#666;margin-top:3px;}
+.history-item .hi-time{font-size:10px;color:#999;margin-top:3px;}
+.history-close{background:#FFB74D;color:#fff;border:none;border-radius:50px;padding:10px 36px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;margin:16px 0 20px;}
+
+/* プロフィール */
+#profile-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:200;overflow-y:auto;padding:20px;}
+#profile-overlay.show{display:flex;flex-direction:column;align-items:center;}
+.profile-header{color:#d4791f;font-size:20px;font-weight:bold;margin:16px 0 12px;text-align:center;}
+.profile-form{max-width:360px;width:100%;background:#fffef0;border:2px solid #FFB74D;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.form-group{display:flex;flex-direction:column;gap:4px;}
+.form-group label{font-size:12px;font-weight:bold;color:#5D4037;}
+.form-group input{padding:8px 10px;border:2px solid #FFB74D;border-radius:8px;font-size:12px;font-family:inherit;}
+.form-group input:focus{outline:none;background:#fef5e7;}
+.profile-save{background:#FFB74D;color:#fff;border:none;border-radius:50px;padding:12px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;margin-top:8px;}
+.profile-close{background:#FFB74D;color:#fff;border:none;border-radius:50px;padding:10px 36px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;margin:16px 0 20px;}
+
+/* パーティクル */
+.particle{position:fixed;pointer-events:none;z-index:150;}
+</style>
 </head>
 <body>
-    <div id="game-container">
-        <!-- Title Screen -->
-        <div id="title-screen" class="screen active">
-            <div class="title-logo">柴犬うらない</div>
-            <div class="title-subtitle">ハウス</div>
-            <button class="title-btn" onclick="goToProfile()">はじめる</button>
-        </div>
-        
-        <!-- Profile Screen -->
-        <div id="profile-screen" class="screen">
-            <div class="profile-container">
-                <div class="profile-title">あなたのプロフィール</div>
-                
-                <div class="form-group">
-                    <label>お名前</label>
-                    <input type="text" id="userName" placeholder="例：タロウ" maxlength="20">
-                </div>
-                
-                <div class="form-group">
-                    <label>性別</label>
-                    <select id="userGender">
-                        <option value="">選択してください</option>
-                        <option value="male">男性</option>
-                        <option value="female">女性</option>
-                        <option value="other">その他</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label>生年月日</label>
-                    <input type="date" id="userBirthday">
-                </div>
-                
-                <div class="form-group">
-                    <label>血液型</label>
-                    <select id="userBloodType">
-                        <option value="">選択してください</option>
-                        <option value="A">A型</option>
-                        <option value="B">B型</option>
-                        <option value="AB">AB型</option>
-                        <option value="O">O型</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label>星座</label>
-                    <select id="userZodiac">
-                        <option value="">選択してください</option>
-                        <option value="牡羊座">牡羊座</option>
-                        <option value="牡牛座">牡牛座</option>
-                        <option value="双子座">双子座</option>
-                        <option value="蟹座">蟹座</option>
-                        <option value="獅子座">獅子座</option>
-                        <option value="乙女座">乙女座</option>
-                        <option value="天秤座">天秤座</option>
-                        <option value="蠍座">蠍座</option>
-                        <option value="射手座">射手座</option>
-                        <option value="山羊座">山羊座</option>
-                        <option value="水瓶座">水瓶座</option>
-                        <option value="魚座">魚座</option>
-                    </select>
-                </div>
-                
-                <button class="profile-start-btn" onclick="startGame()">あそぶ</button>
-            </div>
-        </div>
-        
-        <!-- Game Screen -->
-        <div id="game-screen" class="screen">
-            <canvas id="gcanvas"></canvas>
-            <div id="bottom-ui">
-                <div class="ui-info">
-                    <span id="player-name">-</span>
-                    <span id="player-blood">-</span>
-                </div>
-                <div class="area-nav">
-                    <button class="area-nav-btn" onclick="changeArea(-1)">◀</button>
-                    <div class="area-name-display" id="area-name">エリア</div>
-                    <button class="area-nav-btn" onclick="changeArea(1)">▶</button>
-                </div>
-                <div class="ui-buttons">
-                    <button class="ui-btn" onclick="toggleMenu('history')">履歴</button>
-                    <button class="ui-btn" onclick="toggleMenu('collection')">図鑑</button>
-                    <button class="ui-btn" onclick="goToTitle()">終了</button>
-                </div>
-            </div>
-        </div>
+<div id="app">
+  <!-- タイトル -->
+  <div id="title-screen" class="screen active">
+    <div class="title-logo">
+      <div class="title-dog">🐕</div>
+      <div class="title-text">柴犬うらないハウス</div>
+      <div class="title-sub">占いの世界へようこそ</div>
     </div>
-    
-    <!-- History Overlay -->
-    <div id="history-overlay" class="overlay" onclick="if(event.target===this) toggleMenu('history')">
-        <div class="overlay-content">
-            <button class="overlay-close-btn" onclick="toggleMenu('history')">×</button>
-            <div class="overlay-title">占い履歴</div>
-            <div id="history-list"></div>
-        </div>
+    <div class="title-desc">
+      <p>6つのエリアを探索して、<br>個性的なキャラクターに<br>占ってもらおう！</p>
     </div>
-    
-    <!-- Collection Overlay -->
-    <div id="collection-overlay" class="overlay" onclick="if(event.target===this) toggleMenu('collection')">
-        <div class="overlay-content">
-            <button class="overlay-close-btn" onclick="toggleMenu('collection')">×</button>
-            <div class="overlay-title">NPCきろく</div>
-            <div id="collection-list"></div>
-        </div>
+    <button class="btn-p" onclick="startGame()">はじめる</button>
+  </div>
+
+  <!-- ゲーム -->
+  <div id="game-screen" class="screen">
+    <canvas id="gcanvas"></canvas>
+    <div id="hud">
+      <div class="hud-pill">エリア: <span id="area-name">占い村</span></div>
     </div>
-    
-    <!-- Building Overlay -->
-    <div id="building-overlay" class="overlay" onclick="if(event.target===this) closeBuildingOverlay()">
-        <div class="overlay-content">
-            <button class="overlay-close-btn" onclick="closeBuildingOverlay()">×</button>
-            <div class="building-canvas-container">
-                <canvas id="building-char-canvas" width="200" height="200"></canvas>
-            </div>
-            <div id="building-info"></div>
-            <div id="building-npc-list"></div>
-        </div>
+    <button id="menu-btn" onclick="openMenu()">メニュー</button>
+    <div id="bottom-ui">
+      <div class="area-nav">
+        <button onclick="changeArea(-1)">◀</button>
+        <div class="area-name" id="area-display">占い村</div>
+        <button onclick="changeArea(1)">▶</button>
+      </div>
+      <div class="bottom-controls">
+        <button class="ctrl-btn" onclick="openProfile()">🧑‍🤝‍🧑 プロフ</button>
+        <button class="ctrl-btn" onclick="openAlbum()">📖 図鑑</button>
+        <button class="ctrl-btn" onclick="openHistory()">📜 履歴</button>
+      </div>
     </div>
-    
-    <!-- Fortune Overlay -->
-    <div id="fortune-overlay" class="overlay" onclick="if(event.target===this) closeFortune()">
-        <div class="overlay-content">
-            <button class="overlay-close-btn" onclick="closeFortune()">×</button>
-            <div id="fortune-steps"></div>
-        </div>
-    </div>
-    
-    <!-- Fortune Result Overlay -->
-    <div id="result-overlay" class="overlay" onclick="if(event.target===this) closeResult()">
-        <div class="overlay-content">
-            <button class="overlay-close-btn" onclick="closeResult()">×</button>
-            <div class="overlay-title" id="result-fortune-level"></div>
-            <div id="result-content"></div>
-            <button class="profile-start-btn" style="margin-top: 1.5vmin;" onclick="closeResult()">とじる</button>
-        </div>
+  </div>
+</div>
+
+<!-- モーダル -->
+<div id="modal">
+  <div id="mbox"></div>
+</div>
+
+<!-- フォーチュンフロー -->
+<div id="fortune-overlay">
+  <div id="fortune-box">
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="step-counter"><span id="step-num">1</span>/5</div>
+
+    <div class="fortune-step active" id="step-1">
+      <h4>カテゴリを選んでね</h4>
+      <div class="fortune-choices" id="choices-1"></div>
     </div>
 
-    <script>
-        // Game State
-        const state = {
-            currentScreen: 'title',
-            currentAreaIndex: 0,
-            playerName: '',
-            playerGender: '',
-            playerBirthday: '',
-            playerBloodType: '',
-            playerZodiac: '',
-            playerX: 0,
-            playerY: 0,
-            playerTargetX: 0,
-            playerTargetY: 0,
-            playerWalking: false,
-            playerLegState: 0,
-            playerTailWag: 0,
-            fortuneAnswers: [],
-            selectedNPC: null,
-            selectedBuilding: null,
-            history: [],
-            collection: new Set(),
-            time: 0
-        };
-
-        // Areas with unique attributes
-        const areas = [
-            {
-                name: '星読みの丘',
-                buildings: [
-                    { id: 'shrine', name: 'おみくじ神社', x: 150, y: 150, npcSpawns: ['shiba1', 'rabbit'] },
-                    { id: 'crystal', name: '水晶の泉', x: 450, y: 150, npcSpawns: ['cat1', 'fox'] },
-                    { id: 'fortune', name: '運命の館', x: 300, y: 350, npcSpawns: ['owl', 'shiba2'] }
-                ]
-            },
-            {
-                name: '占い村',
-                buildings: [
-                    { id: 'teashop', name: 'お茶の館', x: 150, y: 150, npcSpawns: ['cat2', 'rabbit'] },
-                    { id: 'mysteryroad', name: 'ふしぎ小路', x: 450, y: 150, npcSpawns: ['fox', 'shiba1'] },
-                    { id: 'temple', name: '古い神社', x: 300, y: 350, npcSpawns: ['owl', 'frog'] }
-                ]
-            },
-            {
-                name: '海辺の砂浜',
-                buildings: [
-                    { id: 'lighthouse', name: '灯台の家', x: 150, y: 150, npcSpawns: ['cat1', 'shiba2'] },
-                    { id: 'seashell', name: '貝殻の館', x: 450, y: 150, npcSpawns: ['rabbit', 'fox'] },
-                    { id: 'seagrotto', name: '海の洞窟', x: 300, y: 350, npcSpawns: ['owl', 'shiba1'] }
-                ]
-            },
-            {
-                name: '魔法の森',
-                buildings: [
-                    { id: 'treehouse', name: '樹の家', x: 150, y: 150, npcSpawns: ['squirrel', 'rabbit'] },
-                    { id: 'mushroom', name: 'きのこ館', x: 450, y: 150, npcSpawns: ['fox', 'shiba2'] },
-                    { id: 'magicwell', name: '魔法の井戸', x: 300, y: 350, npcSpawns: ['owl', 'cat1'] }
-                ]
-            },
-            {
-                name: '花咲く庭園',
-                buildings: [
-                    { id: 'pavilion', name: '四阿', x: 150, y: 150, npcSpawns: ['butterfly', 'rabbit'] },
-                    { id: 'gallery', name: 'アート館', x: 450, y: 150, npcSpawns: ['cat2', 'fox'] },
-                    { id: 'fountain', name: '噴水広場', x: 300, y: 350, npcSpawns: ['shiba1', 'owl'] }
-                ]
-            },
-            {
-                name: '雲の上の城',
-                buildings: [
-                    { id: 'castle', name: '白い城', x: 150, y: 150, npcSpawns: ['shiba2', 'cat1'] },
-                    { id: 'skypalace', name: '空の宮殿', x: 450, y: 150, npcSpawns: ['rabbit', 'fox'] },
-                    { id: 'cloudtemple', name: '雲の寺院', x: 300, y: 350, npcSpawns: ['owl', 'shiba1'] }
-                ]
-            }
-        ];
-
-        // NPC definitions
-        const npcDefinitions = {
-            shiba1: { name: '柴太郎', emoji: '🐕', color: '#d4791f' },
-            shiba2: { name: '柴花子', emoji: '🐕', color: '#d4791f' },
-            cat1: { name: 'みーこ', emoji: '🐱', color: '#ffa500' },
-            cat2: { name: 'たまちゃん', emoji: '🐱', color: '#ffa500' },
-            rabbit: { name: 'ウサ助', emoji: '🐰', color: '#ffb6c1' },
-            fox: { name: 'キツネ子', emoji: '🦊', color: '#ff8c00' },
-            owl: { name: 'フクロウ博士', emoji: '🦉', color: '#8b6914' },
-            frog: { name: 'カエル君', emoji: '🐸', color: '#90ee90' },
-            squirrel: { name: 'リスちゃん', emoji: '🐿️', color: '#cd7f32' },
-            butterfly: { name: '蝶々さん', emoji: '🦋', color: '#ff69b4' }
-        };
-
-        // Fortune data
-        const fortuneQuestions = [
-            {
-                question: 'あなたの今の気持ちは？',
-                options: ['楽しい', 'ワクワク', 'リラックス', 'チャレンジ中']
-            },
-            {
-                question: 'これからやりたいことは？',
-                options: ['新しいこと', '深める', 'つながり', 'リセット']
-            },
-            {
-                question: 'どんな1日を過ごしたい？',
-                options: ['アクティブ', 'まったり', 'クリエイティブ', 'バランス']
-            },
-            {
-                question: '人間関係で大切なことは？',
-                options: ['楽しさ', '信頼', 'サポート', '自由']
-            },
-            {
-                question: 'あなたの強みは？',
-                options: ['優しさ', 'がんばり', '创造性', 'センス']
-            }
-        ];
-
-        const fortuneLevels = ['大吉', '吉', '中吉', '小吉', '末吉', '凶'];
-        const luckyFoods = ['みかん', 'チーズ', 'はちみつ', 'わかめ', 'しいたけ', 'トマト', 'そば', 'きのこ'];
-        const luckyColors = ['赤', '金', '青', '緑', 'ピンク', '紫', 'オレンジ', '白'];
-        const luckyDirections = ['東', '西', '南', '北', '北東', '南東', '南西', '北西'];
-        const bloodTypes = ['A型', 'B型', 'AB型', 'O型'];
-        const zodiacSigns = ['牡羊座', '牡牛座', '双子座', '蟹座', '獅子座', '乙女座', '天秤座', '蠍座', '射手座', '山羊座', '水瓶座', '魚座'];
-
-        // Canvas Drawing Functions
-        function drawShibaInu(ctx, x, y, scale = 1, legState = 0, tailWag = 0, alpha = 1) {
-            ctx.save();
-            ctx.globalAlpha = alpha;
-            ctx.translate(x, y);
-            ctx.scale(scale, scale);
-
-            // Body
-            ctx.fillStyle = '#d4791f';
-            ctx.beginPath();
-            ctx.ellipse(0, 0, 25, 35, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Head
-            ctx.beginPath();
-            ctx.arc(0, -30, 20, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Left ear
-            ctx.beginPath();
-            ctx.ellipse(-12, -45, 7, 12, -0.3, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Right ear
-            ctx.beginPath();
-            ctx.ellipse(12, -45, 7, 12, 0.3, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Snout
-            ctx.fillStyle = '#f5deb3';
-            ctx.beginPath();
-            ctx.ellipse(0, -25, 12, 10, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Eyes
-            ctx.fillStyle = '#000';
-            ctx.beginPath();
-            ctx.arc(-7, -33, 3, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(7, -33, 3, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Nose
-            ctx.fillStyle = '#000';
-            ctx.beginPath();
-            ctx.arc(0, -24, 2.5, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Tail (wagging animation)
-            ctx.strokeStyle = '#d4791f';
-            ctx.lineWidth = 8;
-            ctx.lineCap = 'round';
-            const tailAngle = (Math.sin(tailWag) * 0.5);
-            ctx.beginPath();
-            ctx.moveTo(20, 10);
-            ctx.quadraticCurveTo(35 + tailAngle * 10, 5 + tailAngle * 5, 40, -5);
-            ctx.stroke();
-
-            // Front left leg
-            ctx.strokeStyle = '#d4791f';
-            ctx.lineWidth = 6;
-            ctx.lineCap = 'round';
-            const legOffset = Math.sin(legState) * 3;
-            ctx.beginPath();
-            ctx.moveTo(-10, 28);
-            ctx.lineTo(-10, 42 + legOffset);
-            ctx.stroke();
-
-            // Front right leg
-            ctx.beginPath();
-            ctx.moveTo(10, 28);
-            ctx.lineTo(10, 42 - legOffset);
-            ctx.stroke();
-
-            // Back left leg
-            ctx.beginPath();
-            ctx.moveTo(-18, 25);
-            ctx.lineTo(-18, 40 - legOffset);
-            ctx.stroke();
-
-            // Back right leg
-            ctx.beginPath();
-            ctx.moveTo(18, 25);
-            ctx.lineTo(18, 40 + legOffset);
-            ctx.stroke();
-
-            ctx.restore();
-        }
-
-        function drawBuilding(ctx, building, x, y, width, height) {
-            ctx.save();
-
-            switch (building.id) {
-                case 'shrine':
-                    drawShrine(ctx, x, y, width, height);
-                    break;
-                case 'crystal':
-                    drawCrystalPalace(ctx, x, y, width, height);
-                    break;
-                case 'fortune':
-                    drawFortuneMansion(ctx, x, y, width, height);
-                    break;
-                case 'teashop':
-                    drawTeaShop(ctx, x, y, width, height);
-                    break;
-                case 'mysteryroad':
-                    drawMysteryRoad(ctx, x, y, width, height);
-                    break;
-                case 'temple':
-                    drawOldTemple(ctx, x, y, width, height);
-                    break;
-                case 'lighthouse':
-                    drawLighthouse(ctx, x, y, width, height);
-                    break;
-                case 'seashell':
-                    drawShellHouse(ctx, x, y, width, height);
-                    break;
-                case 'seagrotto':
-                    drawSeaGrotto(ctx, x, y, width, height);
-                    break;
-                case 'treehouse':
-                    drawTreeHouse(ctx, x, y, width, height);
-                    break;
-                case 'mushroom':
-                    drawMushroomHouse(ctx, x, y, width, height);
-                    break;
-                case 'magicwell':
-                    drawMagicWell(ctx, x, y, width, height);
-                    break;
-                case 'pavilion':
-                    drawPavilion(ctx, x, y, width, height);
-                    break;
-                case 'gallery':
-                    drawArtGallery(ctx, x, y, width, height);
-                    break;
-                case 'fountain':
-                    drawFountain(ctx, x, y, width, height);
-                    break;
-                case 'castle':
-                    drawCastle(ctx, x, y, width, height);
-                    break;
-                case 'skypalace':
-                    drawSkyPalace(ctx, x, y, width, height);
-                    break;
-                case 'cloudtemple':
-                    drawCloudTemple(ctx, x, y, width, height);
-                    break;
-            }
-
-            ctx.restore();
-        }
-
-        function drawShrine(ctx, x, y, w, h) {
-            // Roof
-            ctx.fillStyle = '#c41e3a';
-            ctx.beginPath();
-            ctx.moveTo(x, y + h * 0.4);
-            ctx.lineTo(x + w / 2, y);
-            ctx.lineTo(x + w, y + h * 0.4);
-            ctx.lineTo(x + w, y + h * 0.5);
-            ctx.lineTo(x, y + h * 0.5);
-            ctx.closePath();
-            ctx.fill();
-
-            // Main building
-            ctx.fillStyle = '#d4a574';
-            ctx.fillRect(x + w * 0.1, y + h * 0.4, w * 0.8, h * 0.45);
-
-            // Door
-            ctx.fillStyle = '#8b4513';
-            ctx.fillRect(x + w * 0.35, y + h * 0.55, w * 0.3, h * 0.25);
-
-            // Window
-            ctx.fillStyle = '#87ceeb';
-            ctx.fillRect(x + w * 0.2, y + h * 0.5, w * 0.15, h * 0.15);
-            ctx.fillRect(x + w * 0.65, y + h * 0.5, w * 0.15, h * 0.15);
-
-            // Entrance torii mark
-            ctx.strokeStyle = '#c41e3a';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(x + w * 0.3, y + h);
-            ctx.lineTo(x + w * 0.3, y + h * 0.8);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(x + w * 0.7, y + h);
-            ctx.lineTo(x + w * 0.7, y + h * 0.8);
-            ctx.stroke();
-        }
-
-        function drawCrystalPalace(ctx, x, y, w, h) {
-            // Crystal shimmer effect
-            ctx.fillStyle = '#e0ffff';
-            ctx.beginPath();
-            ctx.moveTo(x + w / 2, y);
-            ctx.lineTo(x + w, y + h * 0.5);
-            ctx.lineTo(x + w / 2, y + h);
-            ctx.lineTo(x, y + h * 0.5);
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.strokeStyle = '#87ceeb';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-
-            // Inner crystal
-            ctx.fillStyle = '#b0e0e6';
-            ctx.beginPath();
-            ctx.moveTo(x + w / 2, y + h * 0.2);
-            ctx.lineTo(x + w * 0.75, y + h * 0.5);
-            ctx.lineTo(x + w / 2, y + h * 0.8);
-            ctx.lineTo(x + w * 0.25, y + h * 0.5);
-            ctx.closePath();
-            ctx.fill();
-
-            // Sparkles
-            ctx.fillStyle = '#ffffff';
-            for (let i = 0; i < 3; i++) {
-                ctx.beginPath();
-                ctx.arc(x + w * (0.3 + i * 0.2), y + h * 0.5, 2, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        function drawFortuneMansion(ctx, x, y, w, h) {
-            // Walls
-            ctx.fillStyle = '#d4a574';
-            ctx.fillRect(x + w * 0.05, y + h * 0.2, w * 0.9, h * 0.7);
-
-            // Roof
-            ctx.fillStyle = '#8b6f47';
-            ctx.beginPath();
-            ctx.moveTo(x, y + h * 0.2);
-            ctx.lineTo(x + w / 2, y);
-            ctx.lineTo(x + w, y + h * 0.2);
-            ctx.lineTo(x + w, y + h * 0.25);
-            ctx.lineTo(x, y + h * 0.25);
-            ctx.closePath();
-            ctx.fill();
-
-            // Chimney
-            ctx.fillStyle = '#a0826d';
-            ctx.fillRect(x + w * 0.75, y + h * 0.05, w * 0.08, h * 0.3);
-
-            // Door
-            ctx.fillStyle = '#654321';
-            ctx.fillRect(x + w * 0.4, y + h * 0.55, w * 0.2, h * 0.35);
-
-            // Windows
-            for (let i = 0; i < 2; i++) {
-                ctx.fillStyle = '#87ceeb';
-                ctx.fillRect(x + w * (0.15 + i * 0.5), y + h * 0.35, w * 0.12, h * 0.12);
-            }
-
-            // Door handle
-            ctx.fillStyle = '#ffd700';
-            ctx.beginPath();
-            ctx.arc(x + w * 0.55, y + h * 0.7, w * 0.02, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        function drawTeaShop(ctx, x, y, w, h) {
-            ctx.fillStyle = '#8b4513';
-            ctx.fillRect(x + w * 0.1, y + h * 0.25, w * 0.8, h * 0.65);
-            ctx.fillStyle = '#d2b48c';
-            ctx.fillRect(x + w * 0.15, y + h * 0.3, w * 0.7, h * 0.3);
-            ctx.fillStyle = '#87ceeb';
-            ctx.fillRect(x + w * 0.2, y + h * 0.35, w * 0.15, h * 0.12);
-            ctx.fillRect(x + w * 0.65, y + h * 0.35, w * 0.15, h * 0.12);
-            ctx.fillStyle = '#654321';
-            ctx.fillRect(x + w * 0.4, y + h * 0.6, w * 0.2, h * 0.3);
-        }
-
-        function drawMysteryRoad(ctx, x, y, w, h) {
-            ctx.fillStyle = '#4b0082';
-            ctx.beginPath();
-            ctx.moveTo(x + w / 2, y);
-            ctx.lineTo(x + w, y + h * 0.4);
-            ctx.lineTo(x + w * 0.8, y + h);
-            ctx.lineTo(x + w * 0.2, y + h);
-            ctx.lineTo(x, y + h * 0.4);
-            ctx.closePath();
-            ctx.fill();
-            
-            ctx.fillStyle = '#9370db';
-            for (let i = 0; i < 3; i++) {
-                ctx.beginPath();
-                ctx.arc(x + w * (0.3 + i * 0.2), y + h * (0.2 + i * 0.15), 3, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        function drawOldTemple(ctx, x, y, w, h) {
-            ctx.fillStyle = '#cd853f';
-            ctx.fillRect(x + w * 0.1, y + h * 0.3, w * 0.8, h * 0.6);
-            ctx.fillStyle = '#8b4513';
-            ctx.beginPath();
-            ctx.moveTo(x, y + h * 0.3);
-            ctx.lineTo(x + w / 2, y + h * 0.05);
-            ctx.lineTo(x + w, y + h * 0.3);
-            ctx.closePath();
-            ctx.fill();
-            
-            ctx.fillStyle = '#654321';
-            ctx.fillRect(x + w * 0.35, y + h * 0.55, w * 0.3, h * 0.35);
-            ctx.fillStyle = '#87ceeb';
-            ctx.fillRect(x + w * 0.15, y + h * 0.4, w * 0.12, h * 0.15);
-            ctx.fillRect(x + w * 0.73, y + h * 0.4, w * 0.12, h * 0.15);
-        }
-
-        function drawLighthouse(ctx, x, y, w, h) {
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(x + w * 0.3, y + h * 0.2, w * 0.4, h * 0.7);
-            ctx.fillStyle = '#ff6347';
-            ctx.fillRect(x + w * 0.25, y + h * 0.1, w * 0.5, h * 0.15);
-            ctx.fillStyle = '#ffd700';
-            ctx.beginPath();
-            ctx.arc(x + w / 2, y + h * 0.12, w * 0.08, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        function drawShellHouse(ctx, x, y, w, h) {
-            ctx.fillStyle = '#deb887';
-            ctx.beginPath();
-            ctx.arc(x + w / 2, y + h * 0.4, w * 0.35, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#d2b48c';
-            ctx.fillRect(x + w * 0.35, y + h * 0.6, w * 0.3, h * 0.3);
-            ctx.fillStyle = '#87ceeb';
-            ctx.fillRect(x + w * 0.42, y + h * 0.68, w * 0.16, h * 0.12);
-        }
-
-        function drawSeaGrotto(ctx, x, y, w, h) {
-            ctx.fillStyle = '#696969';
-            ctx.beginPath();
-            ctx.arc(x + w / 2, y + h * 0.4, w * 0.4, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#87ceeb';
-            ctx.fillRect(x + w * 0.2, y + h * 0.5, w * 0.6, h * 0.4);
-        }
-
-        function drawTreeHouse(ctx, x, y, w, h) {
-            ctx.fillStyle = '#8b4513';
-            ctx.fillRect(x + w * 0.35, y + h * 0.1, w * 0.3, h * 0.8);
-            ctx.fillStyle = '#228b22';
-            ctx.beginPath();
-            ctx.arc(x + w / 2, y + h * 0.15, w * 0.3, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#daa520';
-            ctx.fillRect(x + w * 0.3, y + h * 0.4, w * 0.4, h * 0.35);
-        }
-
-        function drawMushroomHouse(ctx, x, y, w, h) {
-            ctx.fillStyle = '#ff6347';
-            ctx.beginPath();
-            ctx.arc(x + w / 2, y + h * 0.3, w * 0.35, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#f5deb3';
-            ctx.fillRect(x + w * 0.15, y + h * 0.4, w * 0.7, h * 0.5);
-            
-            for (let i = 0; i < 3; i++) {
-                ctx.fillStyle = '#fff';
-                ctx.beginPath();
-                ctx.arc(x + w * (0.25 + i * 0.25), y + h * 0.35, 4, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        function drawMagicWell(ctx, x, y, w, h) {
-            ctx.fillStyle = '#696969';
-            ctx.beginPath();
-            ctx.arc(x + w / 2, y + h * 0.5, w * 0.35, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#4b0082';
-            ctx.beginPath();
-            ctx.arc(x + w / 2, y + h * 0.5, w * 0.25, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#87ceeb';
-            for (let i = 0; i < 3; i++) {
-                ctx.beginPath();
-                ctx.arc(x + w * (0.3 + i * 0.2), y + h * 0.5, 2, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        function drawPavilion(ctx, x, y, w, h) {
-            ctx.strokeStyle = '#8b4513';
-            ctx.lineWidth = 6;
-            ctx.strokeRect(x + w * 0.2, y + h * 0.3, w * 0.6, h * 0.5);
-            ctx.fillStyle = '#ffd700';
-            ctx.beginPath();
-            ctx.moveTo(x + w * 0.2, y + h * 0.3);
-            ctx.lineTo(x + w * 0.5, y + h * 0.05);
-            ctx.lineTo(x + w * 0.8, y + h * 0.3);
-            ctx.closePath();
-            ctx.fill();
-        }
-
-        function drawArtGallery(ctx, x, y, w, h) {
-            ctx.fillStyle = '#d3d3d3';
-            ctx.fillRect(x + w * 0.05, y + h * 0.2, w * 0.9, h * 0.7);
-            ctx.fillStyle = '#ff69b4';
-            ctx.fillRect(x + w * 0.15, y + h * 0.3, w * 0.15, h * 0.2);
-            ctx.fillStyle = '#4169e1';
-            ctx.fillRect(x + w * 0.35, y + h * 0.35, w * 0.15, h * 0.2);
-            ctx.fillStyle = '#228b22';
-            ctx.fillRect(x + w * 0.55, y + h * 0.3, w * 0.15, h * 0.2);
-            ctx.fillStyle = '#ff8c00';
-            ctx.fillRect(x + w * 0.75, y + h * 0.35, w * 0.15, h * 0.2);
-        }
-
-        function drawFountain(ctx, x, y, w, h) {
-            ctx.fillStyle = '#87ceeb';
-            ctx.beginPath();
-            ctx.arc(x + w / 2, y + h * 0.5, w * 0.3, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#696969';
-            ctx.beginPath();
-            ctx.arc(x + w / 2, y + h * 0.35, w * 0.15, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#87ceeb';
-            for (let i = 0; i < 4; i++) {
-                ctx.beginPath();
-                ctx.arc(x + w / 2 + Math.cos(i * Math.PI / 2) * w * 0.2, y + h * (0.3 + Math.sin(i * Math.PI / 2) * 0.15), 3, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        function drawCastle(ctx, x, y, w, h) {
-            ctx.fillStyle = '#dcdcdc';
-            ctx.fillRect(x + w * 0.1, y + h * 0.3, w * 0.8, h * 0.6);
-            ctx.fillStyle = '#696969';
-            for (let i = 0; i < 4; i++) {
-                ctx.fillRect(x + w * (0.15 + i * 0.2), y + h * 0.1, w * 0.08, h * 0.25);
-            }
-            ctx.fillStyle = '#4169e1';
-            ctx.fillRect(x + w * 0.4, y + h * 0.6, w * 0.2, h * 0.3);
-        }
-
-        function drawSkyPalace(ctx, x, y, w, h) {
-            ctx.fillStyle = '#fff8dc';
-            ctx.beginPath();
-            ctx.moveTo(x, y + h * 0.3);
-            ctx.lineTo(x + w / 2, y);
-            ctx.lineTo(x + w, y + h * 0.3);
-            ctx.lineTo(x + w, y + h);
-            ctx.lineTo(x, y + h);
-            ctx.closePath();
-            ctx.fill();
-            
-            ctx.fillStyle = '#ffd700';
-            ctx.fillRect(x + w * 0.2, y + h * 0.35, w * 0.12, h * 0.15);
-            ctx.fillRect(x + w * 0.68, y + h * 0.35, w * 0.12, h * 0.15);
-        }
-
-        function drawCloudTemple(ctx, x, y, w, h) {
-            ctx.fillStyle = '#fffacd';
-            ctx.beginPath();
-            ctx.arc(x + w * 0.25, y + h * 0.4, w * 0.2, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(x + w * 0.75, y + h * 0.4, w * 0.2, 0, Math.PI * 2);
-            ctx.fill();
-            
-            ctx.fillStyle = '#deb887';
-            ctx.fillRect(x + w * 0.35, y + h * 0.45, w * 0.3, h * 0.4);
-            ctx.fillStyle = '#8b4513';
-            ctx.fillRect(x + w * 0.42, y + h * 0.6, w * 0.16, h * 0.25);
-        }
-
-        function drawNPC(ctx, npcId, x, y, scale = 1) {
-            const npc = npcDefinitions[npcId];
-            if (!npc) return;
-
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.scale(scale, scale);
-
-            if (npcId.startsWith('shiba')) {
-                drawShibaInu(ctx, 0, 0, 0.8, state.time * 0.1, state.time * 0.15);
-            } else if (npcId.startsWith('cat')) {
-                drawCat(ctx);
-            } else if (npcId === 'rabbit') {
-                drawRabbit(ctx);
-            } else if (npcId === 'fox') {
-                drawFox(ctx);
-            } else if (npcId === 'owl') {
-                drawOwl(ctx);
-            } else if (npcId === 'frog') {
-                drawFrog(ctx);
-            } else if (npcId === 'squirrel') {
-                drawSquirrel(ctx);
-            } else if (npcId === 'butterfly') {
-                drawButterfly(ctx);
-            } else {
-                ctx.fillStyle = npc.color;
-                ctx.font = 'bold 20px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(npc.emoji, 0, 8);
-            }
-
-            ctx.restore();
-        }
-
-        function drawCat(ctx) {
-            ctx.fillStyle = '#ffa500';
-            ctx.beginPath();
-            ctx.ellipse(0, 5, 18, 22, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(0, -20, 15, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#fff8dc';
-            ctx.beginPath();
-            ctx.ellipse(0, 0, 10, 12, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#ffa500';
-            ctx.beginPath();
-            ctx.moveTo(-8, -30);
-            ctx.lineTo(-12, -40);
-            ctx.lineTo(-5, -28);
-            ctx.closePath();
-            ctx.fill();
-            ctx.beginPath();
-            ctx.moveTo(8, -30);
-            ctx.lineTo(12, -40);
-            ctx.lineTo(5, -28);
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            ctx.moveTo(-5, 0);
-            ctx.lineTo(-12, 0);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(5, 0);
-            ctx.lineTo(12, 0);
-            ctx.stroke();
-
-            ctx.fillStyle = '#000';
-            ctx.beginPath();
-            ctx.arc(-6, -20, 2.5, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(6, -20, 2.5, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(0, -18, 1.5, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        function drawRabbit(ctx) {
-            ctx.fillStyle = '#ffb6c1';
-            ctx.beginPath();
-            ctx.ellipse(0, 5, 16, 20, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(0, -18, 14, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#ffc0cb';
-            ctx.beginPath();
-            ctx.ellipse(-6, -40, 4, 14, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.ellipse(6, -40, 4, 14, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#ff69b4';
-            ctx.beginPath();
-            ctx.ellipse(-6, -38, 2.5, 8, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.ellipse(6, -38, 2.5, 8, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#000';
-            ctx.beginPath();
-            ctx.arc(-5, -18, 2, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(5, -18, 2, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#ffb6c1';
-            ctx.beginPath();
-            ctx.arc(0, 0, 3, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        function drawFox(ctx) {
-            ctx.fillStyle = '#ff8c00';
-            ctx.beginPath();
-            ctx.ellipse(0, 5, 18, 24, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(0, -20, 16, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#ff8c00';
-            ctx.beginPath();
-            ctx.moveTo(-10, -30);
-            ctx.lineTo(-14, -38);
-            ctx.lineTo(-6, -28);
-            ctx.closePath();
-            ctx.fill();
-            ctx.beginPath();
-            ctx.moveTo(10, -30);
-            ctx.lineTo(14, -38);
-            ctx.lineTo(6, -28);
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.fillStyle = '#fff';
-            ctx.beginPath();
-            ctx.ellipse(0, -5, 8, 10, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#000';
-            ctx.beginPath();
-            ctx.arc(-6, -18, 2.5, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(6, -18, 2.5, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            ctx.moveTo(0, -15);
-            ctx.lineTo(0, -5);
-            ctx.stroke();
-
-            ctx.strokeStyle = '#ff8c00';
-            ctx.lineWidth = 10;
-            ctx.lineCap = 'round';
-            ctx.beginPath();
-            ctx.moveTo(20, 10);
-            ctx.quadraticCurveTo(35, 5, 40, -8);
-            ctx.stroke();
-        }
-
-        function drawOwl(ctx) {
-            ctx.fillStyle = '#8b6914';
-            ctx.beginPath();
-            ctx.arc(0, 0, 18, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#fff';
-            ctx.beginPath();
-            ctx.arc(-7, -5, 8, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(7, -5, 8, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#000';
-            ctx.beginPath();
-            ctx.arc(-7, -5, 4, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(7, -5, 4, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#8b6914';
-            ctx.beginPath();
-            ctx.moveTo(-8, -18);
-            ctx.lineTo(-12, -25);
-            ctx.lineTo(-4, -18);
-            ctx.closePath();
-            ctx.fill();
-            ctx.beginPath();
-            ctx.moveTo(8, -18);
-            ctx.lineTo(12, -25);
-            ctx.lineTo(4, -18);
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.fillStyle = '#fff8dc';
-            ctx.beginPath();
-            ctx.arc(0, 8, 6, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        function drawFrog(ctx) {
-            ctx.fillStyle = '#90ee90';
-            ctx.beginPath();
-            ctx.ellipse(0, 5, 16, 18, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#90ee90';
-            ctx.beginPath();
-            ctx.arc(-8, -10, 8, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(8, -10, 8, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#000';
-            ctx.beginPath();
-            ctx.arc(-8, -12, 3, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(8, -12, 3, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#228b22';
-            for (let i = -1; i <= 1; i++) {
-                ctx.beginPath();
-                ctx.arc(-12 + i * 8, 15, 2, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        function drawSquirrel(ctx) {
-            ctx.fillStyle = '#cd7f32';
-            ctx.beginPath();
-            ctx.ellipse(0, 5, 14, 18, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(0, -16, 12, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#cd7f32';
-            ctx.strokeStyle = '#cd7f32';
-            ctx.lineWidth = 10;
-            ctx.lineCap = 'round';
-            ctx.beginPath();
-            ctx.moveTo(12, -5);
-            ctx.quadraticCurveTo(25, -15, 22, -28);
-            ctx.stroke();
-
-            ctx.fillStyle = '#000';
-            ctx.beginPath();
-            ctx.arc(-4, -16, 2, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(4, -16, 2, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        function drawButterfly(ctx) {
-            ctx.fillStyle = '#ff69b4';
-            ctx.beginPath();
-            ctx.ellipse(-8, 0, 6, 10, -0.3, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.ellipse(8, 0, 6, 10, 0.3, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#ffb6c1';
-            ctx.beginPath();
-            ctx.ellipse(-8, 0, 3, 6, -0.3, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.ellipse(8, 0, 3, 6, 0.3, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#000';
-            ctx.beginPath();
-            ctx.arc(0, -5, 3, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(-1, -5);
-            ctx.lineTo(-3, -10);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(1, -5);
-            ctx.lineTo(3, -10);
-            ctx.stroke();
-        }
-
-        // Scene and animation functions
-        function drawGameScene(canvas, ctx) {
-            const w = canvas.width;
-            const h = canvas.height;
-            const currentArea = areas[state.currentAreaIndex];
-
-            // Background with sky and ground
-            const skyGradient = ctx.createLinearGradient(0, 0, 0, h);
-            skyGradient.addColorStop(0, '#d4e8f0');
-            skyGradient.addColorStop(0.6, '#e8f4f8');
-            skyGradient.addColorStop(1, '#c9dfe8');
-            ctx.fillStyle = skyGradient;
-            ctx.fillRect(0, 0, w, h);
-
-            // Ground
-            ctx.fillStyle = '#a8a87a';
-            ctx.fillRect(0, h * 0.7, w, h * 0.3);
-
-            // Grass
-            ctx.fillStyle = '#7cb342';
-            for (let i = 0; i < w; i += 30) {
-                for (let j = 0; j < 20; j += 3) {
-                    ctx.fillRect(i + Math.sin(j) * 5, h * 0.68 + j * 2, 8, 4);
-                }
-            }
-
-            // Clouds (drifting animation)
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-            const cloudOffset = (state.time * 0.5) % w;
-            for (let i = 0; i < 3; i++) {
-                drawCloud(ctx, (i * w / 3 + cloudOffset) % w, h * 0.15 + i * 40, 40);
-            }
-
-            // Area-specific ambient effects
-            if (state.currentAreaIndex === 0) { // 星読みの丘
-                drawStars(ctx, w, h);
-            } else if (state.currentAreaIndex === 1) { // 占い村
-                drawCherryBlossoms(ctx, w, h);
-            } else if (state.currentAreaIndex === 2) { // 海辺
-                drawWaterRipples(ctx, w, h);
-            } else if (state.currentAreaIndex === 3) { // 魔法の森
-                drawSparkles(ctx, w, h);
-            } else if (state.currentAreaIndex === 4) { // 花咲く庭園
-                drawFlowers(ctx, w, h);
-            } else if (state.currentAreaIndex === 5) { // 雲の上
-                drawClouds(ctx, w, h);
-            }
-
-            // Draw buildings
-            for (const building of currentArea.buildings) {
-                const buildingSize = { w: 90, h: 100 };
-                drawBuilding(ctx, building, building.x - buildingSize.w / 2, building.y - buildingSize.h / 2, buildingSize.w, buildingSize.h);
-
-                // Interactive highlight
-                const dist = Math.hypot(state.playerX - building.x, state.playerY - building.y);
-                if (dist < 80) {
-                    ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
-                    ctx.lineWidth = 3;
-                    ctx.strokeRect(building.x - 50, building.y - 60, 100, 120);
-                }
-            }
-
-            // Draw NPCs (stationary in buildings)
-            for (const building of currentArea.buildings) {
-                for (const npcId of building.npcSpawns) {
-                    const offsetX = (Math.random() - 0.5) * 40;
-                    const offsetY = (Math.random() - 0.5) * 20;
-                    drawNPC(ctx, npcId, building.x + offsetX, building.y + 20 + offsetY, 0.8);
-                }
-            }
-
-            // Draw player
-            drawShibaInu(ctx, state.playerX, state.playerY, 1.2, state.playerLegState, state.playerTailWag);
-
-            // Touch feedback effect
-            if (state.lastTapX && state.time - state.lastTapTime < 0.2) {
-                ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
-                const radius = 10 + (state.time - state.lastTapTime) * 100;
-                ctx.beginPath();
-                ctx.arc(state.lastTapX, state.lastTapY, radius, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            // Footstep dust when walking
-            if (state.playerWalking) {
-                ctx.fillStyle = 'rgba(150, 130, 100, 0.3)';
-                ctx.beginPath();
-                ctx.arc(state.playerX + Math.random() * 20 - 10, state.playerY + 35, 3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(state.playerX + Math.random() * 20 - 10, state.playerY + 35, 3, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        function drawCloud(ctx, x, y, size) {
-            ctx.beginPath();
-            ctx.arc(x, y, size * 0.5, 0, Math.PI * 2);
-            ctx.arc(x + size * 0.4, y, size * 0.6, 0, Math.PI * 2);
-            ctx.arc(x + size * 0.8, y, size * 0.5, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        function drawStars(ctx, w, h) {
-            ctx.fillStyle = '#ffffff';
-            for (let i = 0; i < 20; i++) {
-                const x = (Math.sin(i + state.time * 0.02) * w * 0.4 + w / 2);
-                const y = (Math.cos(i + state.time * 0.02) * h * 0.2 + h * 0.15);
-                ctx.beginPath();
-                ctx.arc(x, y, 2 + Math.sin(state.time * 0.05 + i) * 1.5, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        function drawCherryBlossoms(ctx, w, h) {
-            ctx.fillStyle = 'rgba(255, 192, 203, 0.6)';
-            for (let i = 0; i < 15; i++) {
-                const x = (Math.sin(i + state.time * 0.01) * w * 0.4 + w / 2);
-                const y = (i * h / 15 + state.time * 20) % h;
-                for (let j = 0; j < 5; j++) {
-                    ctx.beginPath();
-                    ctx.arc(x + Math.cos(j * Math.PI / 2.5) * 3, y + Math.sin(j * Math.PI / 2.5) * 3, 2, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-        }
-
-        function drawWaterRipples(ctx, w, h) {
-            ctx.strokeStyle = 'rgba(135, 206, 235, 0.4)';
-            ctx.lineWidth = 2;
-            for (let i = 0; i < 5; i++) {
-                const radius = (state.time * 30 + i * 20) % (w / 2);
-                ctx.beginPath();
-                ctx.arc(w / 2, h * 0.75, radius, 0, Math.PI * 2);
-                ctx.stroke();
-            }
-        }
-
-        function drawSparkles(ctx, w, h) {
-            ctx.fillStyle = '#ffffff';
-            for (let i = 0; i < 25; i++) {
-                const x = (Math.sin(i + state.time * 0.03) * w * 0.4 + w / 2);
-                const y = (Math.cos(i * 0.7 + state.time * 0.02) * h * 0.3 + h * 0.35);
-                const alpha = 0.5 + Math.sin(state.time * 0.1 + i) * 0.5;
-                ctx.globalAlpha = alpha;
-                ctx.beginPath();
-                ctx.arc(x, y, 2, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.globalAlpha = 1;
-            }
-        }
-
-        function drawFlowers(ctx, w, h) {
-            ctx.fillStyle = '#ff69b4';
-            for (let i = 0; i < 20; i++) {
-                const x = (i % 5) * (w / 5) + 30;
-                const y = Math.floor(i / 5) * 40 + h * 0.6 + Math.sin(state.time * 0.05 + i) * 5;
-                for (let j = 0; j < 5; j++) {
-                    ctx.beginPath();
-                    ctx.arc(x + Math.cos(j * Math.PI / 2.5) * 6, y + Math.sin(j * Math.PI / 2.5) * 6, 3, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-                ctx.fillStyle = '#ffff00';
-                ctx.beginPath();
-                ctx.arc(x, y, 3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#ff69b4';
-            }
-        }
-
-        function drawClouds(ctx, w, h) {
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            for (let i = 0; i < 8; i++) {
-                drawCloud(ctx, (i * w / 4 + state.time * 15) % w, 20 + i * 40, 60);
-            }
-        }
-
-        // Game loop
-        function gameLoop() {
-            const canvas = document.getElementById('gcanvas');
-            if (!canvas || state.currentScreen !== 'game') {
-                requestAnimationFrame(gameLoop);
-                return;
-            }
-
-            const rect = canvas.getBoundingClientRect();
-            canvas.width = rect.width;
-            canvas.height = rect.height;
-
-            const ctx = canvas.getContext('2d');
-
-            state.time += 0.016;
-            state.playerLegState += 0.15;
-            state.playerTailWag += 0.1;
-
-            // Player movement
-            if (state.playerWalking) {
-                const dx = state.playerTargetX - state.playerX;
-                const dy = state.playerTargetY - state.playerY;
-                const dist = Math.hypot(dx, dy);
-
-                if (dist < 5) {
-                    state.playerWalking = false;
-                } else {
-                    const speed = 3;
-                    state.playerX += (dx / dist) * speed;
-                    state.playerY += (dy / dist) * speed;
-                }
-            }
-
-            drawGameScene(canvas, ctx);
-            requestAnimationFrame(gameLoop);
-        }
-
-        // Screen navigation
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId + '-screen').classList.add('active');
-            state.currentScreen = screenId;
-
-            if (screenId === 'game') {
-                setTimeout(gameLoop, 100);
-            }
-        }
-
-        function goToProfile() {
-            showScreen('profile');
-        }
-
-        function startGame() {
-            const name = document.getElementById('userName').value || 'ゲスト';
-            const gender = document.getElementById('userGender').value;
-            const birthday = document.getElementById('userBirthday').value;
-            const blood = document.getElementById('userBloodType').value;
-            const zodiac = document.getElementById('userZodiac').value;
-
-            state.playerName = name;
-            state.playerGender = gender;
-            state.playerBirthday = birthday;
-            state.playerBloodType = blood || 'O';
-            state.playerZodiac = zodiac || 'おひつじ座';
-
-            document.getElementById('player-name').textContent = name;
-            document.getElementById('player-blood').textContent = state.playerBloodType;
-
-            // Initialize player position
-            state.playerX = document.getElementById('gcanvas').width / 2;
-            state.playerY = document.getElementById('gcanvas').height * 0.6;
-            state.playerTargetX = state.playerX;
-            state.playerTargetY = state.playerY;
-
-            showScreen('game');
-        }
-
-        function goToTitle() {
-            showScreen('title');
-        }
-
-        function changeArea(direction) {
-            state.currentAreaIndex = (state.currentAreaIndex + direction + areas.length) % areas.length;
-            updateAreaDisplay();
-        }
-
-        function updateAreaDisplay() {
-            const areaName = areas[state.currentAreaIndex].name;
-            document.getElementById('area-name').textContent = areaName;
-        }
-
-        // Building and fortune interaction
-        document.getElementById('gcanvas').addEventListener('click', function(e) {
-            if (state.currentScreen !== 'game') return;
-
-            const rect = this.getBoundingClientRect();
-            const clickX = e.clientX - rect.left;
-            const clickY = e.clientY - rect.top;
-
-            state.lastTapX = clickX;
-            state.lastTapY = clickY;
-            state.lastTapTime = state.time;
-
-            const buildings = areas[state.currentAreaIndex].buildings;
-            let found = false;
-
-            // Check building click
-            for (const building of buildings) {
-                const dist = Math.hypot(clickX - building.x, clickY - building.y);
-                if (dist < 80 && !found) {
-                    state.selectedBuilding = building;
-                    showBuildingOverlay(building);
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
-                // Move player
-                state.playerTargetX = clickX;
-                state.playerTargetY = clickY;
-                state.playerWalking = true;
-            }
-        });
-
-        // Touch events for mobile
-        document.getElementById('gcanvas').addEventListener('touchstart', function(e) {
-            if (state.currentScreen !== 'game') return;
-
-            const touch = e.touches[0];
-            const rect = this.getBoundingClientRect();
-            const touchX = touch.clientX - rect.left;
-            const touchY = touch.clientY - rect.top;
-
-            state.lastTapX = touchX;
-            state.lastTapY = touchY;
-            state.lastTapTime = state.time;
-
-            const buildings = areas[state.currentAreaIndex].buildings;
-            let found = false;
-
-            for (const building of buildings) {
-                const dist = Math.hypot(touchX - building.x, touchY - building.y);
-                if (dist < 80 && !found) {
-                    state.selectedBuilding = building;
-                    showBuildingOverlay(building);
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
-                state.playerTargetX = touchX;
-                state.playerTargetY = touchY;
-                state.playerWalking = true;
-            }
-        });
-
-        function showBuildingOverlay(building) {
-            state.selectedBuilding = building;
-            
-            // Draw building character
-            const canvas = document.getElementById('building-char-canvas');
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Background
-            const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            bgGradient.addColorStop(0, '#fffef0');
-            bgGradient.addColorStop(1, '#fef5e7');
-            ctx.fillStyle = bgGradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Draw building
-            drawBuilding(ctx, building, 25, 30, 150, 140);
-
-            // Building info
-            const buildingInfo = `
-                <div class="result-content">
-                    <p><strong>${building.name}</strong></p>
-                </div>
-            `;
-
-            document.getElementById('building-info').innerHTML = buildingInfo;
-
-            // NPC list
-            const npcList = building.npcSpawns
-                .map(npcId => {
-                    const npc = npcDefinitions[npcId];
-                    state.collection.add(npcId);
-                    return `<div style="font-size: 1.6vmin; margin: 0.8vmin 0; padding: 0.8vmin; background: rgba(255,255,255,0.8); border-radius: 0.4vmin;">${npc.emoji} ${npc.name}</div>`;
-                })
-                .join('');
-
-            document.getElementById('building-npc-list').innerHTML = `
-                <div class="result-section">
-                    <div class="result-section-title">いる人達</div>
-                    <div>${npcList}</div>
-                    <button class="profile-start-btn" style="margin-top: 1.5vmin;" onclick="startFortune()">占ってもらう</button>
-                </div>
-            `;
-
-            toggleMenu('building');
-        }
-
-        function closeBuildingOverlay() {
-            toggleMenu('building');
-        }
-
-        function startFortune() {
-            closeBuildingOverlay();
-            state.fortuneAnswers = [];
-            showFortuneStep(0);
-            document.getElementById('fortune-overlay').classList.add('active');
-        }
-
-        function showFortuneStep(stepIndex) {
-            if (stepIndex >= fortuneQuestions.length) {
-                generateFortuneResult();
-                return;
-            }
-
-            const question = fortuneQuestions[stepIndex];
-            const optionsHtml = question.options
-                .map((opt, idx) => `
-                    <button class="step-option" onclick="selectFortuneOption(${stepIndex}, ${idx}, '${opt}')">
-                        ${opt}
-                    </button>
-                `)
-                .join('');
-
-            const stepsHtml = `
-                <div class="fortune-step">
-                    <div class="step-question">${question.question}</div>
-                    <div class="step-options">${optionsHtml}</div>
-                </div>
-            `;
-
-            if (stepIndex === 0) {
-                document.getElementById('fortune-steps').innerHTML = stepsHtml;
-            } else {
-                document.getElementById('fortune-steps').innerHTML += stepsHtml;
-            }
-        }
-
-        function selectFortuneOption(stepIndex, optionIndex, optionText) {
-            state.fortuneAnswers[stepIndex] = optionText;
-
-            // Visual feedback
-            document.querySelectorAll('.step-option').forEach(el => el.classList.remove('selected'));
-            event.target.classList.add('selected');
-
-            setTimeout(() => {
-                showFortuneStep(stepIndex + 1);
-            }, 300);
-        }
-
-        function generateFortuneResult() {
-            // Calculate fortune level based on answers
-            const positiveKeywords = ['楽しい', 'ワクワク', 'チャレンジ', '新しい', '創造', 'アクティブ'];
-            const positiveScore = state.fortuneAnswers.filter(a => positiveKeywords.some(k => a.includes(k))).length;
-
-            let fortuneLevel;
-            if (positiveScore >= 4) fortuneLevel = '大吉';
-            else if (positiveScore >= 3) fortuneLevel = '吉';
-            else if (positiveScore >= 2) fortuneLevel = '中吉';
-            else if (positiveScore >= 1) fortuneLevel = '小吉';
-            else fortuneLevel = '末吉';
-
-            // Generate lucky items
-            const luckyColor = luckyColors[Math.floor(Math.random() * luckyColors.length)];
-            const luckyNumber = Math.floor(Math.random() * 9) + 1;
-            const luckyDirection = luckyDirections[Math.floor(Math.random() * luckyDirections.length)];
-            const luckyFood = luckyFoods[Math.floor(Math.random() * luckyFoods.length)];
-
-            // Generate compatibility
-            const compatBloodType = bloodTypes[Math.floor(Math.random() * bloodTypes.length)];
-            const compatZodiac = zodiacSigns[Math.floor(Math.random() * zodiacSigns.length)];
-
-            // Generate personalized message
-            let message = '';
-            if (fortuneLevel === '大吉') {
-                message = 'すばらしい運の流れが来ています。今のあなたの輝きを信じて、前へ進んでください。すべてが上手くいく日々が続くでしょう。';
-            } else if (fortuneLevel === '吉') {
-                message = '良い風が吹いています。小さな工夫と努力で、あなたの願いは形になるでしょう。周りの人を大切にしてください。';
-            } else if (fortuneLevel === '中吉') {
-                message = 'バランスの取れた一日一日を大切にしてください。今はゆっくり進むことが正解です。焦らず進みましょう。';
-            } else if (fortuneLevel === '小吉') {
-                message = 'ちょっと工夫が必要な時期です。でも大丈夫。あなたの優しさと工夫で、道は開けます。';
-            } else if (fortuneLevel === '末吉') {
-                message = '今は準備の時。次のステージへ向けて、力を蓄える時間です。やがて大きな花が咲きます。';
-            } else {
-                message = '困難な時も必ず変わります。一歩一歩、前へ進んでください。その先に光があります。';
-            }
-
-            const resultHtml = `
-                <div class="result-section">
-                    <div class="result-section-title">${fortuneLevel}</div>
-                    <div class="result-content">${message}</div>
-                </div>
-
-                <div class="result-section">
-                    <div class="result-section-title">ラッキーアイテム</div>
-                    <div class="result-content">
-                        <div style="margin: 0.5vmin 0;">
-                            <span class="lucky-item">色: ${luckyColor}</span>
-                            <span class="lucky-item">数: ${luckyNumber}</span>
-                        </div>
-                        <div style="margin: 0.5vmin 0;">
-                            <span class="lucky-item">方角: ${luckyDirection}</span>
-                            <span class="lucky-item">食べ物: ${luckyFood}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="result-section">
-                    <div class="result-section-title">相性</div>
-                    <div class="result-content">
-                        <div style="margin: 0.5vmin 0;">
-                            <span class="compat-item">血液型: ${compatBloodType}</span>
-                            <span class="compat-item">星座: ${compatZodiac}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="result-section">
-                    <div class="result-section-title">アドバイス</div>
-                    <div class="result-content">
-                        ${state.fortuneAnswers[0] === '楽しい' ? '楽しい気分を大事にしてください。その幸せがあなたを良い場所へ導きます。' : ''}
-                        ${state.fortuneAnswers[1] === '新しいこと' ? '新しい挑戦に迷わず進んでください。新しい世界が待っています。' : ''}
-                        ${state.fortuneAnswers[2] === 'アクティブ' ? 'エネルギーに満ちたあなたの力を信じて、やってみたいことにチャレンジしましょう。' : ''}
-                        ${state.fortuneAnswers[3] === '楽しさ' ? 'あなたの笑顔と楽しさは周りを幸せにします。そのままでいてください。' : ''}
-                        ${state.fortuneAnswers[4] === '優しさ' ? 'あなたの優しさは大きな力です。その力で誰かを助けることで、自分も幸せになるでしょう。' : ''}
-                        大切なのは、自分を信じることです。
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('result-fortune-level').textContent = `${fortuneLevel} - ${state.playerName}さんの今日の運勢`;
-            document.getElementById('result-content').innerHTML = resultHtml;
-
-            // Save to history
-            const historyEntry = {
-                date: new Date().toLocaleDateString('ja-JP'),
-                building: state.selectedBuilding.name,
-                level: fortuneLevel,
-                timestamp: Date.now()
-            };
-            state.history.unshift(historyEntry);
-            if (state.history.length > 20) state.history.pop();
-
-            document.getElementById('fortune-overlay').classList.remove('active');
-            document.getElementById('result-overlay').classList.add('active');
-        }
-
-        function closeFortune() {
-            document.getElementById('fortune-overlay').classList.remove('active');
-        }
-
-        function closeResult() {
-            document.getElementById('result-overlay').classList.remove('active');
-        }
-
-        // Menu functions
-        function toggleMenu(menuType) {
-            if (menuType === 'history') {
-                const overlay = document.getElementById('history-overlay');
-                overlay.classList.toggle('active');
-
-                if (overlay.classList.contains('active')) {
-                    const historyHtml = state.history.length > 0
-                        ? state.history.map((h, idx) => `
-                            <div style="padding: 1vmin; background: rgba(255,255,255,0.8); border-radius: 0.6vmin; margin-bottom: 1vmin;">
-                                <div style="font-weight: bold; color: #d4791f; font-size: 1.6vmin;">${h.date}</div>
-                                <div style="font-size: 1.5vmin; color: #333;">${h.building} - <span style="color: #ffd700; font-weight: bold;">${h.level}</span></div>
-                            </div>
-                        `).join('')
-                        : '<div style="font-size: 1.6vmin; color: #999; text-align: center; padding: 2vmin;">占い履歴がありません</div>';
-
-                    document.getElementById('history-list').innerHTML = historyHtml;
-                }
-            } else if (menuType === 'collection') {
-                const overlay = document.getElementById('collection-overlay');
-                overlay.classList.toggle('active');
-
-                if (overlay.classList.contains('active')) {
-                    const npcArray = Array.from(state.collection);
-                    const collectionHtml = npcArray.length > 0
-                        ? npcArray.map(npcId => {
-                            const npc = npcDefinitions[npcId];
-                            return `
-                                <div style="padding: 1vmin; background: rgba(255,255,255,0.8); border-radius: 0.6vmin; margin-bottom: 1vmin; display: flex; align-items: center; gap: 1vmin;">
-                                    <span style="font-size: 3vmin;">${npc.emoji}</span>
-                                    <div style="font-size: 1.6vmin; color: #333;">${npc.name}</div>
-                                </div>
-                            `;
-                        }).join('')
-                        : '<div style="font-size: 1.6vmin; color: #999; text-align: center; padding: 2vmin;">まだNPCに出会っていません</div>';
-
-                    document.getElementById('collection-list').innerHTML = collectionHtml;
-                }
-            } else if (menuType === 'building') {
-                document.getElementById('building-overlay').classList.toggle('active');
-            }
-        }
-
-        // Initialize
-        updateAreaDisplay();
-
-        // Close overlay when clicking outside
-        document.getElementById('history-overlay').addEventListener('click', function(e) {
-            if (e.target === this) toggleMenu('history');
-        });
-
-        document.getElementById('collection-overlay').addEventListener('click', function(e) {
-            if (e.target === this) toggleMenu('collection');
-        });
-
-        document.getElementById('building-overlay').addEventListener('click', function(e) {
-            if (e.target === this) closeBuildingOverlay();
-        });
-
-        document.getElementById('fortune-overlay').addEventListener('click', function(e) {
-            if (e.target === this) closeFortune();
-        });
-
-        document.getElementById('result-overlay').addEventListener('click', function(e) {
-            if (e.target === this) closeResult();
-        });
-    </script>
+    <div class="fortune-step" id="step-2">
+      <h4 id="q2-title"></h4>
+      <div class="fortune-choices" id="choices-2"></div>
+    </div>
+
+    <div class="fortune-step" id="step-3">
+      <h4>最近のできごと</h4>
+      <div class="fortune-choices" id="choices-3"></div>
+    </div>
+
+    <div class="fortune-step" id="step-4">
+      <h4>今の気持ちは？</h4>
+      <div class="fortune-choices" id="choices-4"></div>
+    </div>
+
+    <div class="fortune-step" id="step-5">
+      <h4>色を選んでください</h4>
+      <div class="fortune-choices" id="choices-5"></div>
+    </div>
+
+    <div class="fortune-result" id="result">
+      <div style="font-size:40px;margin-bottom:8px;">✨</div>
+      <div class="result-title" id="result-title"></div>
+      <div class="result-level" id="result-level"></div>
+      <div class="result-message" id="result-message"></div>
+      <div class="result-detail"><b>🍀 ラッキーアイテム</b><br><span id="result-lucky"></span></div>
+      <div class="result-detail"><b>💑 相性</b><br><span id="result-compat"></span></div>
+      <div class="result-detail"><b>💡 アドバイス</b><br><span id="result-advice"></span></div>
+      <button class="result-close-btn" onclick="closeFortuneOverlay()">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- 図鑑 -->
+<div id="album-overlay">
+  <div class="album-header">キャラクター図鑑</div>
+  <div class="album-grid" id="album-grid"></div>
+  <button class="album-close" onclick="closeAlbum()">閉じる</button>
+</div>
+
+<!-- 履歴 -->
+<div id="history-overlay">
+  <div class="history-header">占い履歴</div>
+  <div class="history-list" id="history-list"></div>
+  <button class="history-close" onclick="closeHistory()">閉じる</button>
+</div>
+
+<!-- プロフィール -->
+<div id="profile-overlay">
+  <div class="profile-header">🧑‍🤝‍🧑 プロフィール</div>
+  <div class="profile-form">
+    <div class="form-group">
+      <label>名前</label>
+      <input type="text" id="profile-name" placeholder="名前を入力">
+    </div>
+    <div class="form-group">
+      <label>誕生日 (例: 2000-01-15)</label>
+      <input type="date" id="profile-birthday">
+    </div>
+    <div class="form-group">
+      <label>血液型</label>
+      <input type="text" id="profile-blood" placeholder="A/B/O/AB">
+    </div>
+    <button class="profile-save" onclick="saveProfile()">保存</button>
+  </div>
+  <button class="profile-close" onclick="closeProfile()">閉じる</button>
+</div>
+
+<script>
+// ==================== グローバル状態 ====================
+const G={
+  loopRunning:false,
+  lastTime:0,
+  frame:0,
+  areaIdx:0,
+  px:0,py:0,dx:0,dy:0,tx:0,ty:0,
+  npcs:[],
+  particles:[],
+  fortuneStep:1,
+  fortuneAnswers:{},
+  currentCharacter:null,
+};
+
+const canvas=document.getElementById('gcanvas');
+let ctx=null;
+let audioCtx=null;
+let bgmPlaying=false;
+let bgmInterval=null;
+
+// ==================== エリア定義 ====================
+const areas=[
+  {id:'omoi',name:'占い村',icon:'🏘️',sky:['#e8f5ff','#f0fbff','#fffef0'],ground:['#90b896','#8fb8a0','#7ca67a']},
+  {id:'tarot',name:'タロットの館',icon:'🏛️',sky:['#f0e8ff','#f5ecff','#fffef0'],ground:['#a5a5a5','#b8b8b8','#9a9a9a']},
+  {id:'shrine',name:'おみくじ神社',icon:'⛩️',sky:['#ffe8d0','#fff0da','#fffef0'],ground:['#c9a86f','#d4b896','#b89970']},
+  {id:'stars',name:'星読みの丘',icon:'⭐',sky:['#2a1a6a','#4a3a8a','#6a5aaa'],ground:['#1a1a3a','#2a2a4a','#1a1a3a']},
+  {id:'crystal',name:'水晶の泉',icon:'💎',sky:['#c8e8f8','#d8f0ff','#fffef0'],ground:['#8fb8c8','#a0c8d8','#7aa0b8']},
+  {id:'mystery',name:'ふしぎ小路',icon:'🌙',sky:['#d8c8f0','#e8d8ff','#fffef0'],ground:['#a08cb8','#b89cd0','#987ab8']},
+];
+
+// ==================== キャラクター ====================
+const characters={
+  witch:{name:'魔法使いウィッチ',icon:'🧙‍♀️',area:0},
+  seer:{name:'予言者セイア',icon:'👵',area:0},
+  tarot:{name:'タロット占い師',icon:'🎴',area:1},
+  priest:{name:'神官プリースト',icon:'👨‍⚖️',area:2},
+  miko:{name:'巫女ミコ',icon:'👰‍♀️',area:2},
+  astro:{name:'星読み博士',icon:'🔭',area:3},
+  crystal:{name:'水晶姫',icon:'👑',area:4},
+  spirit:{name:'妖精スピリット',icon:'🧚‍♀️',area:5},
+  kitsune:{name:'狐キツネ',icon:'🦊',area:5},
+};
+
+// ==================== ローカルストレージ ====================
+function loadProfile(){
+  const data=JSON.parse(localStorage.getItem('fortune_profile')||'{}');
+  return{name:data.name||'',birthday:data.birthday||'',blood:data.blood||''};
+}
+
+function saveProfileData(){
+  const name=document.getElementById('profile-name').value;
+  const birthday=document.getElementById('profile-birthday').value;
+  const blood=document.getElementById('profile-blood').value;
+  localStorage.setItem('fortune_profile',JSON.stringify({name,birthday,blood}));
+}
+
+function loadHistory(){
+  return JSON.parse(localStorage.getItem('fortune_history')||'[]');
+}
+
+function addHistory(category,level,message){
+  const history=loadHistory();
+  history.push({date:new Date().toLocaleString('ja-JP'),category,level,message});
+  localStorage.setItem('fortune_history',JSON.stringify(history));
+}
+
+function loadAlbum(){
+  return JSON.parse(localStorage.getItem('fortune_album')||'{}');
+}
+
+function recordCharacter(charKey){
+  const album=loadAlbum();
+  if(!album[charKey]){album[charKey]={met:new Date().toLocaleString('ja-JP')};}
+  localStorage.setItem('fortune_album',JSON.stringify(album));
+}
+
+// ==================== UI制御 ====================
+function showModal(html){
+  document.getElementById('mbox').innerHTML=html;
+  document.getElementById('modal').classList.add('show');
+}
+
+function closeModal(){
+  document.getElementById('modal').classList.remove('show');
+}
+
+function openMenu(){
+  const a=areas[G.areaIdx];
+  showModal(`
+    <h3>メニュー</h3>
+    <p>現在地: ${a.name}</p>
+    <button class="mbtn" onclick="closeModal();startGame()">ゲームに戻る</button>
+    <button class="mbtn bl" onclick="closeModal();document.location.reload()">リセット</button>
+  `);
+}
+
+function openProfile(){
+  const profile=loadProfile();
+  document.getElementById('profile-name').value=profile.name;
+  document.getElementById('profile-birthday').value=profile.birthday;
+  document.getElementById('profile-blood').value=profile.blood;
+  document.getElementById('profile-overlay').classList.add('show');
+}
+
+function closeProfile(){
+  document.getElementById('profile-overlay').classList.remove('show');
+}
+
+function saveProfile(){
+  saveProfileData();
+  showModal('<h3>✓ 保存しました</h3>');
+  setTimeout(closeModal,1500);
+}
+
+function openAlbum(){
+  const album=loadAlbum();
+  let html='';
+  for(const [key,char] of Object.entries(characters)){
+    const met=album[key];
+    html+=`
+      <div class="album-card">
+        <canvas width="50" height="50" id="album-${key}"></canvas>
+        <div class="ac-name">${char.name}</div>
+        <div class="ac-met" style="font-size:10px;color:#999;">${met?'出会った':'?'}</div>
+      </div>
+    `;
+  }
+  document.getElementById('album-grid').innerHTML=html;
+  document.getElementById('album-overlay').classList.add('show');
+  drawAlbumCharacters();
+}
+
+function closeAlbum(){
+  document.getElementById('album-overlay').classList.remove('show');
+}
+
+function openHistory(){
+  const history=loadHistory();
+  let html='';
+  if(history.length===0){
+    html='<div style="text-align:center;color:#999;padding:20px;">まだ占い履歴がありません</div>';
+  }else{
+    for(let i=history.length-1;i>=0;i--){
+      const h=history[i];
+      html+=`
+        <div class="history-item">
+          <div class="hi-title">${h.category} - ${h.level}</div>
+          <div class="hi-detail">${h.message.substring(0,40)}</div>
+          <div class="hi-time">${h.date}</div>
+        </div>
+      `;
+    }
+  }
+  document.getElementById('history-list').innerHTML=html;
+  document.getElementById('history-overlay').classList.add('show');
+}
+
+function closeHistory(){
+  document.getElementById('history-overlay').classList.remove('show');
+}
+
+// ==================== ゲーム初期化 ====================
+function startGame(){
+  goTo('game');
+  initCanvas();
+  startLoop();
+}
+
+function goTo(n){
+  const current=document.querySelector('.screen.active');
+  const next=document.getElementById(n+'-screen');
+  if(current){current.classList.remove('active');current.classList.add('fade-out');}
+  if(next){setTimeout(()=>{next.classList.add('active');next.classList.remove('fade-out');},50);}
+}
+
+function initCanvas(){
+  ctx=canvas.getContext('2d',{antialias:true,alpha:false});
+  resizeCanvas();
+  window.addEventListener('resize',resizeCanvas);
+  canvas.addEventListener('click',onClick);
+  canvas.addEventListener('touchstart',onTouch);
+  G.npcs=spawnNPCs();
+}
+
+function resizeCanvas(){
+  const w=window.innerWidth;
+  const h=window.innerHeight;
+  canvas.width=w;
+  canvas.height=h;
+}
+
+function onClick(e){
+  const r=canvas.getBoundingClientRect();
+  const x=(e.clientX-r.left)*(canvas.width/r.width);
+  const y=(e.clientY-r.top)*(canvas.height/r.height);
+  handleTap(x,y);
+}
+
+function onTouch(e){
+  e.preventDefault();
+  const r=canvas.getBoundingClientRect();
+  const t=e.touches[0];
+  const x=(t.clientX-r.left)*(canvas.width/r.width);
+  const y=(t.clientY-r.top)*(canvas.height/r.height);
+  handleTap(x,y);
+}
+
+function handleTap(x,y){
+  for(const npc of G.npcs){
+    if(Math.hypot(npc.x-x,npc.y-y)<25){
+      G.currentCharacter=npc;
+      startFortune(npc);
+      return;
+    }
+  }
+}
+
+// ==================== エリア遷移 ====================
+function changeArea(dir){
+  G.areaIdx=(G.areaIdx+dir+areas.length)%areas.length;
+  const a=areas[G.areaIdx];
+  document.getElementById('area-name').textContent=a.name;
+  document.getElementById('area-display').textContent=a.name;
+  G.npcs=spawnNPCs();
+}
+
+function spawnNPCs(){
+  const npcs=[];
+  const w=canvas.width||window.innerWidth;
+  const h=canvas.height||window.innerHeight;
+  const area=areas[G.areaIdx];
+  
+  const charKeysInArea=Object.entries(characters).filter(([k,c])=>c.area===G.areaIdx).map(([k])=>k);
+  
+  const count=Math.min(3,charKeysInArea.length);
+  for(let i=0;i<count;i++){
+    const charKey=charKeysInArea[i];
+    const char=characters[charKey];
+    npcs.push({
+      charKey,
+      name:char.name,
+      icon:char.icon,
+      x:w*0.2+i*w*0.3,
+      y:h*0.5,
+      vx:(Math.random()-0.5)*2,
+      vy:(Math.random()-0.5)*2,
+    });
+  }
+  return npcs;
+}
+
+// ==================== フォーチュンシステム ====================
+function startFortune(npc){
+  G.fortuneStep=1;
+  G.fortuneAnswers={};
+  recordCharacter(npc.charKey);
+  showFortuneStep();
+}
+
+function showFortuneStep(){
+  document.getElementById('fortune-overlay').classList.add('show');
+  document.querySelectorAll('.fortune-step').forEach(e=>e.classList.remove('active'));
+  document.getElementById('step-'+G.fortuneStep).classList.add('active');
+  document.getElementById('result').classList.remove('active');
+  
+  const prog=(G.fortuneStep-1)/5*100;
+  document.getElementById('progress-fill').style.width=prog+'%';
+  document.getElementById('step-num').textContent=G.fortuneStep;
+  
+  if(G.fortuneStep===1)buildStep1();
+  else if(G.fortuneStep===2)buildStep2();
+  else if(G.fortuneStep===3)buildStep3();
+  else if(G.fortuneStep===4)buildStep4();
+  else if(G.fortuneStep===5)buildStep5();
+}
+
+function buildStep1(){
+  const opts=['恋愛','仕事','金運','健康','総合運'];
+  let html='';
+  for(const opt of opts){
+    html+=`<button class="fortune-btn" onclick="selectChoice('cat','${opt}')">${opt}</button>`;
+  }
+  document.getElementById('choices-1').innerHTML=html;
+}
+
+function buildStep2(){
+  const cat=G.fortuneAnswers.cat;
+  document.getElementById('q2-title').textContent=`${cat}に関して、\n前向きですか？`;
+  const html=`
+    <button class="fortune-btn" onclick="selectChoice('mood','はい')">✓ はい</button>
+    <button class="fortune-btn" onclick="selectChoice('mood','いいえ')">✗ いいえ</button>
+  `;
+  document.getElementById('choices-2').innerHTML=html;
+}
+
+function buildStep3(){
+  const opts=['良いことが起きた','普通の日々','悩んでいる','期待している','決断が必要'];
+  let html='';
+  for(const opt of opts){
+    html+=`<button class="fortune-btn" onclick="selectChoice('event','${opt}')">${opt}</button>`;
+  }
+  document.getElementById('choices-3').innerHTML=html;
+}
+
+function buildStep4(){
+  const opts=['わくわく','落ち着き','不安','やる気','疲れた'];
+  let html='';
+  for(const opt of opts){
+    html+=`<button class="fortune-btn" onclick="selectChoice('feel','${opt}')">${opt}</button>`;
+  }
+  document.getElementById('choices-4').innerHTML=html;
+}
+
+function buildStep5(){
+  const opts=['赤','青','黄','紫'];
+  let html='';
+  for(const opt of opts){
+    const colors={赤:'#FF6B6B',青:'#4FC3F7',黄:'#FFD700',紫:'#BA68C8'};
+    html+=`<button class="fortune-btn" style="background:${colors[opt]};color:#fff;border-color:${colors[opt]};" onclick="selectChoice('color','${opt}')">${opt}</button>`;
+  }
+  document.getElementById('choices-5').innerHTML=html;
+}
+
+function selectChoice(key,val){
+  G.fortuneAnswers[key]=val;
+  if(G.fortuneStep<5){
+    G.fortuneStep++;
+    showFortuneStep();
+  }else{
+    generateFortune();
+  }
+}
+
+function generateFortune(){
+  const cat=G.fortuneAnswers.cat;
+  const mood=G.fortuneAnswers.mood;
+  const event=G.fortuneAnswers.event;
+  const feel=G.fortuneAnswers.feel;
+  const color=G.fortuneAnswers.color;
+  
+  const levels=['大吉','中吉','小吉','吉','末吉','凶'];
+  let score=0;
+  if(mood==='はい')score+=2;
+  if(event==='良いことが起きた')score+=1;
+  if(feel==='わくわく')score+=1;
+  const levelIdx=Math.max(0,Math.min(5,5-Math.floor(score)));
+  const level=levels[levelIdx];
+  
+  const messages={
+    恋愛:{大吉:'素敵な出会いが訪れます💕',中吉:'信頼できる関係が深まります',小吉:'気になる人と繋がるかも',吉:'あせらず進めましょう',末吉:'焦りは禁物です',凶:'いったんリセットの時期'},
+    仕事:{大吉:'大きなチャンスが来ます！',中吉:'着実に成果が出ます',小吉:'新しい挑戦を始めましょう',吉:'コツコツ続けることが大事',末吉:'準備の時間が必要',凶:'視点を変えてみましょう'},
+    金運:{大吉:'予想外の収入があります！',中吉:'貯蓄が増える時期です',小吉:'小さな幸運が重なります',吉:'無駄遣いに注意です',末吉:'倹約の時期です',凶:'大事な支出が必要かも'},
+    健康:{大吉:'心身ともに好調です',中吉:'バランスの良い生活できます',小吉:'少しの改善で元気に',吉:'定期的な運動をしましょう',末吉:'無理は禁物です',凶:'検診を受けましょう'},
+    総合運:{大吉:'全てが上手くいく時期！',中吉:'各方面で好調です',小吉:'チャンスを逃さずに',吉:'焦らず確実に進めます',末吉:'次の準備をしましょう',凶:'心を磨く時期です'},
+  };
+  
+  const msg=messages[cat][level];
+  
+  const luckyItems={赤:{item:'赤いもの',num:7,dir:'南',food:'唐辛子'},青:{item:'青い石',num:3,dir:'東',food:'わかめ'},黄:{item:'黄色の花',num:8,dir:'北',food:'とうもろこし'},紫:{item:'紫のスカーフ',num:9,dir:'西',food:'ナス'}};
+  const lucky=luckyItems[color];
+  
+  const bloods=Object.keys(loadProfile().blood?{A:'A型',B:'B型',O:'O型',AB:'AB型'}:{});
+  const zodiacs=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  
+  const compat=`${lucky.num}月生まれ、${zodiacs[Math.floor(Math.random()*12)]}年生まれの人と相性◎`;
+  
+  const advices=['毎日笑顔を心がけましょう','人のアドバイスに耳を傾けて','感謝の気持ちを大切に','新しいことに挑戦してみて','直感を信じて行動する','周囲への気配りを忘れずに'];
+  const advice=advices[Math.floor(Math.random()*advices.length)];
+  
+  showFortuneResult(cat,level,msg,lucky,compat,advice);
+  addHistory(cat,level,msg);
+}
+
+function showFortuneResult(cat,level,msg,lucky,compat,advice){
+  document.querySelectorAll('.fortune-step').forEach(e=>e.classList.remove('active'));
+  document.getElementById('result').classList.add('active');
+  
+  document.getElementById('result-title').textContent=`${cat}の運勢`;
+  document.getElementById('result-level').textContent=level;
+  document.getElementById('result-message').textContent=msg;
+  document.getElementById('result-lucky').textContent=`色:${lucky.item}  番号:${lucky.num}  方向:${lucky.dir}  食べ物:${lucky.food}`;
+  document.getElementById('result-compat').textContent=compat;
+  document.getElementById('result-advice').textContent=advice;
+}
+
+function closeFortuneOverlay(){
+  document.getElementById('fortune-overlay').classList.remove('show');
+}
+
+// ==================== 描画 ====================
+function startLoop(){
+  if(G.loopRunning)return;
+  G.loopRunning=true;
+  G.lastTime=performance.now();
+  requestAnimationFrame(gameFrame);
+}
+
+function gameFrame(now){
+  if(!G.loopRunning)return;
+  const dt=(now-G.lastTime)/16.666;
+  G.lastTime=now;
+  gameLoop();
+  requestAnimationFrame(gameFrame);
+}
+
+function gameLoop(){
+  if(!ctx)return;
+  G.frame++;
+  updateNPCs();
+  drawAll();
+}
+
+function updateNPCs(){
+  for(const npc of G.npcs){
+    npc.x+=npc.vx;
+    npc.y+=npc.vy;
+    const w=canvas.width||800;
+    const h=canvas.height||600;
+    if(npc.x<30||npc.x>w-30){npc.vx*=-1;npc.x=Math.max(30,Math.min(w-30,npc.x));}
+    if(npc.y<200||npc.y>h-150){npc.vy*=-1;npc.y=Math.max(200,Math.min(h-150,npc.y));}
+  }
+}
+
+function drawAll(){
+  const w=canvas.width;
+  const h=canvas.height;
+  ctx.clearRect(0,0,w,h);
+  
+  const area=areas[G.areaIdx];
+  
+  // 空のグラデーション
+  const sky=ctx.createLinearGradient(0,0,0,h*0.5);
+  sky.addColorStop(0,area.sky[0]);
+  sky.addColorStop(0.5,area.sky[1]);
+  sky.addColorStop(1,area.sky[2]);
+  ctx.fillStyle=sky;
+  ctx.fillRect(0,0,w,h*0.5);
+  
+  // 地面
+  const grd=ctx.createLinearGradient(0,h*0.5,0,h);
+  grd.addColorStop(0,area.ground[0]);
+  grd.addColorStop(0.6,area.ground[1]);
+  grd.addColorStop(1,area.ground[2]);
+  ctx.fillStyle=grd;
+  ctx.fillRect(0,h*0.5,w,h*0.5);
+  
+  // 雲
+  drawCloud(w*0.15,h*0.1,1);
+  drawCloud(w*0.7,h*0.08,0.7);
+  
+  // エリア特有の描画
+  drawAreaFeatures(area.id,w,h);
+  
+  // NPC
+  for(const npc of G.npcs){
+    drawNPC(npc,w,h);
+  }
+  
+  // プレイヤー
+  drawShibaInu(ctx,w/2,h*0.55,G.frame);
+  
+  // ナビゲーション矢印
+  ctx.globalAlpha=0.4+Math.sin(G.frame/20)*0.2;
+  ctx.fillStyle='#FFB74D';
+  ctx.font='bold 24px sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('◀',20,h/2);
+  ctx.fillText('▶',w-20,h/2);
+  ctx.globalAlpha=1;
+}
+
+function drawCloud(x,y,s){
+  ctx.fillStyle='rgba(255,255,255,.7)';
+  ctx.beginPath();
+  ctx.ellipse(x,y,32*s,16*s,0,0,Math.PI*2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(x-18*s,y+4*s,20*s,12*s,0,0,Math.PI*2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(x+20*s,y+3*s,18*s,11*s,0,0,Math.PI*2);
+  ctx.fill();
+}
+
+function drawAreaFeatures(id,w,h){
+  if(id==='omoi'){
+    // 占い村：テント
+    ctx.fillStyle='#FF6B6B';
+    ctx.beginPath();
+    ctx.moveTo(w*0.2,h*0.35);
+    ctx.lineTo(w*0.35,h*0.25);
+    ctx.lineTo(w*0.5,h*0.35);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle='#FFB74D';
+    ctx.fillRect(w*0.2,h*0.35,w*0.3,h*0.1);
+  }else if(id==='tarot'){
+    // タロット館：建物
+    ctx.fillStyle='#8B7355';
+    ctx.fillRect(w*0.15,h*0.3,w*0.7,h*0.2);
+    ctx.fillStyle='#D7CCC8';
+    for(let i=0;i<3;i++){
+      ctx.fillRect(w*0.2+i*w*0.2,h*0.35,w*0.12,h*0.1);
+    }
+  }else if(id==='shrine'){
+    // 神社：鳥居
+    ctx.strokeStyle='#D4A574';
+    ctx.lineWidth=8;
+    ctx.beginPath();
+    ctx.moveTo(w*0.25,h*0.4);
+    ctx.lineTo(w*0.75,h*0.4);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(w*0.3,h*0.4);
+    ctx.lineTo(w*0.3,h*0.5);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(w*0.7,h*0.4);
+    ctx.lineTo(w*0.7,h*0.5);
+    ctx.stroke();
+  }else if(id==='stars'){
+    // 星読みの丘：星
+    for(let i=0;i<5;i++){
+      ctx.fillStyle='#ffd700';
+      ctx.beginPath();
+      const x=w*0.2+i*w*0.15;
+      const y=h*0.2+Math.sin(G.frame/30+i)*5;
+      ctx.arc(x,y,3,0,Math.PI*2);
+      ctx.fill();
+    }
+  }else if(id==='crystal'){
+    // 水晶：キラキラ
+    ctx.fillStyle='#87CEEB';
+    for(let i=0;i<3;i++){
+      const x=w*0.25+i*w*0.25;
+      const y=h*0.35;
+      ctx.beginPath();
+      ctx.moveTo(x,y-10);
+      ctx.lineTo(x+5,y);
+      ctx.lineTo(x,y+10);
+      ctx.lineTo(x-5,y);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }else if(id==='mystery'){
+    // ふしぎ小路：月と星
+    ctx.fillStyle='rgba(255,255,200,.6)';
+    ctx.beginPath();
+    ctx.arc(w*0.2,h*0.2,15,0,Math.PI*2);
+    ctx.fill();
+  }
+}
+
+function drawNPC(npc,w,h){
+  ctx.fillStyle='#333';
+  ctx.beginPath();
+  ctx.arc(npc.x,npc.y,8,0,Math.PI*2);
+  ctx.fill();
+  ctx.fillStyle='#fff';
+  ctx.font='16px sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText(npc.icon,npc.x,npc.y+4);
+  
+  ctx.fillStyle='#666';
+  ctx.font='10px sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText(npc.name.substring(0,8),npc.x,npc.y+20);
+}
+
+function drawShibaInu(ctx,x,y,frame){
+  ctx.fillStyle='#D4A574';
+  
+  // 体
+  ctx.beginPath();
+  ctx.ellipse(x,y,18,22,0,0,Math.PI*2);
+  ctx.fill();
+  
+  // 頭
+  ctx.beginPath();
+  ctx.arc(x,y-20,14,0,Math.PI*2);
+  ctx.fill();
+  
+  // 耳
+  ctx.fillStyle='#D4A574';
+  ctx.beginPath();
+  ctx.ellipse(x-8,y-30,5,10,Math.PI/6,0,Math.PI*2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(x+8,y-30,5,10,-Math.PI/6,0,Math.PI*2);
+  ctx.fill();
+  
+  // 耳の内側
+  ctx.fillStyle='#F5DEB3';
+  ctx.beginPath();
+  ctx.ellipse(x-8,y-29,2.5,6,Math.PI/6,0,Math.PI*2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(x+8,y-29,2.5,6,-Math.PI/6,0,Math.PI*2);
+  ctx.fill();
+  
+  // 目
+  ctx.fillStyle='#000';
+  ctx.beginPath();
+  ctx.arc(x-5,y-22,2.5,0,Math.PI*2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x+5,y-22,2.5,0,Math.PI*2);
+  ctx.fill();
+  
+  // 目の光
+  ctx.fillStyle='#fff';
+  ctx.beginPath();
+  ctx.arc(x-4,y-23,1,0,Math.PI*2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x+6,y-23,1,0,Math.PI*2);
+  ctx.fill();
+  
+  // 鼻
+  ctx.fillStyle='#000';
+  ctx.beginPath();
+  ctx.arc(x,y-16,2.5,0,Math.PI*2);
+  ctx.fill();
+  
+  // 口
+  ctx.strokeStyle='#000';
+  ctx.lineWidth=1.5;
+  ctx.beginPath();
+  ctx.moveTo(x,y-14);
+  ctx.quadraticCurveTo(x-3,y-11,x-4,y-9);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x,y-14);
+  ctx.quadraticCurveTo(x+3,y-11,x+4,y-9);
+  ctx.stroke();
+  
+  // 尾
+  ctx.strokeStyle='#D4A574';
+  ctx.lineWidth=4;
+  ctx.beginPath();
+  ctx.moveTo(x+16,y+5);
+  const tailSwing=Math.sin(frame/10)*8;
+  ctx.quadraticCurveTo(x+22+tailSwing,y,x+20+tailSwing,y-15);
+  ctx.stroke();
+  
+  // 足
+  ctx.fillStyle='#D4A574';
+  const legSway=Math.sin(frame/15)*2;
+  ctx.fillRect(x-10,y+20+legSway,5,12);
+  ctx.fillRect(x-2,y+20-legSway,5,12);
+  ctx.fillRect(x+3,y+20+legSway,5,12);
+  ctx.fillRect(x+11,y+20-legSway,5,12);
+  
+  // 足の肉球
+  ctx.fillStyle='#FFB6C1';
+  ctx.beginPath();
+  ctx.arc(x-7.5,y+32,2,0,Math.PI*2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x+0.5,y+32,2,0,Math.PI*2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x+5.5,y+32,2,0,Math.PI*2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x+13.5,y+32,2,0,Math.PI*2);
+  ctx.fill();
+}
+
+function drawAlbumCharacters(){
+  for(const [key,char] of Object.entries(characters)){
+    const canvas=document.getElementById('album-'+key);
+    if(!canvas)continue;
+    const c=canvas.getContext('2d');
+    c.clearRect(0,0,50,50);
+    drawShibaInu(c,25,25,0);
+  }
+}
+
+// ==================== 初期化 ====================
+window.addEventListener('load',function(){
+  document.getElementById('album-overlay').classList.remove('show');
+  document.getElementById('history-overlay').classList.remove('show');
+  document.getElementById('profile-overlay').classList.remove('show');
+  document.getElementById('fortune-overlay').classList.remove('show');
+  document.getElementById('modal').classList.remove('show');
+});
+</script>
 </body>
 </html>
