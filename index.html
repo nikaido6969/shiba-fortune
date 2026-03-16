@@ -1616,314 +1616,857 @@ function drawPlayerShiba(ctx, x, y, frame) {
 }
 
 function drawBuilding(ctx, x, y, type, areaId) {
-  const OL = '#222';
-  const LW = 3;
-  
-  ctx.fillStyle = 'rgba(0,0,0,.12)';
+  const OL = '#1a1a2e';
+  const LW = 2;
+  const GOLD = '#C8A960';
+  const DGOLD = '#FFD700';
+  const DARK = '#1a1a2e';
+  const BODY = '#2d1b4e';
+
+  // Shadow
+  ctx.fillStyle = 'rgba(0,0,0,.25)';
   ctx.beginPath();
-  ctx.ellipse(x, y + 28, 22, 6, 0, 0, Math.PI * 2);
+  ctx.ellipse(x, y + 30, 24, 7, 0, 0, Math.PI * 2);
   ctx.fill();
-  
-  if (type === 'shrine' || areaId === 1) {
-    ctx.fillStyle = '#C0C0C0';
-    ctx.strokeStyle = OL;
-    ctx.lineWidth = LW;
-    
-    ctx.fillStyle = '#DC143C';
-    ctx.fillRect(x - 20, y - 8, 40, 6);
-    ctx.stroke();
-    
-    ctx.fillStyle = '#8B8B83';
-    ctx.fillRect(x - 18, y + 2, 5, 20);
-    ctx.stroke();
-    ctx.fillRect(x + 13, y + 2, 5, 20);
-    ctx.stroke();
-    
-    ctx.fillStyle = '#DC143C';
-    ctx.beginPath();
-    ctx.moveTo(x - 18, y - 2);
-    ctx.lineTo(x, y - 15);
-    ctx.lineTo(x + 18, y - 2);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-    
-    ctx.fillStyle = '#8B4513';
-    ctx.fillRect(x - 14, y + 2, 28, 16);
-    ctx.stroke();
-    
-    ctx.fillStyle = '#654321';
-    ctx.fillRect(x - 6, y + 8, 12, 10);
-    ctx.stroke();
-    
-    ctx.fillStyle = '#FFD700';
-    ctx.beginPath();
-    ctx.arc(x + 4, y + 13, 1.5, 0, Math.PI * 2);
-    ctx.fill();
-    
-  } else if (type === 'tower' || areaId === 2) {
-    ctx.fillStyle = '#A9A9A9';
-    ctx.strokeStyle = OL;
-    ctx.lineWidth = LW;
-    
-    ctx.fillRect(x - 12, y - 8, 24, 28);
-    ctx.stroke();
-    
-    ctx.fillStyle = '#8B6914';
-    ctx.beginPath();
-    ctx.moveTo(x - 14, y - 8);
-    ctx.lineTo(x, y - 22);
-    ctx.lineTo(x + 14, y - 8);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-    
-    ctx.fillStyle = '#87CEEB';
-    ctx.lineWidth = 1;
-    for (let row = 0; row < 3; row++) {
-      for (let col = 0; col < 2; col++) {
-        const wx = x - 6 + col * 10;
-        const wy = y - 2 + row * 8;
-        ctx.fillRect(wx, wy, 4, 4);
-        ctx.strokeStyle = OL;
-        ctx.lineWidth = 1;
-        ctx.strokeRect(wx, wy, 4, 4);
+
+  // Mystical glow halo behind building
+  const glowColor = areaId===1?'rgba(255,183,77,.12)':areaId===2?'rgba(147,100,255,.15)':areaId===3?'rgba(0,255,180,.1)':'rgba(100,150,255,.12)';
+  ctx.fillStyle = glowColor;
+  ctx.beginPath(); ctx.arc(x, y, 38, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = glowColor;
+  ctx.beginPath(); ctx.arc(x, y, 28, 0, Math.PI*2); ctx.fill();
+
+  ctx.strokeStyle = OL;
+  ctx.lineWidth = LW;
+
+  switch(type) {
+    // ===== Area 1: Japanese =====
+    case 'omikuji': // Red torii gate shrine with paper fortune strips
+      ctx.fillStyle = '#DC143C';
+      ctx.fillRect(x - 18, y - 2, 36, 6);
+      ctx.strokeRect(x - 18, y - 2, 36, 6);
+      ctx.fillRect(x - 15, y + 4, 8, 20);
+      ctx.strokeRect(x - 15, y + 4, 8, 20);
+      ctx.fillRect(x + 7, y + 4, 8, 20);
+      ctx.strokeRect(x + 7, y + 4, 8, 20);
+      ctx.fillStyle = '#FFF8DC';
+      for (let i = 0; i < 3; i++) {
+        ctx.fillRect(x - 8 + i * 8, y + 10, 5, 8);
+        ctx.strokeRect(x - 8 + i * 8, y + 10, 5, 8);
       }
-    }
-    
-    ctx.fillStyle = '#654321';
-    ctx.fillRect(x - 4, y + 14, 8, 10);
-    ctx.strokeStyle = OL;
-    ctx.lineWidth = LW;
-    ctx.strokeRect(x - 4, y + 14, 8, 10);
-    
-  } else if (type === 'cottage' || areaId === 3) {
-    ctx.fillStyle = '#D4A574';
-    ctx.strokeStyle = OL;
-    ctx.lineWidth = LW;
-    
-    ctx.beginPath();
-    ctx.ellipse(x, y + 4, 18, 14, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-    
-    ctx.fillStyle = '#8B4513';
-    ctx.beginPath();
-    ctx.ellipse(x, y - 8, 20, 10, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-    
-    ctx.fillStyle = '#654321';
-    ctx.beginPath();
-    ctx.ellipse(x - 4, y + 8, 4, 6, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-    
-    ctx.fillStyle = '#FFD700';
-    ctx.beginPath();
-    ctx.arc(x - 2, y + 8, 1, 0, Math.PI * 2);
-    ctx.fill();
-    
-    ctx.fillStyle = '#87CEEB';
-    ctx.beginPath();
-    ctx.arc(x + 6, y, 3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = OL;
-    ctx.lineWidth = LW;
-    ctx.stroke();
-    
-    ctx.fillStyle = '#654321';
-    ctx.fillRect(x + 14, y - 12, 3, 10);
-    ctx.stroke();
-    
-  } else if (type === 'observatory' || areaId === 4) {
-    ctx.fillStyle = '#FFF';
-    ctx.strokeStyle = OL;
-    ctx.lineWidth = LW;
-    
-    ctx.fillRect(x - 14, y + 2, 28, 14);
-    ctx.stroke();
-    
-    ctx.fillStyle = '#DDD';
-    ctx.beginPath();
-    ctx.ellipse(x, y - 6, 16, 12, 0, 0, Math.PI);
-    ctx.fill();
-    ctx.stroke();
-    
-    ctx.fillStyle = '#AAA';
-    ctx.beginPath();
-    ctx.ellipse(x, y - 8, 12, 6, 0, 0, Math.PI);
-    ctx.fill();
-    ctx.stroke();
-    
-    ctx.fillStyle = '#333';
-    ctx.beginPath();
-    ctx.ellipse(x, y - 10, 2, 2, 0, 0, Math.PI * 2);
-    ctx.fill();
-    
-    ctx.fillStyle = '#87CEEB';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < 3; i++) {
-      const wx = x - 10 + i * 10;
-      ctx.fillRect(wx, y + 4, 4, 4);
+      break;
+
+    case 'shichusuimei': // Traditional Chinese-style pagoda
+      ctx.fillStyle = '#D4705D';
+      ctx.fillRect(x - 12, y + 2, 24, 20);
+      ctx.strokeRect(x - 12, y + 2, 24, 20);
+      ctx.fillStyle = '#8B4513';
+      for (let tier = 0; tier < 3; tier++) {
+        ctx.fillRect(x - 14, y + 2 + tier * 7, 28, 2);
+        ctx.strokeRect(x - 14, y + 2 + tier * 7, 28, 2);
+      }
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.moveTo(x - 14, y - 2);
+      ctx.lineTo(x, y - 12);
+      ctx.lineTo(x + 14, y - 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      break;
+
+    case 'kyusei': // Octagonal compass building
+      ctx.fillStyle = '#CD853F';
+      ctx.beginPath();
+      for (let i = 0; i < 8; i++) {
+        const angle = (i / 8) * Math.PI * 2;
+        const px = x + Math.cos(angle) * 14;
+        const py = y + Math.sin(angle) * 14;
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+
+    case 'hanauranai': // Flower shop with blooming flowers
+      ctx.fillStyle = '#8B7355';
+      ctx.fillRect(x - 12, y + 2, 24, 16);
+      ctx.strokeRect(x - 12, y + 2, 24, 16);
+      ctx.fillStyle = '#E91E63';
+      for (let i = 0; i < 4; i++) {
+        ctx.beginPath();
+        ctx.arc(x - 8 + i * 6, y - 3, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.fillStyle = '#FFD700';
+      for (let i = 0; i < 4; i++) {
+        ctx.beginPath();
+        ctx.arc(x - 8 + i * 6, y - 3, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      break;
+
+    case 'yumeuranai': // Dreamy cloud-shaped cottage with crescent moon
+      ctx.fillStyle = '#B0C4DE';
+      ctx.beginPath();
+      ctx.ellipse(x, y + 6, 16, 12, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.arc(x + 12, y - 8, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#87CEEB';
+      ctx.beginPath();
+      ctx.arc(x + 12, y - 8, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      break;
+
+    case 'rokusei': // 六星占術の殿堂 - 6 stars around dark pagoda
+      ctx.fillStyle = BODY;
+      ctx.fillRect(x - 14, y + 2, 28, 20);
+      ctx.strokeRect(x - 14, y + 2, 28, 20);
+      ctx.fillStyle = GOLD;
+      ctx.beginPath();
+      ctx.moveTo(x - 16, y + 2);ctx.lineTo(x, y - 10);ctx.lineTo(x + 16, y + 2);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+      // 6 stars around
+      for (let i = 0; i < 6; i++) {
+        const a = (i/6)*Math.PI*2 - Math.PI/2;
+        ctx.fillStyle = ['#FFD700','#C0C0C0','#FF6347','#00BFFF','#32CD32','#9370DB'][i];
+        ctx.beginPath();
+        ctx.arc(x + Math.cos(a)*16, y + 4 + Math.sin(a)*12, 2.5, 0, Math.PI*2);
+        ctx.fill();
+      }
+      // Glowing windows
+      ctx.fillStyle = 'rgba(255,180,0,.5)';
+      ctx.fillRect(x - 4, y + 8, 8, 8);
+      break;
+
+    // ===== Area 2: Western =====
+    case 'tarot': // Gothic card-shaped building with eye
+      ctx.fillStyle = '#5C3D3D';
+      ctx.fillRect(x - 10, y - 6, 20, 28);
+      ctx.strokeRect(x - 10, y - 6, 20, 28);
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.arc(x, y + 5, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#000';
+      ctx.beginPath();
+      ctx.arc(x, y + 5, 2, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+
+    case 'numerology': // Tower with numbers
+      ctx.fillStyle = '#A9A9A9';
+      ctx.fillRect(x - 10, y, 20, 22);
+      ctx.strokeRect(x - 10, y, 20, 22);
+      ctx.fillStyle = '#FFD700';
+      ctx.font = 'bold 10px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('1', x - 6, y + 7);
+      ctx.fillText('5', x, y + 7);
+      ctx.fillText('9', x + 6, y + 7);
+      ctx.fillText('2', x - 6, y + 16);
+      ctx.fillText('7', x, y + 16);
+      ctx.fillText('4', x + 6, y + 16);
+      break;
+
+    case 'rune': // Viking-style stone hut with rune symbol
+      ctx.fillStyle = '#696969';
+      ctx.beginPath();
+      ctx.moveTo(x - 14, y + 8);
+      ctx.lineTo(x - 14, y - 2);
+      ctx.lineTo(x, y - 10);
+      ctx.lineTo(x + 14, y - 2);
+      ctx.lineTo(x + 14, y + 8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#FFD700';
+      ctx.font = 'bold 12px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('ᚱ', x, y + 2);
+      break;
+
+    case 'astrology': // Dome observatory with telescope
+      ctx.fillStyle = '#C0C0C0';
+      ctx.beginPath();
+      ctx.ellipse(x, y + 6, 14, 10, 0, 0, Math.PI);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#DDD';
+      ctx.beginPath();
+      ctx.ellipse(x, y - 2, 12, 8, 0, 0, Math.PI);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#000';
+      ctx.fillRect(x + 6, y - 4, 4, 10);
+      ctx.strokeRect(x + 6, y - 4, 4, 10);
+      break;
+
+    case 'oracle': // Chapel with angel wing decorations
+      ctx.fillStyle = '#8B4513';
+      ctx.fillRect(x - 10, y + 2, 20, 18);
+      ctx.strokeRect(x - 10, y + 2, 20, 18);
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.moveTo(x - 10, y - 2);
+      ctx.lineTo(x, y - 10);
+      ctx.lineTo(x + 10, y - 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#FFF';
+      ctx.beginPath();
+      ctx.arc(x - 12, y, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x + 12, y, 4, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+
+    case 'pendulum': // Clock tower with pendulum
+      ctx.fillStyle = '#8B7355';
+      ctx.fillRect(x - 8, y + 2, 16, 18);
+      ctx.strokeRect(x - 8, y + 2, 16, 18);
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.arc(x, y - 4, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x, y - 4);
+      ctx.lineTo(x, y + 8);
+      ctx.stroke();
+      ctx.lineWidth = LW;
+      break;
+
+    // ===== Area 3: Mysterious =====
+    case 'crystal': // Crystal ball on pedestal, glowing
+      ctx.fillStyle = '#8B4513';
+      ctx.fillRect(x - 8, y + 12, 16, 8);
+      ctx.strokeRect(x - 8, y + 12, 16, 8);
+      ctx.fillStyle = '#9370DB';
+      ctx.beginPath();
+      ctx.arc(x, y + 2, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#DDA0DD';
+      ctx.beginPath();
+      ctx.arc(x, y + 2, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      break;
+
+    case 'animal': // Tree house with animal paw print
+      ctx.fillStyle = '#8B4513';
+      ctx.fillRect(x - 10, y + 4, 20, 14);
+      ctx.strokeRect(x - 10, y + 4, 20, 14);
+      ctx.fillStyle = '#654321';
+      ctx.fillRect(x - 2, y - 12, 4, 16);
+      ctx.stroke();
+      ctx.fillStyle = '#FFB6C1';
+      ctx.beginPath();
+      ctx.arc(x - 2, y + 6, 2, 0, Math.PI * 2);
+      ctx.fill();
+      for (let i = 0; i < 4; i++) {
+        const angle = (i / 4) * Math.PI * 2;
+        ctx.beginPath();
+        ctx.arc(x - 2 + Math.cos(angle) * 5, y + 6 + Math.sin(angle) * 5, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      break;
+
+    case 'color': // Rainbow-arched building
+      ctx.fillStyle = '#FFC0CB';
+      ctx.fillRect(x - 12, y + 6, 24, 12);
+      ctx.strokeRect(x - 12, y + 6, 24, 12);
+      const colors = ['#FF0000', '#FFB300', '#FFFF00', '#00FF00', '#0000FF'];
+      for (let i = 0; i < 5; i++) {
+        ctx.strokeStyle = colors[i];
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x, y + 6, 8 - i * 1.5, Math.PI, 0);
+        ctx.stroke();
+      }
+      ctx.lineWidth = LW;
+      ctx.strokeStyle = OL;
+      break;
+
+    case 'pastlife': // Ancient cave entrance with torch
+      ctx.fillStyle = '#696969';
+      ctx.beginPath();
+      ctx.ellipse(x, y + 8, 14, 10, 0, 0, Math.PI);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#FFD700';
+      ctx.fillRect(x + 10, y - 4, 3, 12);
+      ctx.stroke();
+      ctx.fillStyle = '#FF6347';
+      ctx.beginPath();
+      ctx.arc(x + 11.5, y - 6, 3, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+
+    case 'compatibility': // Heart-shaped building
+      ctx.fillStyle = '#FF69B4';
+      ctx.beginPath();
+      ctx.arc(x - 5, y - 2, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x + 5, y - 2, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(x - 11, y - 2);
+      ctx.lineTo(x, y + 15);
+      ctx.lineTo(x + 11, y - 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      break;
+
+    case 'fairy': // Mushroom house with sparkles
+      ctx.fillStyle = '#FF6347';
+      ctx.beginPath();
+      ctx.ellipse(x, y + 2, 14, 10, 0, 0, Math.PI);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#8B4513';
+      ctx.fillRect(x - 8, y + 2, 16, 12);
+      ctx.strokeRect(x - 8, y + 2, 16, 12);
+      ctx.fillStyle = '#FFD700';
+      for (let i = 0; i < 3; i++) {
+        ctx.beginPath();
+        ctx.arc(x - 6 + i * 6, y - 4, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      break;
+
+    // ===== Area 4: Celestial =====
+    case 'zodiac': // Star-topped observatory dome
+      ctx.fillStyle = '#DDD';
+      ctx.beginPath();
+      ctx.ellipse(x, y + 6, 14, 10, 0, 0, Math.PI);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#AAA';
+      ctx.beginPath();
+      ctx.ellipse(x, y, 12, 8, 0, 0, Math.PI);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.moveTo(x, y - 12);
+      ctx.lineTo(x + 3, y - 4);
+      ctx.lineTo(x + 8, y - 6);
+      ctx.lineTo(x + 4, y);
+      ctx.lineTo(x + 6, y + 6);
+      ctx.lineTo(x, y + 2);
+      ctx.lineTo(x - 6, y + 6);
+      ctx.lineTo(x - 4, y);
+      ctx.lineTo(x - 8, y - 6);
+      ctx.lineTo(x - 3, y - 4);
+      ctx.closePath();
+      ctx.fill();
+      break;
+
+    case 'moon': // Crescent moon shaped building
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.arc(x + 3, y + 4, 12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#001a4d';
+      ctx.beginPath();
+      ctx.arc(x + 8, y + 4, 12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = OL;
+      ctx.lineWidth = LW;
+      ctx.stroke();
+      break;
+
+    case 'planet': // Saturn-ringed sphere building
+      ctx.fillStyle = '#FFB347';
+      ctx.beginPath();
+      ctx.arc(x, y + 4, 10, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'transparent';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.ellipse(x, y + 6, 16, 4, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.lineWidth = LW;
+      ctx.strokeStyle = OL;
+      ctx.beginPath();
+      ctx.arc(x, y + 4, 10, 0, Math.PI * 2);
+      ctx.stroke();
+      break;
+
+    case 'birthday': // Cake-shaped building with candle
+      ctx.fillStyle = '#FF69B4';
+      ctx.fillRect(x - 12, y + 4, 24, 12);
+      ctx.strokeRect(x - 12, y + 4, 24, 12);
+      for (let i = 0; i < 3; i++) {
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath();
+        ctx.arc(x - 6 + i * 6, y + 2, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.fillStyle = '#654321';
+      ctx.fillRect(x - 1, y - 8, 2, 12);
+      ctx.stroke();
+      ctx.fillStyle = '#FF0000';
+      ctx.beginPath();
+      ctx.arc(x, y - 10, 2, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+
+    case 'dayofweek': // Clock tower with 7 marks
+      ctx.fillStyle = '#8B7355';
+      ctx.fillRect(x - 8, y + 2, 16, 18);
+      ctx.strokeRect(x - 8, y + 2, 16, 18);
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.arc(x, y - 4, 7, 0, Math.PI * 2);
+      ctx.fill();
       ctx.strokeStyle = OL;
       ctx.lineWidth = 1;
-      ctx.strokeRect(wx, y + 4, 4, 4);
-    }
-    
-    ctx.fillStyle = '#654321';
-    ctx.fillRect(x - 4, y + 10, 8, 8);
-    ctx.strokeStyle = OL;
-    ctx.lineWidth = LW;
-    ctx.strokeRect(x - 4, y + 10, 8, 8);
+      ctx.stroke();
+      for (let i = 0; i < 7; i++) {
+        const angle = (i / 7) * Math.PI * 2 - Math.PI / 2;
+        const bx = x + Math.cos(angle) * 5;
+        const by = y - 4 + Math.sin(angle) * 5;
+        ctx.fillStyle = '#000';
+        ctx.beginPath();
+        ctx.arc(bx, by, 0.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.lineWidth = LW;
+      break;
+
+    case 'guardian': // Angel wing cathedral
+      ctx.fillStyle = '#FFF';
+      ctx.fillRect(x - 10, y + 2, 20, 18);
+      ctx.strokeRect(x - 10, y + 2, 20, 18);
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.moveTo(x - 10, y - 2);
+      ctx.lineTo(x, y - 12);
+      ctx.lineTo(x + 10, y - 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#DDA0DD';
+      for (let i = 0; i < 3; i++) {
+        ctx.beginPath();
+        ctx.arc(x - 12, y + 4 + i * 6, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + 12, y + 4 + i * 6, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      break;
+
+    default:
+      ctx.fillStyle = BODY;
+      ctx.fillRect(x - 10, y, 20, 20);
+      ctx.strokeRect(x - 10, y, 20, 20);
+      ctx.fillStyle = 'rgba(255,180,0,.4)';
+      ctx.fillRect(x - 4, y + 4, 8, 6);
   }
 }
 
 function drawBackground(ctx, w, h, areaId, frame) {
   
+  // === AREA 1: 和の占い通り (Japanese Fortune Street) ===
   if (areaId === 1) {
+    // Deep indigo-to-purple gradient sky
     const skyGradient = ctx.createLinearGradient(0, 0, 0, h);
-    skyGradient.addColorStop(0, '#87CEEB');
-    skyGradient.addColorStop(1, '#E0F6FF');
+    skyGradient.addColorStop(0, '#0a0e27');
+    skyGradient.addColorStop(0.4, '#1a1a4e');
+    skyGradient.addColorStop(1, '#2d1b69');
     ctx.fillStyle = skyGradient;
     ctx.fillRect(0, 0, w, h);
     
-    const cloudOffset = (frame % 200) / 200 * w;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-    
-    ctx.beginPath();
-    ctx.ellipse(cloudOffset + 50, 40, 35, 15, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(cloudOffset + 30, 50, 25, 12, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(cloudOffset + 70, 50, 25, 12, 0, 0, Math.PI * 2);
-    ctx.fill();
-    
-    ctx.beginPath();
-    ctx.ellipse(cloudOffset + 200, 80, 40, 18, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(cloudOffset + 175, 95, 28, 14, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(cloudOffset + 225, 95, 28, 14, 0, 0, Math.PI * 2);
-    ctx.fill();
-    
-    ctx.fillStyle = 'rgba(255, 192, 203, 0.6)';
-    for (let i = 0; i < 8; i++) {
-      const px = (frame * 0.5 + i * 40) % w;
-      const py = (50 + i * 20 + Math.sin(frame * 0.05 + i) * 10) % h;
+    // Scattered golden stars
+    ctx.fillStyle = '#FFD700';
+    for (let i = 0; i < 20; i++) {
+      const sx = (i * 73) % w;
+      const sy = (i * 61) % (h * 0.7);
+      ctx.globalAlpha = 0.5 + Math.sin(frame * 0.05 + i) * 0.5;
       ctx.beginPath();
-      ctx.ellipse(px, py, 3, 2, Math.PI / 4, 0, Math.PI * 2);
+      ctx.arc(sx, sy, 1 + (i % 2) * 0.5, 0, Math.PI * 2);
       ctx.fill();
     }
+    ctx.globalAlpha = 1;
     
-  } else if (areaId === 2) {
-    const sunsetGradient = ctx.createLinearGradient(0, 0, 0, h);
-    sunsetGradient.addColorStop(0, '#FFB347');
-    sunsetGradient.addColorStop(0.5, '#FF8C69');
-    sunsetGradient.addColorStop(1, '#FF6347');
-    ctx.fillStyle = sunsetGradient;
-    ctx.fillRect(0, 0, w, h);
-    
-    ctx.fillStyle = '#FFD700';
-    ctx.beginPath();
-    ctx.arc(w - 80, h - 100, 40, 0, Math.PI * 2);
-    ctx.fill();
-    
-    ctx.strokeStyle = 'rgba(255, 215, 0, 0.4)';
-    ctx.lineWidth = 2;
-    for (let i = 0; i < 8; i++) {
-      const angle = (i / 8) * Math.PI * 2;
+    // Floating golden torii gate silhouettes
+    for (let i = 0; i < 3; i++) {
+      const tx = (frame * 0.2 + i * w / 3) % (w + 40) - 20;
+      const ty = 80 + i * 60 + Math.sin(frame * 0.04 + i) * 20;
+      ctx.strokeStyle = 'rgba(255, 215, 0, 0.3)';
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(w - 80 + Math.cos(angle) * 45, h - 100 + Math.sin(angle) * 45);
-      ctx.lineTo(w - 80 + Math.cos(angle) * 65, h - 100 + Math.sin(angle) * 65);
+      ctx.moveTo(tx - 15, ty);
+      ctx.lineTo(tx + 15, ty);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(tx - 12, ty);
+      ctx.lineTo(tx - 12, ty + 20);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(tx + 12, ty);
+      ctx.lineTo(tx + 12, ty + 20);
       ctx.stroke();
     }
     
-    ctx.fillStyle = '#8B7355';
+    // Cherry blossom petals with golden glow
+    ctx.fillStyle = 'rgba(255, 192, 203, 0.4)';
+    for (let i = 0; i < 12; i++) {
+      const px = (frame * 0.5 + i * 60) % w;
+      const py = (frame * 0.3 + i * 30 + Math.sin(frame * 0.06 + i) * 25) % h;
+      ctx.beginPath();
+      ctx.ellipse(px, py, 4, 6, Math.sin(frame * 0.03 + i), 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
+      ctx.beginPath();
+      ctx.arc(px, py, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255, 192, 203, 0.4)';
+    }
+    ctx.globalAlpha = 1;
+    
+    // Paper lanterns with warm amber light
+    for (let i = 0; i < 4; i++) {
+      const lx = 50 + i * (w - 100) / 3;
+      const ly = h - 120 + Math.sin(frame * 0.05 + i) * 8;
+      ctx.fillStyle = 'rgba(255, 215, 0, 0.2)';
+      ctx.beginPath();
+      ctx.arc(lx, ly, 25, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#FF8C00';
+      ctx.beginPath();
+      ctx.arc(lx, ly, 12, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    // Mystical ground fog
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+    for (let i = 0; i < 5; i++) {
+      ctx.beginPath();
+      ctx.ellipse(w * (0.1 + i * 0.2), h - 40 + Math.sin(frame * 0.03 + i) * 10, 70, 25, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    // Dark purple-brown earth ground
+    ctx.fillStyle = '#2d1b1a';
     ctx.fillRect(0, h - 60, w, 60);
     
-    ctx.strokeStyle = '#6BA84D';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < w; i += 8) {
+    // Golden pathway
+    ctx.strokeStyle = 'rgba(255, 215, 0, 0.25)';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([10, 10]);
+    ctx.beginPath();
+    ctx.moveTo(0, h - 40);
+    ctx.lineTo(w, h - 40);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    
+  // === AREA 2: 西洋占い広場 (Western Fortune Square) ===
+  } else if (areaId === 2) {
+    // Deep purple-to-magenta gradient
+    const skyGradient = ctx.createLinearGradient(0, 0, 0, h);
+    skyGradient.addColorStop(0, '#1a0a2e');
+    skyGradient.addColorStop(0.4, '#3d1b69');
+    skyGradient.addColorStop(1, '#4a1a8a');
+    ctx.fillStyle = skyGradient;
+    ctx.fillRect(0, 0, w, h);
+    
+    // Floating tarot card silhouettes with golden borders
+    for (let i = 0; i < 5; i++) {
+      const tx = (frame * 0.25 + i * 100) % (w + 60) - 30;
+      const ty = 60 + i * 40 + Math.sin(frame * 0.05 + i) * 15;
+      const rotation = Math.sin(frame * 0.02 + i) * 0.15;
+      ctx.save();
+      ctx.translate(tx, ty);
+      ctx.rotate(rotation);
+      ctx.fillStyle = 'rgba(30, 20, 50, 0.6)';
+      ctx.fillRect(-8, 0, 16, 28);
+      ctx.strokeStyle = 'rgba(255, 215, 0, 0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(-8, 0, 16, 28);
+      ctx.restore();
+    }
+    
+    // Crystal ball glow effect
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.08)';
+    for (let r = 70; r > 5; r -= 12) {
       ctx.beginPath();
-      ctx.moveTo(i, h - 60);
-      ctx.lineTo(i + 3, h - 70);
+      ctx.arc(w - 90, h - 110, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    // Large glowing crystal ball center
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
+    ctx.beginPath();
+    ctx.arc(w - 90, h - 110, 35, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Candle flame particles (orange-gold floating upward)
+    for (let i = 0; i < 8; i++) {
+      const cx = 60 + i * 60;
+      const cy = h - 80 - (frame * 0.8 + i * 10) % (h * 0.5);
+      ctx.fillStyle = 'rgba(255, 140, 0, 0.3 - (i * 0.03))';
+      ctx.beginPath();
+      ctx.arc(cx + Math.sin(frame * 0.05 + i) * 5, cy, 4 - i * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    // Constellation dot patterns with golden lines
+    ctx.strokeStyle = 'rgba(255, 215, 0, 0.25)';
+    ctx.lineWidth = 1;
+    const constellations = [
+      [[150, 150], [220, 180], [180, 240]],
+      [[w - 180, 160], [w - 120, 140], [w - 150, 220]]
+    ];
+    for (let c of constellations) {
+      for (let j = 0; j < c.length; j++) {
+        ctx.beginPath();
+        ctx.moveTo(c[j][0], c[j][1]);
+        ctx.lineTo(c[(j + 1) % c.length][0], c[(j + 1) % c.length][1]);
+        ctx.stroke();
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath();
+        ctx.arc(c[j][0], c[j][1], 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    
+    // Dark stone texture ground
+    ctx.fillStyle = '#1a1a2e';
+    ctx.fillRect(0, h - 60, w, 60);
+    
+    // Stone texture pattern
+    ctx.strokeStyle = 'rgba(100, 0, 100, 0.15)';
+    ctx.lineWidth = 0.5;
+    for (let i = 0; i < w; i += 15) {
+      for (let j = h - 60; j < h; j += 15) {
+        ctx.strokeRect(i, j, 15, 15);
+      }
+    }
+    
+  // === AREA 3: ふしぎ占い森 (Mysterious Fortune Forest) ===
+  } else if (areaId === 3) {
+    // Deep teal-to-dark green gradient
+    const skyGradient = ctx.createLinearGradient(0, 0, 0, h);
+    skyGradient.addColorStop(0, '#0a1a0e');
+    skyGradient.addColorStop(0.5, '#0d2618');
+    skyGradient.addColorStop(1, '#1a3d2e');
+    ctx.fillStyle = skyGradient;
+    ctx.fillRect(0, 0, w, h);
+    
+    // Bioluminescent mushroom glow (cyan/green spots)
+    for (let i = 0; i < 6; i++) {
+      const mx = 50 + i * (w - 100) / 5;
+      const my = h - 80 + Math.sin(frame * 0.04 + i) * 5;
+      ctx.fillStyle = 'rgba(0, 255, 150, 0.15)';
+      ctx.beginPath();
+      ctx.arc(mx, my, 30, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(0, 200, 130, 0.4)';
+      ctx.beginPath();
+      ctx.arc(mx, my, 8, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    // Floating fairy lights (multi-colored tiny orbs)
+    const fairyColors = ['#FF69B4', '#00FF88', '#87CEEB', '#FFD700'];
+    for (let i = 0; i < 10; i++) {
+      const fx = (frame * 0.4 + i * 60) % w;
+      const fy = 100 + i * 30 + Math.sin(frame * 0.08 + i) * 30;
+      const brightness = 0.4 + Math.cos(frame * 0.06 + i) * 0.6;
+      ctx.globalAlpha = brightness;
+      ctx.fillStyle = fairyColors[i % 4];
+      ctx.beginPath();
+      ctx.arc(fx, fy, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = brightness * 0.5;
+      ctx.beginPath();
+      ctx.arc(fx, fy, 6, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    
+    // Magical sparkle particles rising upward
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.5)';
+    for (let i = 0; i < 10; i++) {
+      const sx = Math.sin(frame * 0.05 + i) * 40 + w * 0.5;
+      const sy = h - (frame * 0.5 + i * 20) % h;
+      ctx.globalAlpha = 0.6 - (sy / h) * 0.5;
+      ctx.beginPath();
+      ctx.arc(sx, sy, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    
+    // Mystical fog between trees
+    ctx.fillStyle = 'rgba(0, 255, 150, 0.08)';
+    for (let i = 0; i < 4; i++) {
+      ctx.beginPath();
+      ctx.ellipse(w * (0.2 + i * 0.2), h - 100 + Math.sin(frame * 0.02 + i) * 15, 90, 30, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    // Dark mossy earth with glowing patches
+    ctx.fillStyle = '#0d1e15';
+    ctx.fillRect(0, h - 60, w, 60);
+    ctx.fillStyle = 'rgba(0, 255, 150, 0.1)';
+    for (let i = 0; i < 8; i++) {
+      ctx.beginPath();
+      ctx.arc(30 + i * (w - 60) / 7, h - 30, 15, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+  // === AREA 4: 星空占いの丘 (Starry Fortune Hill) ===
+  } else if (areaId === 4) {
+    // Ultra deep space gradient
+    const skyGradient = ctx.createLinearGradient(0, 0, 0, h);
+    skyGradient.addColorStop(0, '#050510');
+    skyGradient.addColorStop(0.5, '#0a0a2e');
+    skyGradient.addColorStop(1, '#15103d');
+    ctx.fillStyle = skyGradient;
+    ctx.fillRect(0, 0, w, h);
+    
+    // Multi-layered star field
+    ctx.fillStyle = '#FFF';
+    for (let i = 0; i < 80; i++) {
+      const sx = (i * 73) % w;
+      const sy = (i * 61) % (h * 0.65);
+      const size = 0.5 + (i % 4) * 0.4;
+      const brightness = 0.3 + Math.sin(frame * 0.01 + i * 0.3) * 0.7;
+      ctx.globalAlpha = brightness;
+      ctx.beginPath();
+      ctx.arc(sx, sy, size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    
+    // Aurora borealis effect
+    const auroraGradient = ctx.createLinearGradient(0, h * 0.3, 0, h * 0.55);
+    auroraGradient.addColorStop(0, 'rgba(100, 200, 100, 0)');
+    auroraGradient.addColorStop(0.25, 'rgba(100, 200, 100, 0.12)');
+    auroraGradient.addColorStop(0.5, 'rgba(150, 100, 200, 0.18)');
+    auroraGradient.addColorStop(0.75, 'rgba(200, 100, 200, 0.12)');
+    auroraGradient.addColorStop(1, 'rgba(100, 100, 200, 0)');
+    ctx.fillStyle = auroraGradient;
+    ctx.fillRect(0, h * 0.3, w, h * 0.25);
+    
+    // Large moon with craters
+    ctx.fillStyle = '#E8E8D0';
+    ctx.beginPath();
+    ctx.arc(w - 110, 100, 50, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#050510';
+    ctx.beginPath();
+    ctx.arc(w - 100, 90, 50, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#C0C0B0';
+    for (let i = 0; i < 10; i++) {
+      const angle = (i / 10) * Math.PI * 2;
+      const cx = w - 110 + Math.cos(angle) * 28;
+      const cy = 100 + Math.sin(angle) * 28;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 2 + (i % 3) * 0.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    // Nebula clouds
+    ctx.fillStyle = 'rgba(150, 100, 200, 0.1)';
+    ctx.beginPath();
+    ctx.ellipse(w * 0.25, h * 0.35, 110, 85, 0.4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(100, 100, 200, 0.08)';
+    ctx.beginPath();
+    ctx.ellipse(w * 0.7, h * 0.4, 130, 95, -0.3, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Constellation patterns with golden lines
+    ctx.strokeStyle = 'rgba(255, 215, 0, 0.3)';
+    ctx.lineWidth = 1;
+    const constellations = [
+      [[100, 200], [180, 180], [160, 280], [100, 200]],
+      [[w - 200, 150], [w - 120, 180], [w - 140, 280], [w - 200, 150]],
+      [[w * 0.3, 320], [w * 0.45, 300], [w * 0.5, 380], [w * 0.3, 320]]
+    ];
+    for (let c of constellations) {
+      for (let j = 0; j < c.length - 1; j++) {
+        ctx.beginPath();
+        ctx.moveTo(c[j][0], c[j][1]);
+        ctx.lineTo(c[j + 1][0], c[j + 1][1]);
+        ctx.stroke();
+      }
+      for (let pt of c) {
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath();
+        ctx.arc(pt[0], pt[1], 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    
+    // Occasional shooting star
+    const shootFrame = frame % 300;
+    if (shootFrame < 80) {
+      const shootX = w * 0.5 + shootFrame * 2;
+      const shootY = 150 - shootFrame * 0.5;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(shootX, shootY);
+      ctx.lineTo(shootX - 40, shootY + 20);
       ctx.stroke();
     }
     
-  } else if (areaId === 3) {
-    ctx.fillStyle = '#2D5016';
-    ctx.fillRect(0, 0, w, h * 0.6);
-    
-    ctx.fillStyle = '#1B4D0E';
-    ctx.fillRect(0, h * 0.6, w, h * 0.4);
-    
-    ctx.fillStyle = '#0D3D00';
-    for (let i = 0; i < 5; i++) {
-      const tx = i * (w / 4.5) + 20;
-      ctx.fillRect(tx, h * 0.5, 8, 30);
-      ctx.beginPath();
-      ctx.moveTo(tx + 4, h * 0.3);
-      ctx.lineTo(tx - 15, h * 0.5);
-      ctx.lineTo(tx + 23, h * 0.5);
-      ctx.closePath();
-      ctx.fill();
+    // Dark silhouette hill
+    ctx.fillStyle = '#0a0a0e';
+    ctx.beginPath();
+    ctx.moveTo(0, h * 0.65);
+    for (let i = 0; i <= w; i += 25) {
+      const hillY = h * 0.65 - Math.sin(i * 0.008) * 30 - Math.cos(frame * 0.0005 + i * 0.001) * 3;
+      ctx.lineTo(i, hillY);
     }
-    
-    ctx.fillStyle = 'rgba(255, 255, 0, 0.8)';
-    for (let i = 0; i < 6; i++) {
-      const fx = 60 + i * 120 + Math.sin(frame * 0.1 + i) * 20;
-      const fy = 100 + i * 40 + Math.cos(frame * 0.08 + i) * 15;
-      const alpha = 0.3 + Math.sin(frame * 0.15 + i) * 0.5;
-      ctx.globalAlpha = alpha;
-      ctx.beginPath();
-      ctx.arc(fx, fy, 2.5, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-    
-  } else if (areaId === 4) {
-    const nightGradient = ctx.createLinearGradient(0, 0, 0, h);
-    nightGradient.addColorStop(0, '#001a4d');
-    nightGradient.addColorStop(1, '#0d0033');
-    ctx.fillStyle = nightGradient;
-    ctx.fillRect(0, 0, w, h);
-    
-    ctx.fillStyle = '#FFF8DC';
-    ctx.beginPath();
-    ctx.arc(w - 80, 60, 30, 0, Math.PI * 2);
+    ctx.lineTo(w, h);
+    ctx.lineTo(0, h);
     ctx.fill();
-    
-    ctx.fillStyle = '#E8E8D0';
-    ctx.beginPath();
-    ctx.arc(w - 75, 45, 3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(w - 90, 65, 2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(w - 65, 70, 2.5, 0, Math.PI * 2);
-    ctx.fill();
-    
-    ctx.fillStyle = '#FFF';
-    for (let i = 0; i < 30; i++) {
-      const sx = (i * 73) % w;
-      const sy = (i * 47) % (h * 0.6);
-      const brightness = 0.3 + Math.sin(frame * 0.05 + i) * 0.7;
-      ctx.globalAlpha = brightness;
-      ctx.beginPath();
-      ctx.arc(sx, sy, 1.5, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-    
-    ctx.fillStyle = '#1a1a2e';
-    ctx.fillRect(0, h - 40, w, 40);
   }
+  
+  // === SHARED: Floating golden sparkles (all areas) ===
+  ctx.fillStyle = '#FFD700';
+  for (let i = 0; i < 20; i++) {
+    const sx = (frame * 0.8 + i * 83) % (w + 40) - 20;
+    const sy = (frame * 0.5 + i * 59) % (h + 40) - 20;
+    const sparkleSize = 0.4 + Math.sin(frame * 0.12 + i) * 0.5;
+    ctx.globalAlpha = 0.3 + Math.sin(frame * 0.1 + i * 0.7) * 0.5;
+    ctx.beginPath();
+    ctx.arc(sx, sy, sparkleSize, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  
+  // === SHARED: Subtle vignette effect ===
+  const vignette = ctx.createRadialGradient(w * 0.5, h * 0.5, 0, w * 0.5, h * 0.5, Math.max(w, h) * 0.7);
+  vignette.addColorStop(0, 'rgba(0, 0, 0, 0)');
+  vignette.addColorStop(1, 'rgba(0, 0, 0, 0.35)');
+  ctx.fillStyle = vignette;
+  ctx.fillRect(0, 0, w, h);
 }
 
 // ============================================================
@@ -1979,7 +2522,7 @@ function W() { return window.innerWidth; }
 function H() { return window.innerHeight; }
 
 let canvas, ctx, cW, cH;
-let audioCtx, bgmGain, bgmPlaying = false, bgmInterval;
+let audioCtx, masterGain, bgmPlaying = false, bgmTimers = [];
 const DEVICE_PIXEL_RATIO = window.devicePixelRatio || 1;
 const GROUND_Y_RATIO = 0.62;
 const PLAYER_WALK_Y_RATIO = 0.72;
@@ -2003,7 +2546,7 @@ const AREAS = [
       { id: 'kyusei', name: '九星気学堂', fortuneType: 'kyusei' },
       { id: 'hanauranai', name: '花占い処', fortuneType: 'hanauranai' },
       { id: 'yumeuranai', name: '夢占い庵', fortuneType: 'yumeuranai' },
-      { id: 'fusui', name: '風水の間', fortuneType: 'fusui' }
+      { id: 'rokusei', name: '六星占術の殿堂', fortuneType: 'rokusei' }
     ]
   },
   {
@@ -2427,33 +2970,78 @@ function generateFortune(fortuneType, answers = []) {
   if (fortuneType === 'omikuji') {
     const level = OMIKUJI_LEVELS[Math.floor(Math.random() * OMIKUJI_LEVELS.length)];
     const messages = {
-      '大吉': ['願いは必ず叶う。迷わず進め。', '今こそ挑戦の時。全力を尽くしなさい。', 'チャンスが訪れる。逃すな。'],
-      '吉': ['願いは叶う。ただし工夫が必要。', '努力の先に道が開ける。', '時間がかかるが叶う願い。'],
-      '中吉': ['願いは叶うが時間がかかる。', '工夫と努力で道が開ける。', 'チャンスを見極めることが大切。'],
-      '小吉': ['願いは時間をかけて叶う。', '努力が必要。諦めずに。', 'チャンスは小さいが存在する。'],
-      '末吉': ['願いは叶いにくい。工夫が重要。', '別の道を探ることも視野に。', 'タイミングが難しい時期。'],
-      '凶': ['願いは叶いにくい。時を待つべし。', '現状では実現不可能。', '異なるアプローチを模索せよ。']
+      '大吉': ['願いは必ず叶う。迷わず進め。', '今こそ挑戦の時。全力を尽くしなさい。', 'チャンスが訪れる。逃すな。', '幸運の波が訪れています。積極的に行動しましょう。', '大きな成功があなたを待っています。', '道は開かれました。前に進んでください。', 'この時期は何をしても上手くいく時です。', '直感を信じ、大胆に決断しましょう。', 'チャンスは一度きり。今この時を大切に。', '幸運の星があなたを見守っています。', '願いは確実に実現へ向かっています。', '運命の扉が大きく開かれました。'],
+      '吉': ['願いは叶う。ただし工夫が必要。', '努力の先に道が開ける。', '時間がかかるが叶う願い。', '着実な努力が報われる時期です。', '希望を持ち続けることが大切です。', '小さな成功を積み重ねましょう。', '計画的に進めば願いは叶います。', '周囲のサポートを活用しましょう。', '焦らず、一歩一歩進みましょう。', 'あなたの努力は必ず報われます。', '困難もありますが乗り越えられます。', '忍耐強さが成功の鍵となります。'],
+      '中吉': ['願いは叶うが時間がかかる。', '工夫と努力で道が開ける。', 'チャンスを見極めることが大切。', 'タイミングの工夫が必要です。', 'もう少し待つ時間が必要かもしれません。', 'こまめな努力の蓄積が大事です。', 'コミュニケーションを大切にしましょう。', 'アドバイスを参考に進めてください。', '慌てず、焦らず、確実に進みましょう。', 'チャンスは必ず来ます。準備をしておきましょう。', 'この経験を活かして成長しましょう。', '運気は着実に上昇しています。'],
+      '小吉': ['願いは時間をかけて叶う。', '努力が必要。諦めずに。', 'チャンスは小さいが存在する。', 'コツコツとした努力が大切です。', '困難ですが不可能ではありません。', '工夫次第で道は開けます。', '多くの人のサポートを求めましょう。', 'この試練を乗り越えることで成長します。', '小さな成功を喜びに変えましょう。', '長期的な視点を持つことが大事です。', '信じて、努力し、待つことが大切です。', '希望を捨てなければ道は開けます。'],
+      '末吉': ['願いは叶いにくい。工夫が重要。', '別の道を探ることも視野に。', 'タイミングが難しい時期。', '今は準備の時期かもしれません。', '別のアプローチを試してみましょう。', '長期計画に切り替えることをお勧めします。', '現在の判断が正しいか再検討しましょう。', 'より適切な時期を待つのも良いでしょう。', '今は学びと準備に時間を使いましょう。', '他の可能性も視野に入れてください。', '焦らず、次のチャンスを待ちましょう。', '運気の転換点に向かっています。'],
+      '凶': ['願いは叶いにくい。時を待つべし。', '現状では実現不可能。', '異なるアプローチを模索せよ。', 'この時期は内面を磨く時です。', '一度立ち止まり、考え直してみましょう。', '大きな変化が起こる予兆かもしれません。', '多くの学びが得られる時期です。', 'この困難があなたを成長させます。', '今は耐える時期。春は必ず来ます。', '信念を貫き、前に進んでください。', '窮地こそが強さを育みます。', 'この苦労は将来の糧になります。']
     };
 
     result.level = level;
     result.message = messages[level][Math.floor(Math.random() * messages[level].length)];
     result.advice = 'このおみくじから与えられる助言を大切にしてください。あなたの行動と心がけが未来を形作ります。';
+    const luckyItems = {
+      colors: ['赤', '白', '金', '黒', '青', '緑', 'ピンク', 'オレンジ'],
+      numbers: [1, 3, 5, 7, 8, 9, 11, 13],
+      directions: ['北', '東', '南', '西', '北東', '南東', '南西', '北西'],
+      foods: ['米', 'うどん', 'わかめ', 'なす', 'みかん', 'こんにゃく', '豆', '栗']
+    };
     result.lucky = {
-      color: ['赤', '白', '金', '黒', '青'][Math.floor(Math.random() * 5)],
-      number: [1, 3, 5, 7, 8, 9][Math.floor(Math.random() * 6)],
-      direction: ['北', '東', '南', '西'][Math.floor(Math.random() * 4)],
-      food: ['米', 'うどん', 'わかめ', 'なす', 'みかん'][Math.floor(Math.random() * 5)]
+      color: luckyItems.colors[Math.floor(Math.random() * luckyItems.colors.length)],
+      number: luckyItems.numbers[Math.floor(Math.random() * luckyItems.numbers.length)],
+      direction: luckyItems.directions[Math.floor(Math.random() * luckyItems.directions.length)],
+      food: luckyItems.foods[Math.floor(Math.random() * luckyItems.foods.length)]
     };
   } else if (fortuneType === 'tarot') {
-    const cardNames = ['愚者', 'マジシャン', '女教皇', '女帝', '皇帝', '教皇', '恋人', '戦車', '力', '隠者'];
-    result.cards = [
-      cardNames[Math.floor(Math.random() * cardNames.length)],
-      cardNames[Math.floor(Math.random() * cardNames.length)],
-      cardNames[Math.floor(Math.random() * cardNames.length)]
+    const majorArcana = [
+      {name:'愚者',meaning:'新しい始まり・冒険',reversed:'慎重さ・足踏み'},
+      {name:'マジシャン',meaning:'創造・力・能力',reversed:'欺き・無能'},
+      {name:'女教皇',meaning:'知恵・秘密・直感',reversed:'表面的・隠蔽'},
+      {name:'女帝',meaning:'豊かさ・創造力・優雅',reversed:'欠乏・停滞'},
+      {name:'皇帝',meaning:'権力・支配・リーダーシップ',reversed:'弱さ・混乱'},
+      {name:'教皇',meaning:'伝統・倫理・道徳',reversed:'反抗・独立'},
+      {name:'恋人',meaning:'愛・関係・選択',reversed:'別離・迷い'},
+      {name:'戦車',meaning:'勝利・移動・決意',reversed:'失敗・停滞'},
+      {name:'力',meaning:'強さ・自制・勇気',reversed:'弱さ・敗北'},
+      {name:'隠者',meaning:'反省・探求・孤独',reversed:'無知・浮散'},
+      {name:'運命の輪',meaning:'変化・サイクル・運命',reversed:'不運・停止'},
+      {name:'正義',meaning:'バランス・真実・法',reversed:'不正・偏見'},
+      {name:'吊された人',meaning:'視点の転換・犠牲',reversed:'無関心・執着'},
+      {name:'死神',meaning:'変容・終わり・始まり',reversed:'停滞・拒否'},
+      {name:'節制',meaning:'調和・バランス・節度',reversed:'過度・不均衡'},
+      {name:'悪魔',meaning:'束縛・本能・欲望',reversed:'解放・超越'},
+      {name:'塔',meaning:'突然の変化・啓発',reversed:'逆境・抵抗'},
+      {name:'星',meaning:'希望・期待・輝き',reversed:'絶望・怠け'},
+      {name:'月',meaning:'直感・幻想・無意識',reversed:'真実・明晰'},
+      {name:'太陽',meaning:'幸福・成功・祝福',reversed:'曇り・後退'},
+      {name:'審判',meaning:'目覚め・再生・判定',reversed:'延期・否定'},
+      {name:'世界',meaning:'完成・達成・統一',reversed:'未完・分裂'}
     ];
+    
+    const isReversed = Math.random() > 0.7;
+    const getCard = () => majorArcana[Math.floor(Math.random() * majorArcana.length)];
+    result.cards = [getCard(), getCard(), getCard()];
+    result.reversed = [Math.random() > 0.6, Math.random() > 0.6, Math.random() > 0.6];
     result.spread = '3カード・スプレッド (過去/現在/未来)';
-    result.message = `${result.cards[0]}（過去） → ${result.cards[1]}（現在） → ${result.cards[2]}（未来）`;
-    result.advice = 'このカードたちのメッセージを心に留め、あなたの直感に耳を傾けてください。';
+    
+    const cardDescriptions = result.cards.map((card, idx) => {
+      const meaning = result.reversed[idx] ? card.reversed : card.meaning;
+      return `${card.name}（${meaning}）`;
+    });
+    
+    result.message = `${cardDescriptions[0]}（過去） → ${cardDescriptions[1]}（現在） → ${cardDescriptions[2]}（未来）`;
+    const interpretations = [
+      'これらのカードは、あなたの人生の流れを示しています。',
+      'カードたちが示す物語を読み解いてください。',
+      'タロットの声があなたに語りかけています。',
+      'これはあなたの内なる声からのメッセージです。',
+      'カードが示す真理を受け入れてください。',
+      'あなたの運命はこのカードに映されています。',
+      'タロットの智恵があなたを導くでしょう。',
+      'これらのカードがあなたの道を照らします。'
+    ];
+    result.advice = interpretations[Math.floor(Math.random() * interpretations.length)];
   } else if (fortuneType === 'numerology') {
     const lifePath = G.playerBirthday ? calculateLifePath(G.playerBirthday) : Math.floor(Math.random() * 9) + 1;
     result.number = lifePath;
@@ -2468,11 +3056,69 @@ function generateFortune(fortuneType, answers = []) {
       8: '力と豊かさのパス。リーダーになる運命。',
       9: '完成と奉仕のパス。人道主義者になる運命。'
     };
+    const traits = {
+      1: 'リーダー気質、独創的、決断力がある',
+      2: '協調性、優しさ、直感が鋭い',
+      3: '表現力、社交的、芸術的才能',
+      4: '実務的、誠実、堅実で真面目',
+      5: '行動的、好奇心旺盛、自由奔放',
+      6: '愛情深い、責任感強い、献身的',
+      7: '分析的、深思熟考、霊的志向',
+      8: 'ビジネス感覚、権力志向、野心的',
+      9: '理想主義者、思慮深い、人道的'
+    };
+    const compatibility = {
+      1: [3,5,9], 2: [2,4,8], 3: [1,3,5], 4: [2,4,8], 5: [1,5,7],
+      6: [3,6,9], 7: [5,7,9], 8: [2,4,8], 9: [1,6,9]
+    };
+    const luckyDays = {
+      1: '1,10,19,28日',
+      2: '2,11,20,29日',
+      3: '3,12,21,30日',
+      4: '4,13,22,31日',
+      5: '5,14,23日',
+      6: '6,15,24日',
+      7: '7,16,25日',
+      8: '8,17,26日',
+      9: '9,18,27日'
+    };
     result.message = meanings[lifePath] || '数字があなたを導きます。';
-    result.advice = 'あなたのライフパスナンバーは ' + lifePath + ' です。このパスを歩み続けましょう。';
+    result.personality = traits[lifePath];
+    result.compatibleNumbers = compatibility[lifePath];
+    result.luckyDays = luckyDays[lifePath];
+    result.advice = `あなたのライフパスナンバーは ${lifePath} です。性質：${traits[lifePath]}。相性の良い数字は${compatibility[lifePath].join('、')}です。`;
   } else if (fortuneType === 'astrology' || fortuneType === 'zodiac') {
     const zodiac = G.playerZodiac || ZODIAC_SIGNS[Math.floor(Math.random() * ZODIAC_SIGNS.length)];
     result.zodiac = typeof zodiac === 'string' ? zodiac : zodiac.name;
+    const adviceTexts = {
+      '牡羊座': 'あなたの積極性が活かされる時期です。勇敢に前に進みましょう。',
+      '牡牛座': '着実な努力が報われます。焦らず計画を進めてください。',
+      '双子座': 'コミュニケーションが重要です。周囲との関係を大切にしましょう。',
+      '蟹座': '感情を信じてください。直感があなたを導きます。',
+      '獅子座': 'あなたの輝きを発揮する時です。自信を持って行動しましょう。',
+      '乙女座': 'ディテールに注意してください。完璧さを目指すのは素晴らしい。',
+      '天秤座': 'バランスを取ることが大切です。調和を心がけましょう。',
+      '蠍座': 'あなたの深い洞察力が活躍します。本質を見極めてください。',
+      '射手座': '学びと成長の時期です。新しい知識を追求しましょう。',
+      '山羊座': '実現への道が開けています。努力を続けてください。',
+      '水瓶座': 'あなたのユニークさが価値を持ちます。創新性を大切にしましょう。',
+      '魚座': '心の声に耳を傾けてください。感受性があなたの力です。'
+    };
+    const luckyTime = ['9時', '12時', '15時', '18時', '21時', '深夜12時'];
+    const compatibleSigns = {
+      '牡羊座': ['獅子座','射手座'],
+      '牡牛座': ['蟹座','乙女座'],
+      '双子座': ['天秤座','水瓶座'],
+      '蟹座': ['蠍座','魚座'],
+      '獅子座': ['牡羊座','射手座'],
+      '乙女座': ['牡牛座','蟹座'],
+      '天秤座': ['双子座','水瓶座'],
+      '蠍座': ['蟹座','魚座'],
+      '射手座': ['牡羊座','獅子座'],
+      '山羊座': ['牡牛座','乙女座'],
+      '水瓶座': ['双子座','天秤座'],
+      '魚座': ['蟹座','蠍座']
+    };
     result.ratings = {
       overall: Math.floor(Math.random() * 5) + 1,
       love: Math.floor(Math.random() * 5) + 1,
@@ -2480,123 +3126,397 @@ function generateFortune(fortuneType, answers = []) {
       money: Math.floor(Math.random() * 5) + 1,
       health: Math.floor(Math.random() * 5) + 1
     };
+    result.luckyTime = luckyTime[Math.floor(Math.random() * luckyTime.length)];
+    result.compatibleWith = compatibleSigns[result.zodiac] || ['？','？'];
     result.message = result.zodiac + ' の運勢は好調です。星たちはあなたを支援しています。';
-    result.advice = 'このメッセージを大切に。星の導きに従いましょう。';
+    result.advice = adviceTexts[result.zodiac] || 'このメッセージを大切に。星の導きに従いましょう。';
   } else if (fortuneType === 'shichusuimei') {
     const tenkan = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
     const chishi = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
     const myTenkan = tenkan[Math.floor(Math.random()*10)];
     const myChishi = chishi[Math.floor(Math.random()*12)];
     result.pillar = myTenkan + myChishi;
-    result.element = ['木','火','土','金','水'][Math.floor(Math.random()*5)];
-    result.message = `あなたの日柱は「${result.pillar}」。五行は「${result.element}」の性質を持っています。`;
+    
+    const elements = {
+      '甲': '木', '乙': '木', '丙': '火', '丁': '火', '戊': '土',
+      '己': '土', '庚': '金', '辛': '金', '壬': '水', '癸': '水'
+    };
+    result.element = elements[myTenkan];
+    
+    const elementTraits = {
+      '木': '成長・発展・仁愛・創意に恵まれた性質',
+      '火': '情熱・活動力・礼儀正しさ・リーダー気質',
+      '土': '安定・包容力・信頼・地道な成長',
+      '金': '変化・行動力・義理堅さ・厳格さ',
+      '水': '知恵・聡明さ・柔軟性・神秘的なパワー'
+    };
+    
+    const pillarCombinations = [
+      {combo: '甲子', meaning: '新しい始まり、創造的なエネルギー'},
+      {combo: '乙丑', meaning: '着実さと柔軟性、穏やかな運勢'},
+      {combo: '丙寅', meaning: '炎のような情熱、大きな発展'},
+      {combo: '丁卯', meaning: 'バランス感覚、調和と安定'},
+      {combo: '戊辰', meaning: '包容力、周囲を支える力'},
+      {combo: '己巳', meaning: '直感と知恵、スピリチュアルな力'},
+      {combo: '庚午', meaning: 'パワフルな行動力、変化への強さ'},
+      {combo: '辛未', meaning: '精密性と優雅さ、細やかさ'},
+      {combo: '壬申', meaning: '知恵と機知、変わり身の早さ'},
+      {combo: '癸酉', meaning: 'インスピレーション、深い思考'}
+    ];
+    
+    let combMeaning = 'あなたのユニークな運命を形作ります。';
+    const combo = pillarCombinations.find(c => c.combo === result.pillar);
+    if (combo) combMeaning = combo.meaning;
+    
+    result.traitDescription = elementTraits[result.element];
+    result.message = `あなたの日柱は「${result.pillar}」。五行は「${result.element}」の性質。${combMeaning}`;
     result.advice = '四柱推命は古代中国から伝わる命術。生年月日時から運命の流れを読み解きます。';
   } else if (fortuneType === 'kyusei') {
     const stars = ['一白水星','二黒土星','三碧木星','四緑木星','五黄土星','六白金星','七赤金星','八白土星','九紫火星'];
     const myStar = stars[Math.floor(Math.random()*9)];
     const directions = ['北','北東','東','南東','南','南西','西','北西'];
+    
+    const starTraits = {
+      '一白水星': '聡明さ、柔軟性、社交性、知識への欲求',
+      '二黒土星': '真面目さ、忍耐力、包容力、献身性',
+      '三碧木星': '活動力、行動力、成長志向、直感',
+      '四緑木星': '優しさ、調和性、感受性、発展性',
+      '五黄土星': 'カリスマ性、リーダーシップ、変化への強さ',
+      '六白金星': 'エレガンス、理性、完璧性、正義感',
+      '七赤金星': '喜び、社交的、遊び心、商才',
+      '八白土星': '誠実さ、変化、革新性、若々しさ',
+      '九紫火星': '情熱、知識、創造性、カリスマ'
+    };
+    
+    const monthlyFortunes = {
+      '一白水星': ['人間関係が深まる月','新しい学びがある月','変化の月','冷静に過ごす月','交流を大切にする月'],
+      '二黒土星': ['基盤を整える月','力を蓄える月','忍耐の月','家族を大切に','準備の月'],
+      '三碧木星': ['飛躍の月','チャレンジ','新しい出発','活動的に','成長する月'],
+      '四緑木星': ['調和の月','周囲との関係を大切に','柔らかく対応','発展の準備','優しさで進む'],
+      '五黄土星': ['リーダーシップを発揮','大きな変化','目標達成','カリスマを活かす','決断の月'],
+      '六白金星': ['完成へ向かう月','ルールを大切に','品質を高める','理性的に判断','完璧を目指す'],
+      '七赤金星': ['交流と楽しみ','社交的に活動','商いが良好','遊び心で工夫','喜びを感じる'],
+      '八白土星': ['変化と革新','新しい可能性','活性化','若々しく活動','転機の月'],
+      '九紫火星': ['知識と創造','才能を活かす','スピード感','情熱的に','光る成果']
+    };
+    
     result.star = myStar;
     result.luckyDir = directions[Math.floor(Math.random()*8)];
-    result.message = `あなたの本命星は「${myStar}」。今月の吉方位は「${result.luckyDir}」です。`;
-    result.advice = '方位のエネルギーを活用して運気アップを目指しましょう。';
+    result.traits = starTraits[myStar];
+    result.monthlyFortune = monthlyFortunes[myStar][Math.floor(Math.random() * monthlyFortunes[myStar].length)];
+    result.message = `あなたの本命星は「${myStar}」。今月の吉方位は「${result.luckyDir}」です。特性：${result.traits}`;
+    result.advice = `${result.monthlyFortune}。方位のエネルギーを活用して運気アップを目指しましょう。`;
   } else if (fortuneType === 'hanauranai') {
-    const flowers = [{name:'バラ',meaning:'情熱と愛'},{name:'ひまわり',meaning:'明るさと希望'},{name:'すみれ',meaning:'謙虚と誠実'},{name:'桜',meaning:'新しい始まり'},{name:'チューリップ',meaning:'思いやり'},{name:'ラベンダー',meaning:'静けさと癒し'}];
+    const flowers = [
+      {name:'バラ',meaning:'情熱と愛',color:'赤',season:'春夏'},
+      {name:'ひまわり',meaning:'明るさと希望',color:'黄',season:'夏'},
+      {name:'すみれ',meaning:'謙虚と誠実',color:'紫',season:'春'},
+      {name:'桜',meaning:'新しい始まり',color:'ピンク',season:'春'},
+      {name:'チューリップ',meaning:'思いやり',color:'赤・ピンク',season:'春'},
+      {name:'ラベンダー',meaning:'静けさと癒し',color:'紫',season:'夏'},
+      {name:'牡丹',meaning:'豊かさと幸せ',color:'ピンク',season:'春'},
+      {name:'紫陽花',meaning:'謙虚と誠実',color:'青紫',season:'初夏'},
+      {name:'アイリス',meaning:'勇気と信念',color:'紫',season:'春'},
+      {name:'蓮',meaning:'清廉と悟り',color:'ピンク',season:'夏'},
+      {name:'菊',meaning:'高い心',color:'黄白紫',season:'秋'},
+      {name:'梅',meaning:'優雅と忍耐',color:'ピンク白',season:'冬春'}
+    ];
     const f = flowers[Math.floor(Math.random()*flowers.length)];
     result.flower = f.name;
-    result.message = `あなたの花は「${f.name}」。花言葉は「${f.meaning}」。この花があなたの運勢を導きます。`;
-    result.advice = `${f.name}を身近に置くと運気がアップするでしょう。`;
+    result.flowerColor = f.color;
+    result.season = f.season;
+    result.message = `あなたの花は「${f.name}」。花言葉は「${f.meaning}」。色は「${f.color}」。この花があなたの運勢を導きます。`;
+    result.advice = `${f.name}を身近に置くと運気がアップするでしょう。${f.season}は特に効果的です。`;
   } else if (fortuneType === 'yumeuranai') {
-    const dreams = [{theme:'空を飛ぶ夢',meaning:'自由への渇望。新しいことに挑戦する時期です。'},{theme:'海の夢',meaning:'感情の深さを表します。心を落ち着けましょう。'},{theme:'動物の夢',meaning:'本能的な直感が冴えています。直感を信じて。'},{theme:'花園の夢',meaning:'豊かさと成長の象徴。良い時期が訪れます。'},{theme:'星空の夢',meaning:'希望と目標を表します。高い志を持ちましょう。'}];
+    const dreams = [
+      {theme:'空を飛ぶ夢',meaning:'自由への渇望。新しいことに挑戦する時期です。',detail:'あなたは今、大きな可能性に気づいています。'},
+      {theme:'海の夢',meaning:'感情の深さを表します。心を落ち着けましょう。',detail:'感情の波が訪れています。内省の時間が大切です。'},
+      {theme:'動物の夢',meaning:'本能的な直感が冴えています。直感を信じて。',detail:'動物はあなたの内なる力を象徴しています。'},
+      {theme:'花園の夢',meaning:'豊かさと成長の象徴。良い時期が訪れます。',detail:'美しい変化があなたを待っています。'},
+      {theme:'星空の夢',meaning:'希望と目標を表します。高い志を持ちましょう。',detail:'あなたの願いは天に届いています。'},
+      {theme:'山の夢',meaning:'困難な状況を表します。但し乗り越えることで成長します。',detail:'頂上へ向かう決意が大切です。'},
+      {theme:'川の夢',meaning:'人生の流れ、感情の流動性を象徴します。',detail:'時の流れに身を任せることも必要です。'},
+      {theme:'火の夢',meaning:'情熱とエネルギー、または怖れを表します。',detail:'あなたの内なる火が燃えています。'},
+      {theme:'水中の夢',meaning:'無意識の深い領域に向かっています。',detail:'隠れた真実が浮かび上がる時期です。'},
+      {theme:'道を歩く夢',meaning:'人生の道のりを象徴します。',detail:'前に進む準備ができています。'}
+    ];
     const d = dreams[Math.floor(Math.random()*dreams.length)];
     result.dream = d.theme;
-    result.message = `「${d.theme}」が示すメッセージ：${d.meaning}`;
+    result.dreamDetail = d.detail;
+    result.message = `「${d.theme}」が示すメッセージ：${d.meaning}${d.detail}`;
     result.advice = '夢は潜在意識からのメッセージです。大切に受け止めましょう。';
+  } else if (fortuneType === 'rokusei') {
+    // 六星占術 - 運命星と運気の周期
+    const stars = [
+      {name:'土星人（＋）',trait:'慎重で堅実、信頼される努力家',cycle:'種子'},
+      {name:'土星人（−）',trait:'独立心が強く、自分の世界を持つ',cycle:'緑生'},
+      {name:'金星人（＋）',trait:'社交的で華やか、人を惹きつける',cycle:'立花'},
+      {name:'金星人（−）',trait:'芸術的で繊細、美的センス抜群',cycle:'健弱'},
+      {name:'火星人（＋）',trait:'情熱的でリーダーシップがある',cycle:'達成'},
+      {name:'火星人（−）',trait:'直感力に優れ、感性豊か',cycle:'乱気'},
+      {name:'天王星人（＋）',trait:'自由奔放で独創的、革新者',cycle:'再会'},
+      {name:'天王星人（−）',trait:'知的好奇心旺盛、多才多芸',cycle:'財成'},
+      {name:'木星人（＋）',trait:'おおらかで包容力がある、人望家',cycle:'安定'},
+      {name:'木星人（−）',trait:'温厚で優しい、癒しの存在',cycle:'陰影'},
+      {name:'水星人（＋）',trait:'頭脳明晰で計画的、戦略家',cycle:'停止'},
+      {name:'水星人（−）',trait:'柔軟で適応力が高い、調和者',cycle:'種子'}
+    ];
+    const s = stars[Math.floor(Math.random()*stars.length)];
+    const cycles = ['種子','緑生','立花','健弱','達成','乱気','再会','財成','安定','陰影','停止','減退'];
+    const cycleDesc = {
+      '種子':'新しいことを始めるのに最適な時期','緑生':'成長と発展の時期、学びを深めよう',
+      '立花':'才能が花開く時期、積極的に行動を','健弱':'体調管理に注意、無理は禁物',
+      '達成':'努力が実を結ぶ時期、大きな成果が','乱気':'変化が多い時期、慎重な判断を',
+      '再会':'人との縁が深まる時期、出会いに恵まれる','財成':'金運上昇の時期、投資にも吉',
+      '安定':'穏やかで安定した時期、基盤を固めよう','陰影':'内省の時期、自分と向き合おう',
+      '停止':'休息の時期、次への準備期間','減退':'エネルギー充電の時期、焦らずに'
+    };
+    const currentCycle = cycles[Math.floor(Math.random()*cycles.length)];
+    result.star = s.name;
+    result.trait = s.trait;
+    result.cycle = currentCycle;
+    result.message = `あなたの運命星は「${s.name}」。性格：${s.trait}。現在の運気は「${currentCycle}」の時期です。`;
+    result.advice = `${cycleDesc[currentCycle]}。六星占術では12年周期で運気が巡ります。今の時期を大切に過ごしましょう。`;
   } else if (fortuneType === 'fusui') {
     const elements = ['水','火','木','金','土'];
     const el = elements[Math.floor(Math.random()*5)];
-    const colors = {水:'青・黒',火:'赤・オレンジ',木:'緑・茶',金:'白・金',土:'黄・ベージュ'};
-    const items = {水:'水槽・鏡',火:'キャンドル・照明',木:'観葉植物・木製品',金:'金属製品・時計',土:'陶器・石'};
+    const fusuiData = {
+      水: {color:'青・黒',items:'水槽・鏡・噴水',direction:'北',placement:'玄関や寝室',season:'冬'},
+      火: {color:'赤・オレンジ',items:'キャンドル・照明・赤い装飾',direction:'南',placement:'リビング',season:'夏'},
+      木: {color:'緑・茶',items:'観葉植物・木製品・造花',direction:'東',placement:'窓辺',season:'春'},
+      金: {color:'白・金・銀',items:'金属製品・時計・コイン',direction:'西',placement:'玄関や南西',season:'秋'},
+      土: {color:'黄・ベージュ・茶',items:'陶器・石・盛り塩・ラテライト',direction:'中央',placement:'中心部分',season:'夏終わり'}
+    };
     result.element = el;
-    result.message = `あなたに必要な風水の気は「${el}」。ラッキーカラーは「${colors[el]}」です。`;
-    result.advice = `${items[el]}を部屋に取り入れると運気が改善します。`;
+    result.color = fusuiData[el].color;
+    result.items = fusuiData[el].items;
+    result.luckDirection = fusuiData[el].direction;
+    result.message = `あなたに必要な風水の気は「${el}」。ラッキーカラーは「${fusuiData[el].color}」です。`;
+    result.advice = `${fusuiData[el].items}を${fusuiData[el].placement}に取り入れると運気が改善します。${fusuiData[el].direction}方位を大切にしましょう。`;
   } else if (fortuneType === 'rune') {
-    const runes = [{name:'フェフ',symbol:'ᚠ',meaning:'財産と豊かさ'},{name:'ウルズ',symbol:'ᚢ',meaning:'力と健康'},{name:'アンスズ',symbol:'ᚨ',meaning:'知恵と導き'},{name:'ライゾ',symbol:'ᚱ',meaning:'旅と変化'},{name:'ケナズ',symbol:'ᚲ',meaning:'創造と情熱'},{name:'ギフ',symbol:'ᚷ',meaning:'贈り物と愛'}];
+    const runes = [
+      {name:'フェフ',symbol:'ᚠ',meaning:'財産と豊かさ',detail:'物質的な豊かさが訪れます'},
+      {name:'ウルズ',symbol:'ᚢ',meaning:'力と健康',detail:'あなたの力が目覚めています'},
+      {name:'アンスズ',symbol:'ᚨ',meaning:'知恵と導き',detail:'正しい道を教えてくれるメッセージ'},
+      {name:'ライゾ',symbol:'ᚱ',meaning:'旅と変化',detail:'新しい展開が始まります'},
+      {name:'ケナズ',symbol:'ᚲ',meaning:'創造と情熱',detail:'あなたの情熱が花開く時'},
+      {name:'ギフ',symbol:'ᚷ',meaning:'贈り物と愛',detail:'愛に満ちた時間が訪れます'},
+      {name:'ウィン',symbol:'ᚹ',meaning:'喜びと幸せ',detail:'喜びがあなたを包みます'},
+      {name:'ハグル',symbol:'ᚼ',meaning:'雹・困難',detail:'困難は成長の機会です'},
+      {name:'ナウド',symbol:'ᚾ',meaning:'必要性と制約',detail:'制限の中に自由があります'},
+      {name:'イス',symbol:'ᚪ',meaning:'アイスマン・停止',detail:'一度立ち止まる時期です'}
+    ];
     const r = runes[Math.floor(Math.random()*runes.length)];
     result.rune = r;
-    result.message = `引いたルーンは「${r.name}」${r.symbol}。意味は「${r.meaning}」。`;
+    result.message = `引いたルーンは「${r.name}」${r.symbol}。意味は「${r.meaning}」。${r.detail}`;
     result.advice = 'ルーンの古代の知恵があなたを導いています。';
   } else if (fortuneType === 'oracle') {
-    const cards = ['天使のカード：守護天使があなたを見守っています','豊穣のカード：実りの時期が近づいています','変容のカード：大きな変化が訪れます','愛のカード：愛に満ちた時間が待っています','勇気のカード：一歩踏み出す時です','直感のカード：あなたの内なる声に従いましょう'];
+    const cards = [
+      '天使のカード：守護天使があなたを見守っています。安心して進みましょう。',
+      '豊穣のカード：実りの時期が近づいています。種を蒔いた努力が実ります。',
+      '変容のカード：大きな変化が訪れます。その変化を受け入れることが大切。',
+      '愛のカード：愛に満ちた時間が待っています。人とのつながりを大切に。',
+      '勇気のカード：一歩踏み出す時です。恐れを乗り越えて進みましょう。',
+      '直感のカード：あなたの内なる声に従いましょう。その声は間違っていません。',
+      '成長のカード：あなたは成長の段階にいます。この経験が糧になります。',
+      '癒しのカード：心身の癒しの時が来ました。自分を労わることが大切。',
+      '光のカード：光があなたの道を照らしています。明るい未来が待っています。',
+      '解放のカード：縛られていたものから自由になります。新しい可能性が開けます。',
+      '感謝のカード：感謝の心が幸運を呼びます。周囲に感謝を伝えましょう。',
+      '新しい始まりのカード：新しい章が始まります。希望を持って進みましょう。'
+    ];
     const c = cards[Math.floor(Math.random()*cards.length)];
     result.message = c;
-    result.advice = 'オラクルカードはあなたの魂へのメッセージです。';
+    result.advice = 'オラクルカードはあなたの魂へのメッセージです。このメッセージを心に刻んでください。';
   } else if (fortuneType === 'pendulum') {
-    const answers = ['大きくYES！前に進みましょう','やさしくYES。ゆっくり進んで大丈夫','少し待ちましょう。タイミングが大切です','NO。別の道を探ってみましょう','強いYES！今がチャンスです！'];
+    const answers = [
+      '大きくYES！前に進みましょう。あなたの決断は正しいです。',
+      'やさしくYES。ゆっくり進んで大丈夫。焦らず着実に進みましょう。',
+      '少し待ちましょう。タイミングが大切です。もう少し準備の時間を。',
+      'NO。別の道を探ってみましょう。別のアプローチがあります。',
+      '強いYES！今がチャンスです！この瞬間を逃さないでください。',
+      'まあまあYES。条件付きで進めても大丈夫です。',
+      'NOに近いYES。慎重に進む必要があります。',
+      '強いNO。今は待つべき時です。',
+      'ハッキリしたNO。別の選択肢を探ってください。',
+      '？判定保留。もう一度問い直してみましょう。'
+    ];
     const a = answers[Math.floor(Math.random()*answers.length)];
     result.message = `ペンデュラムの答え：${a}`;
-    result.advice = '振り子はあなたの潜在意識と繋がっています。';
+    result.advice = '振り子はあなたの潜在意識と繋がっています。その答えに耳を傾けてください。';
   } else if (fortuneType === 'crystal') {
-    const visions = ['光り輝く道が見えます。あなたの未来は明るい。','静かな湖面に月が映っています。心を落ち着ける時期。','花が咲き乱れる庭園。豊かな時期が訪れます。','星が瞬く夜空。高い目標に向かって進みましょう。','虹がかかる空。困難の後に美しい結果が待っています。'];
+    const visions = [
+      '光り輝く道が見えます。あなたの未来は明るい。',
+      '静かな湖面に月が映っています。心を落ち着ける時期。',
+      '花が咲き乱れる庭園。豊かな時期が訪れます。',
+      '星が瞬く夜空。高い目標に向かって進みましょう。',
+      '虹がかかる空。困難の後に美しい結果が待っています。',
+      '輝く水晶が光を放っています。あなたの才能が開花する時。',
+      '深い洞窟から光が差し込んでいます。希望の光があります。',
+      '清い泉が湧き出ています。浄化と再生の時期です。'
+    ];
     result.message = `水晶に映るビジョン：${visions[Math.floor(Math.random()*visions.length)]}`;
     result.advice = '水晶は真実を映す鏡。心を静めて受け取りましょう。';
   } else if (fortuneType === 'animal') {
-    const spirits = [{animal:'オオカミ',trait:'直感力と家族愛'},{animal:'鷹',trait:'高い視点と決断力'},{animal:'イルカ',trait:'知性と遊び心'},{animal:'蝶',trait:'変容と美しさ'},{animal:'亀',trait:'忍耐と長寿'},{animal:'鹿',trait:'優しさと優雅さ'}];
+    const spirits = [
+      {animal:'オオカミ',trait:'直感力と家族愛',character:'忠誠心が強く、グループのリーダー'},
+      {animal:'鷹',trait:'高い視点と決断力',character:'スピード感と正確性が特徴'},
+      {animal:'イルカ',trait:'知性と遊び心',character:'社交的で知恵深い'},
+      {animal:'蝶',trait:'変容と美しさ',character:'優雅さと変化への柔軟性'},
+      {animal:'亀',trait:'忍耐と長寿',character:'堅実で長期的視点を持つ'},
+      {animal:'鹿',trait:'優しさと優雅さ',character:'感受性と優美さを兼ね備えている'},
+      {animal:'獅子',trait:'勇敢さとリーダーシップ',character:'王者の風格と支配力'},
+      {animal:'ふくろう',trait:'知恵と神秘性',character:'洞察力と精神性が高い'}
+    ];
     const s = spirits[Math.floor(Math.random()*spirits.length)];
     result.spiritAnimal = s.animal;
-    result.message = `あなたの守護動物は「${s.animal}」。特性は「${s.trait}」。`;
+    result.character = s.character;
+    result.message = `あなたの守護動物は「${s.animal}」。特性は「${s.trait}」。性質：${s.character}`;
     result.advice = `${s.animal}のように振る舞うことで運気がアップします。`;
   } else if (fortuneType === 'color') {
-    const colors = [{color:'レッド',meaning:'情熱・行動力',hex:'#FF4444'},{color:'ブルー',meaning:'冷静・知性',hex:'#4488FF'},{color:'グリーン',meaning:'癒し・成長',hex:'#44BB44'},{color:'ゴールド',meaning:'豊かさ・成功',hex:'#FFD700'},{color:'パープル',meaning:'直感・神秘',hex:'#9944CC'},{color:'ピンク',meaning:'愛・やさしさ',hex:'#FF88AA'}];
+    const colors = [
+      {color:'レッド',meaning:'情熱・行動力',hex:'#FF4444',item:'赤いバラ'},
+      {color:'ブルー',meaning:'冷静・知性',hex:'#4488FF',item:'青い宝石'},
+      {color:'グリーン',meaning:'癒し・成長',hex:'#44BB44',item:'緑の植物'},
+      {color:'ゴールド',meaning:'豊かさ・成功',hex:'#FFD700',item:'黄金'},
+      {color:'パープル',meaning:'直感・神秘',hex:'#9944CC',item:'紫水晶'},
+      {color:'ピンク',meaning:'愛・やさしさ',hex:'#FF88AA',item:'ピンクの花'},
+      {color:'ホワイト',meaning:'純潔・新しい始まり',hex:'#FFFFFF',item:'白い布'},
+      {color:'ブラック',meaning:'保護・深さ',hex:'#000000',item:'黒い石'}
+    ];
     const c = colors[Math.floor(Math.random()*colors.length)];
     result.color = c;
+    result.luckyItem = c.item;
     result.message = `あなたのラッキーカラーは「${c.color}」。意味は「${c.meaning}」。`;
-    result.advice = `今日は${c.color}のアイテムを身につけると良いでしょう。`;
+    result.advice = `今日は${c.color}のアイテムを身につけると良いでしょう。特に${c.item}をお勧めします。`;
   } else if (fortuneType === 'pastlife') {
-    const lives = ['古代エジプトの神官：知恵と神秘の力を持っていました','中世ヨーロッパの旅人：冒険と自由を愛していました','平安時代の歌人：美と表現の才能に溢れていました','古代ギリシャの哲学者：真理を追求していました','戦国時代の茶人：おもてなしの心を持っていました'];
-    result.message = `あなたの前世：${lives[Math.floor(Math.random()*lives.length)]}`;
-    result.advice = '前世の記憶は現世の才能として引き継がれています。';
+    const lives = [
+      {life:'古代エジプトの神官',description:'知恵と神秘の力を持っていました。その知識は今も活きています。'},
+      {life:'中世ヨーロッパの旅人',description:'冒険と自由を愛していました。その冒険心はあなたに受け継がれています。'},
+      {life:'平安時代の歌人',description:'美と表現の才能に溢れていました。芸術的な感受性が今も活きています。'},
+      {life:'古代ギリシャの哲学者',description:'真理を追求していました。思索の力があなたに宿っています。'},
+      {life:'戦国時代の茶人',description:'おもてなしの心を持っていました。相手を思いやる気持ちが活きています。'},
+      {life:'古代中国の医者',description:'癒しと知恵を兼ね備えていました。人を助ける力があります。'},
+      {life:'ルネッサンスの芸術家',description:'創造性と美的感覚に優れていました。創造力があなたに宿っています。'}
+    ];
+    const l = lives[Math.floor(Math.random()*lives.length)];
+    result.pastLife = l.life;
+    result.message = `あなたの前世：${l.life}。${l.description}`;
+    result.advice = '前世の記憶は現世の才能として引き継がれています。その才能を活かしてください。';
   } else if (fortuneType === 'compatibility') {
     const scores = Math.floor(Math.random()*41)+60;
-    const aspects = ['精神的な繋がり','感情の共有','価値観の一致','コミュニケーション','将来のビジョン'];
+    const aspects = [
+      '精神的な繋がり',
+      '感情の共有',
+      '価値観の一致',
+      'コミュニケーション',
+      '将来のビジョン',
+      'ユーモアの相性',
+      '生活パターンの合致',
+      '知的な相性'
+    ];
+    const adviceTexts = [
+      'お互いに成長できる関係です。信頼を深めていきましょう。',
+      '良好な相性ですが、相手を理解する努力を続けてください。',
+      '相性を高めるには、コミュニケーションが重要です。',
+      'エネルギーが合致しています。素直に付き合いましょう。',
+      'この相性を大切にすれば素晴らしい関係になります。'
+    ];
     result.score = scores;
     result.bestAspect = aspects[Math.floor(Math.random()*aspects.length)];
     result.message = `相性度：${scores}%。特に「${result.bestAspect}」の面で良い相性です。`;
-    result.advice = '相性は固定ではなく、お互いの努力で高めることができます。';
+    result.advice = adviceTexts[Math.floor(Math.random()*adviceTexts.length)];
   } else if (fortuneType === 'fairy') {
-    const fairies = [{name:'花の妖精',power:'癒しの力'},{name:'風の妖精',power:'自由の力'},{name:'水の妖精',power:'浄化の力'},{name:'光の妖精',power:'希望の力'},{name:'星の妖精',power:'導きの力'}];
+    const fairies = [
+      {name:'花の妖精',power:'癒しの力',blessing:'あなたの心を癒してくれます'},
+      {name:'風の妖精',power:'自由の力',blessing:'あなたに自由をもたらします'},
+      {name:'水の妖精',power:'浄化の力',blessing:'あなたの心を浄化します'},
+      {name:'光の妖精',power:'希望の力',blessing:'あなたに希望をもたらします'},
+      {name:'星の妖精',power:'導きの力',blessing:'あなたの道を照らします'},
+      {name:'森の妖精',power:'成長の力',blessing:'あなたの成長を助けます'},
+      {name:'月の妖精',power:'夢の力',blessing:'あなたの夢を守ります'}
+    ];
     const f = fairies[Math.floor(Math.random()*fairies.length)];
     result.fairy = f.name;
-    result.message = `あなたに寄り添う妖精は「${f.name}」。「${f.power}」であなたを助けてくれます。`;
+    result.blessing = f.blessing;
+    result.message = `あなたに寄り添う妖精は「${f.name}」。「${f.power}」であなたを助けてくれます。${f.blessing}`;
     result.advice = '妖精の存在を信じることで、その力はより強くなります。';
   } else if (fortuneType === 'moon') {
-    const phases = ['新月：新しい始まりの時','上弦の月：成長と挑戦の時','満月：成就と感謝の時','下弦の月：手放しと休息の時'];
+    const phases = [
+      {phase:'新月',meaning:'新しい始まりの時',advice:'新しい計画を立てるのに最適な時期。種を蒔くイメージで。'},
+      {phase:'上弦の月',meaning:'成長と挑戦の時',advice:'力が高まっています。大きな目標に向かいましょう。'},
+      {phase:'満月',meaning:'成就と感謝の時',advice:'成果が現れる時。周囲への感謝を忘れずに。'},
+      {phase:'下弦の月',meaning:'手放しと休息の時',advice:'不要なものを手放し、休息を取る時期です。'}
+    ];
     const p = phases[Math.floor(Math.random()*phases.length)];
-    result.message = `月のメッセージ：${p}。月の満ち欠けはあなたの人生のリズムを映しています。`;
+    result.moonPhase = p.phase;
+    result.message = `月のメッセージ：${p.phase}は${p.meaning}です。${p.advice}`;
     result.advice = '月のリズムに合わせた生活が運気を高めます。';
   } else if (fortuneType === 'planet') {
-    const planets = [{name:'水星',domain:'コミュニケーション・知性'},{name:'金星',domain:'愛・美・豊かさ'},{name:'火星',domain:'行動力・情熱'},{name:'木星',domain:'拡大・幸運'},{name:'土星',domain:'忍耐・責任'}];
+    const planets = [
+      {name:'水星',domain:'コミュニケーション・知性',blessing:'言葉の力が高まっています'},
+      {name:'金星',domain:'愛・美・豊かさ',blessing:'愛と美に恵まれる時期です'},
+      {name:'火星',domain:'行動力・情熱',blessing:'行動力が高まっています'},
+      {name:'木星',domain:'拡大・幸運',blessing:'幸運と拡大の時期です'},
+      {name:'土星',domain:'忍耐・責任',blessing:'安定と成長の時期です'},
+      {name:'天王星',domain:'革新・変化',blessing:'新しい可能性が開けます'},
+      {name:'海王星',domain:'直感・夢',blessing:'直感が研ぎ澄まされています'}
+    ];
     const p = planets[Math.floor(Math.random()*planets.length)];
     result.planet = p.name;
-    result.message = `あなたを導く惑星は「${p.name}」。支配する領域は「${p.domain}」。`;
+    result.blessing = p.blessing;
+    result.message = `あなたを導く惑星は「${p.name}」。支配する領域は「${p.domain}」。${p.blessing}`;
     result.advice = `${p.name}のエネルギーを意識して過ごしましょう。`;
   } else if (fortuneType === 'birthday') {
     const dayNum = G.playerBirthday ? new Date(G.playerBirthday).getDate() : Math.floor(Math.random()*31)+1;
-    const traits = ['リーダーシップ','協調性','創造力','堅実さ','自由な発想','愛情深さ','探究心','決断力','奉仕の心'];
-    const t = traits[dayNum % traits.length];
+    const daysData = [
+      {day:1,traits:'リーダーシップ、独創性'},
+      {day:2,traits:'協調性、優しさ'},
+      {day:3,traits:'創造力、表現力'},
+      {day:4,traits:'堅実さ、信頼性'},
+      {day:5,traits:'自由な発想、変化への対応'},
+      {day:6,traits:'愛情深さ、責任感'},
+      {day:7,traits:'探究心、精神性'},
+      {day:8,traits:'決断力、ビジネス感覚'},
+      {day:9,traits:'奉仕の心、理想主義'},
+      {day:10,traits:'完全性、指導力'}
+    ];
+    const dayData = daysData[(dayNum % 10)] || daysData[0];
+    const t = dayData.traits;
     result.dayNumber = dayNum;
+    result.traits = t;
     result.message = `${dayNum}日生まれのあなたの才能は「${t}」。この才能を活かして進みましょう。`;
-    result.advice = '生まれた日にはあなただけの特別なエネルギーが宿っています。';
+    result.advice = '生まれた日にはあなただけの特別なエネルギーが宿っています。その才能を信じてください。';
   } else if (fortuneType === 'dayofweek') {
-    const days = [{day:'月曜',planet:'月',trait:'感受性'},{day:'火曜',planet:'火星',trait:'行動力'},{day:'水曜',planet:'水星',trait:'知性'},{day:'木曜',planet:'木星',trait:'発展'},{day:'金曜',planet:'金星',trait:'愛と美'},{day:'土曜',planet:'土星',trait:'忍耐'},{day:'日曜',planet:'太陽',trait:'活力'}];
+    const days = [
+      {day:'月曜',planet:'月',trait:'感受性',advice:'感情に耳を傾け、内省の時間を大切にしましょう。'},
+      {day:'火曜',planet:'火星',trait:'行動力',advice:'積極的に行動する時期です。チャレンジしましょう。'},
+      {day:'水曜',planet:'水星',trait:'知性',advice:'学習とコミュニケーションに力を注ぎましょう。'},
+      {day:'木曜',planet:'木星',trait:'発展',advice:'大きく広がる時期です。新しいことに取り組むのに良い日。'},
+      {day:'金曜',planet:'金星',trait:'愛と美',advice:'人間関係と美の時間を大切にしましょう。'},
+      {day:'土曜',planet:'土星',trait:'忍耐',advice:'コツコツ積み重ねる時期。基盤を固めるのに最適。'},
+      {day:'日曜',planet:'太陽',trait:'活力',advice:'エネルギーが満ちています。前に進むパワーがあります。'}
+    ];
     const today = days[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
-    result.message = `今日は${today.day}日。守護星は「${today.planet}」。今日のテーマは「${today.trait}」です。`;
+    result.dayOfWeek = today.day;
+    result.message = `今日は${today.day}日。守護星は「${today.planet}」。今日のテーマは「${today.trait}」です。${today.advice}`;
     result.advice = `${today.trait}を意識して過ごすと良い一日になります。`;
   } else if (fortuneType === 'guardian') {
-    const angels = [{name:'ミカエル',role:'勇気と守護'},{name:'ガブリエル',role:'導きと啓示'},{name:'ラファエル',role:'癒しと健康'},{name:'ウリエル',role:'知恵と光'},{name:'チャミュエル',role:'愛と人間関係'}];
+    const angels = [
+      {name:'ミカエル',role:'勇気と守護',power:'強力な保護と導き',message:'あなたの勇敢さをサポートします'},
+      {name:'ガブリエル',role:'導きと啓示',power:'啓発と清浄化',message:'あなたに真実の道を示します'},
+      {name:'ラファエル',role:'癒しと健康',power:'肉体と心の癒し',message:'あなたの傷を癒します'},
+      {name:'ウリエル',role:'知恵と光',power:'知識と洞察',message:'あなたに智恵をもたらします'},
+      {name:'チャミュエル',role:'愛と人間関係',power:'愛情と調和',message:'あなたの人間関係を祝福します'},
+      {name:'サマエル',role:'勇敢さと正義',power:'正義の力',message:'あなたの正しさを支援します'},
+      {name:'カシエル',role:'祈りと希望',power:'祈りの成就',message:'あなたの願いを聞き入れます'}
+    ];
     const a = angels[Math.floor(Math.random()*angels.length)];
     result.angel = a.name;
-    result.message = `あなたの守護天使は「${a.name}」。司る力は「${a.role}」。`;
-    result.advice = `${a.name}に語りかけることで、その守護の力を受け取れます。`;
+    result.power = a.power;
+    result.angelMessage = a.message;
+    result.message = `あなたの守護天使は「${a.name}」。司る力は「${a.role}」。${a.message}`;
+    result.advice = `${a.name}に語りかけることで、その守護の力を受け取れます。毎晩の瞑想で${a.name}を思い出してください。`;
   } else {
     result.message = 'あなたの未来は明るいものです。進み続けましょう。';
     result.advice = '占いの結果はあなたの行動によって変わります。自分を信じてください。';
@@ -2624,7 +3544,7 @@ function calculateLifePath(birthday) {
 
 const FORTUNE_NAMES = {
   omikuji:'おみくじ', shichusuimei:'四柱推命', kyusei:'九星気学', hanauranai:'花占い',
-  yumeuranai:'夢占い', fusui:'風水', tarot:'タロット', numerology:'数秘術',
+  yumeuranai:'夢占い', rokusei:'六星占術', fusui:'風水', tarot:'タロット', numerology:'数秘術',
   rune:'ルーン占い', astrology:'西洋占星術', oracle:'オラクルカード', pendulum:'ペンデュラム',
   crystal:'水晶占い', animal:'動物占い', color:'色占い', pastlife:'前世占い',
   compatibility:'相性占い', fairy:'妖精占い', zodiac:'星座占い', moon:'月占い',
@@ -2716,80 +3636,198 @@ function updateParticles() {
   });
 }
 
-// ===================== AUDIO =====================
+// ===================== AUDIO - Mystical Ambient BGM =====================
 function initBGM() {
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  bgmGain = audioCtx.createGain();
-  bgmGain.gain.value = 0.08;
-  bgmGain.connect(audioCtx.destination);
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 0.12;
+    masterGain.connect(audioCtx.destination);
+  } catch(e) {}
 }
 
 function playBGM() {
-  if (bgmPlaying) return;
+  if (bgmPlaying || !audioCtx) return;
   bgmPlaying = true;
   if (audioCtx.state === 'suspended') audioCtx.resume();
-
-  const notes = [523, 587, 659, 698, 784, 698, 659, 587];
-  let ni = 0;
-
-  function playNote() {
+  
+  // Ambient pad layer - warm evolving drone
+  function playPad() {
     if (!bgmPlaying) return;
-    const o = audioCtx.createOscillator();
-    o.type = 'sine';
-    o.frequency.value = notes[ni % notes.length];
+    const now = audioCtx.currentTime;
+    const padNotes = [220, 277.18, 329.63, 440, 554.37]; // A3, C#4, E4, A4, C#5
+    const note = padNotes[Math.floor(Math.random() * padNotes.length)];
+    
+    const osc = audioCtx.createOscillator();
     const g = audioCtx.createGain();
-    g.gain.value = 0.06;
-    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
-    o.connect(g);
-    g.connect(bgmGain);
-    o.start();
-    o.stop(audioCtx.currentTime + 0.38);
-    ni++;
+    const filter = audioCtx.createBiquadFilter();
+    
+    osc.type = 'sine';
+    osc.frequency.value = note;
+    filter.type = 'lowpass';
+    filter.frequency.value = 800;
+    filter.Q.value = 1;
+    
+    osc.connect(filter);
+    filter.connect(g);
+    g.connect(masterGain);
+    
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.06, now + 2);
+    g.gain.linearRampToValueAtTime(0.04, now + 5);
+    g.gain.linearRampToValueAtTime(0, now + 8);
+    
+    osc.start(now);
+    osc.stop(now + 8);
   }
-
-  playNote();
-  bgmInterval = setInterval(playNote, 400);
+  
+  // Crystal chime layer - gentle high notes
+  function playChime() {
+    if (!bgmPlaying) return;
+    const now = audioCtx.currentTime;
+    const chimeNotes = [880, 1108.73, 1318.51, 1567.98, 1760]; // A5, C#6, E6, G6, A6
+    const note = chimeNotes[Math.floor(Math.random() * chimeNotes.length)];
+    
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    
+    osc.type = 'sine';
+    osc.frequency.value = note;
+    osc.connect(g);
+    g.connect(masterGain);
+    
+    g.gain.setValueAtTime(0.03, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 3);
+    
+    osc.start(now);
+    osc.stop(now + 3);
+  }
+  
+  // Deep bass hum - grounding tone
+  function playBass() {
+    if (!bgmPlaying) return;
+    const now = audioCtx.currentTime;
+    const bassNotes = [110, 82.41, 55]; // A2, E2, A1
+    const note = bassNotes[Math.floor(Math.random() * bassNotes.length)];
+    
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    const filter = audioCtx.createBiquadFilter();
+    
+    osc.type = 'triangle';
+    osc.frequency.value = note;
+    filter.type = 'lowpass';
+    filter.frequency.value = 200;
+    
+    osc.connect(filter);
+    filter.connect(g);
+    g.connect(masterGain);
+    
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.04, now + 3);
+    g.gain.linearRampToValueAtTime(0, now + 10);
+    
+    osc.start(now);
+    osc.stop(now + 10);
+  }
+  
+  // Mystical melody - pentatonic scale gentle notes
+  function playMelody() {
+    if (!bgmPlaying) return;
+    const now = audioCtx.currentTime;
+    // A minor pentatonic: A C D E G
+    const melodyNotes = [440, 523.25, 587.33, 659.25, 783.99, 880, 1046.5];
+    const note = melodyNotes[Math.floor(Math.random() * melodyNotes.length)];
+    
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(note, now);
+    osc.frequency.linearRampToValueAtTime(note * 1.002, now + 2); // subtle vibrato
+    
+    osc.connect(g);
+    g.connect(masterGain);
+    
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.025, now + 0.3);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 4);
+    
+    osc.start(now);
+    osc.stop(now + 4);
+  }
+  
+  // Schedule layers with different intervals for organic feel
+  playPad();
+  playBass();
+  
+  bgmTimers.push(setInterval(() => { playPad(); }, 6000 + Math.random() * 3000));
+  bgmTimers.push(setInterval(() => { playChime(); }, 3000 + Math.random() * 4000));
+  bgmTimers.push(setInterval(() => { playBass(); }, 8000 + Math.random() * 4000));
+  bgmTimers.push(setInterval(() => { playMelody(); }, 4000 + Math.random() * 3000));
+  
+  // Initial chime after short delay
+  setTimeout(() => { if (bgmPlaying) playChime(); }, 1500);
+  setTimeout(() => { if (bgmPlaying) playMelody(); }, 2500);
 }
 
 function stopBGM() {
   bgmPlaying = false;
-  if (bgmInterval) clearInterval(bgmInterval);
+  bgmTimers.forEach(t => clearInterval(t));
+  bgmTimers = [];
 }
 
 function playSE(type) {
   if (!audioCtx) return;
   if (audioCtx.state === 'suspended') audioCtx.resume();
-
+  
   try {
     const now = audioCtx.currentTime;
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    o.connect(g);
-    g.connect(audioCtx.destination);
-
+    
     if (type === 'step') {
-      o.frequency.setValueAtTime(1200, now);
-      o.frequency.exponentialRampToValueAtTime(800, now + 0.04);
-      g.gain.setValueAtTime(0.04, now);
-      g.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+      // Soft crystal step sound
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(1800, now);
+      o.frequency.exponentialRampToValueAtTime(1200, now + 0.05);
+      o.connect(g);
+      g.connect(masterGain);
+      g.gain.setValueAtTime(0.02, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
       o.start(now);
-      o.stop(now + 0.06);
+      o.stop(now + 0.08);
     } else if (type === 'enter') {
-      o.type = 'triangle';
-      o.frequency.setValueAtTime(600, now);
-      o.frequency.exponentialRampToValueAtTime(900, now + 0.3);
-      g.gain.setValueAtTime(0.06, now);
-      g.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-      o.start(now);
-      o.stop(now + 0.3);
+      // Mystical door chime - ascending arpeggio
+      const notes = [523, 659, 784, 1047];
+      notes.forEach((freq, i) => {
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = 'sine';
+        o.frequency.value = freq;
+        o.connect(g);
+        g.connect(masterGain);
+        g.gain.setValueAtTime(0.04, now + i * 0.12);
+        g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.5);
+        o.start(now + i * 0.12);
+        o.stop(now + i * 0.12 + 0.5);
+      });
     } else if (type === 'arrival') {
-      o.frequency.setValueAtTime(523, now);
-      g.gain.setValueAtTime(0.07, now);
-      g.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-      o.start(now);
-      o.stop(now + 0.4);
+      // Magical arrival - sparkle cascade
+      for (let i = 0; i < 5; i++) {
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = 'sine';
+        o.frequency.value = 800 + i * 200 + Math.random() * 100;
+        o.connect(g);
+        g.connect(masterGain);
+        g.gain.setValueAtTime(0.03, now + i * 0.08);
+        g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.6);
+        o.start(now + i * 0.08);
+        o.stop(now + i * 0.08 + 0.6);
+      }
     }
-  } catch (e) {}
+  } catch(e) {}
 }
 
 // ===================== DRAWING FUNCTIONS =====================
