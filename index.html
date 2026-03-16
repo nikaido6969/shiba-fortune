@@ -1640,45 +1640,123 @@ function drawCuteMermaid(ctx, x, y, bounceOffset, color = '#FF69B4') {
 
 function drawCuteComedyDuo(ctx, x, y, oY, type = 'tall') {
   ctx.save();
+  ctx.translate(x, y + oY);
+  ctx.strokeStyle = '#222';
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
   if (type === 'tall') {
-    ctx.translate(x - 8, y + oY);
-    ctx.fillStyle = '#1a1a1a';
-    ctx.fillRect(-8, -12, 16, 28);
-    ctx.strokeStyle = '#222';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(-8, -12, 16, 28);
-    ctx.fillStyle = '#FFD9B3';
+    // 太田先生 — tall, spiky hair, big grin
+    // Body (suit)
+    ctx.fillStyle = '#1a1a2e';
     ctx.beginPath();
-    ctx.arc(0, -18, 5, 0, Math.PI * 2);
+    ctx.ellipse(0, 8, 14, 18, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
-    ctx.fillStyle = 'white';
+    // Head
+    ctx.fillStyle = '#FFD9B3';
     ctx.beginPath();
-    ctx.arc(-2, -19, 1.5, 0, Math.PI * 2);
+    ctx.arc(0, -14, 12, 0, Math.PI * 2);
     ctx.fill();
+    ctx.stroke();
+    // Hair (spiky)
+    ctx.fillStyle = '#222';
+    ctx.beginPath();
+    ctx.moveTo(-10, -22);
+    ctx.lineTo(-6, -30);
+    ctx.lineTo(-2, -22);
+    ctx.lineTo(2, -32);
+    ctx.lineTo(6, -22);
+    ctx.lineTo(10, -28);
+    ctx.lineTo(12, -20);
+    ctx.lineTo(-12, -20);
+    ctx.closePath();
+    ctx.fill();
+    // Eyes (energetic)
     ctx.fillStyle = 'white';
     ctx.beginPath();
-    ctx.arc(2, -19, 1.5, 0, Math.PI * 2);
+    ctx.arc(-5, -16, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(5, -16, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#222';
+    ctx.beginPath();
+    ctx.arc(-4, -16, 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(6, -16, 2, 0, Math.PI * 2);
+    ctx.fill();
+    // Big grin
+    ctx.strokeStyle = '#c0392b';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, -8, 6, 0.1, Math.PI - 0.1);
+    ctx.stroke();
+    // Tie
+    ctx.fillStyle = '#e74c3c';
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(-3, 6);
+    ctx.lineTo(0, 12);
+    ctx.lineTo(3, 6);
+    ctx.closePath();
     ctx.fill();
   } else {
-    ctx.translate(x + 8, y + oY);
-    ctx.fillStyle = '#2a2a2a';
-    ctx.fillRect(-8, -10, 16, 26);
-    ctx.strokeStyle = '#222';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(-8, -10, 16, 26);
-    ctx.fillStyle = '#FFD9B3';
+    // 田中先生 — shorter, round, glasses
+    // Body (suit)
+    ctx.fillStyle = '#2c3e50';
     ctx.beginPath();
-    ctx.arc(0, -15, 4.5, 0, Math.PI * 2);
+    ctx.ellipse(0, 6, 13, 16, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
-    ctx.fillStyle = 'white';
+    // Head (rounder)
+    ctx.fillStyle = '#FFD9B3';
     ctx.beginPath();
-    ctx.arc(-2, -16, 1.2, 0, Math.PI * 2);
+    ctx.arc(0, -12, 11, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = 'white';
+    ctx.stroke();
+    // Hair (neat, short)
+    ctx.fillStyle = '#333';
     ctx.beginPath();
-    ctx.arc(2, -16, 1.2, 0, Math.PI * 2);
+    ctx.arc(0, -18, 10, Math.PI, 0);
+    ctx.fill();
+    // Glasses
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(-5, -13, 4, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(5, -13, 4, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(-1, -13);
+    ctx.lineTo(1, -13);
+    ctx.stroke();
+    // Eyes behind glasses
+    ctx.fillStyle = '#222';
+    ctx.beginPath();
+    ctx.arc(-5, -13, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(5, -13, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+    // Smile
+    ctx.strokeStyle = '#c0392b';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(0, -7, 4, 0.2, Math.PI - 0.2);
+    ctx.stroke();
+    // Tie
+    ctx.fillStyle = '#3498db';
+    ctx.beginPath();
+    ctx.moveTo(0, -2);
+    ctx.lineTo(-2.5, 4);
+    ctx.lineTo(0, 10);
+    ctx.lineTo(2.5, 4);
+    ctx.closePath();
     ctx.fill();
   }
   ctx.restore();
@@ -2033,8 +2111,8 @@ function startCanvas() {
 
   // Helper: draw a kawaii building
   function drawBuilding(bx, by, w, h, name, areaIdx, bIdx) {
-    const sc = Math.min(w, h) / 400; // scale factor
-    const bW = 56 * sc, bH = 48 * sc;
+    const sc = Math.min(w, h) / 320; // scale factor (larger buildings)
+    const bW = 60 * sc, bH = 52 * sc;
     const roofH = 24 * sc;
     const theme = BLDG_THEMES[areaIdx] || BLDG_THEMES[0];
     const bColor = theme[bIdx % theme.length];
@@ -2287,7 +2365,7 @@ function startCanvas() {
     }
 
     // === NPCs ===
-    const sc = Math.min(w, h) / 400;
+    const sc = Math.min(w, h) / 320;
     const npcList = NPC_DATA.filter(n => n.area === areaIdx);
     npcList.forEach((npc, i) => {
       const xPos = w * (0.15 + i * 0.22);
